@@ -4,9 +4,9 @@
 
 Python backtesting for A-share research, with an optional Numba execution backend.
 
-DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。首个交付目标是数据、策略、执行、账户和结果分析基本完整的日线回测引擎，见[开发目标](docs/roadmap.md)。
+DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。0.1.0 提供数据、策略、执行、账户和结果分析的日线研究流程，范围与逐项证据见[首版验收](docs/release-0.1.0.md)。
 
-目前源码已提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)和[完整引擎性能测量](docs/performance.md)，发布候选验收仍在推进。原型单标的预算模型保留在 `doribt.experimental` 中。
+本版本提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)和[完整引擎性能测量](docs/performance.md)。原型单标的预算模型保留在 `doribt.experimental` 中。
 
 数据准备入口 `MarketData` 支持带证券标识的 CSV／字典行、历史规则和公司行动验证，见[数据契约](docs/data-contract.md)。完整执行时间和失败语义见[执行模型](docs/execution-model.md)。
 
@@ -47,7 +47,18 @@ uv sync --extra numba
 uv run --extra numba python examples/strategies.py --backend numba
 ```
 
-首次 Numba 调用需要编译，后续调用和缓存行为取决于环境。项目尚未发布 PyPI 安装包，以上命令从源码安装。
+首次 Numba 调用需要编译，后续调用和缓存行为取决于环境；当前完整基线中它没有明显提速，默认使用 Python。版本记录见 [CHANGELOG](CHANGELOG.md)，发布产物见 [GitHub Releases](https://github.com/DorisLab/DoriBT/releases)。项目尚未发布 PyPI 安装包，以上命令从源码安装。
+
+使用发布的 wheel 时，先从 Release 下载并按附带的 `SHA256SUMS` 核对，再在 Python 3.13 虚拟环境中安装；下载目录下例如：
+
+```sh
+uv venv --python 3.13
+uv pip install ./doribt-0.1.0-py3-none-any.whl
+# 可选图表与 Numba 后端：
+uv pip install "./doribt-0.1.0-py3-none-any.whl[numba,plot]"
+```
+
+wheel 包含引擎；完整文档、样例、测试和锁文件在源码包中。生产研究自行保存数据与依赖环境，发布包不含真实行情。
 
 ## 最小调用
 

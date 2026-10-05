@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "doribt"
-version = "0.1.0a1"
+version = "0.1.0"
 description = "Daily cash-account backtesting for A-share research"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [{name = "DoriBT contributors"}]
 dependencies = ["numpy>=2.0,<3"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3.13",
     "Topic :: Office/Business :: Financial :: Investment",
 ]

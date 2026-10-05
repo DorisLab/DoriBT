@@ -4,7 +4,7 @@
 
 提交问题时，请提供 Python／依赖版本、执行后端、最小输入、预期与实际结果。请使用合成数据或确认可公开的数据；不要上传账号、令牌、私人策略和无权再分发的行情。
 
-修改前阅读 [README](README.md)、[当前模型](docs/model.md)、[API 设计](docs/api-design.md)和[开发目标](docs/roadmap.md)。行为改动同时更新对应契约与有独立预期的测试；不能只以两个相似实现结果相同证明规则正确。新增规则请附交易所等一手来源及适用日期。
+修改前阅读 [README](README.md)、[执行模型](docs/execution-model.md)、[API 设计](docs/api-design.md)和[开发目标](docs/roadmap.md)。行为改动同时更新对应契约与有独立预期的测试；不能只以两个相似实现结果相同证明规则正确。新增规则请附交易所等一手来源及适用日期。
 
 ```sh
 uv sync --locked --extra numba
