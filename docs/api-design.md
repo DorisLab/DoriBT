@@ -6,6 +6,8 @@
 
 结果直接提供 `nav`、`returns`、`drawdown`、`stats(benchmark=..., periods_per_year=..., risk_free_rate=...)`、`plot(benchmark=...)`、`export(path, ...)`。不要求用户先创建报告管理器、把结果重新变成内核矩阵，或再传一遍初始资金。`run_info.to_dict()` 提供本次运行的来源快照；图表依赖延迟加载。完整口径与导出结构见[结果与研究记录](results.md)。
 
+研究历史默认原始价，`ctx.history(symbol, adjustment="asof")` 可按当前决策时点复权。带来源的单次事件因子由数据准备层通过 `PriceAdjustment` 放入 `MarketData.adjustments`，策略不拼复权表，也不将最新整段前复权数据用于所有历史决策。成交与账户永远读取原始价；权益分配不会因研究视图再计一次。
+
 ## 从用户的研究过程出发
 
 正常路径为：准备有日期和证券标识的数据 → 编写策略 → 配置账户与执行假设 → 运行 → 分析和导出结果。默认使用者不需要知道内核数组的轴顺序、原因码整数值或 Numba 回调签名。

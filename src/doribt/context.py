@@ -9,6 +9,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from .account import Position
+from .adjustments import adjust
 from .data import MarketData
 from .intents import IntentBook
 from .orders import IntentRecord, Order
@@ -50,16 +51,20 @@ class Context:
         self._active = True
 
     def history(
-        self, symbol: str, *, bars: int | None = None, field: str = "close"
+        self, symbol: str, *, bars: int | None = None, field: str = "close", adjustment: str = "raw"
     ) -> NDArray[np.float64]:
         self._symbol(symbol)
         if field not in self._history:
             raise ValueError("history field must be open, high, low or close")
+        if adjustment not in {"raw", "asof"}:
+            raise ValueError("adjustment must be 'raw' or 'asof'")
         if bars is not None:
             bars = integer(bars, 1, "bars", 1, 1_000_000_000)
         end = self._index + 1
         start = max(0, end - bars) if bars is not None else 0
         values = self._history[field][start:end, self.symbols.index(symbol)].copy()
+        if adjustment == "asof":
+            adjust(self._data, values.reshape(-1, 1), start=start, end=end, symbols=(symbol,))
         values.setflags(write=False)
         return values
 

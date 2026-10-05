@@ -162,6 +162,7 @@ def run_info(
             "actions": actions,
             "rules_sha256": digest(rules),
             "actions_sha256": digest(actions),
+            "adjustments": [asdict(item) for item in data.adjustments],
         },
         "versions": _versions(backend),
         "engine_sha256": digest(code),

@@ -1,6 +1,7 @@
 """DoriBT: A-share backtesting with explicit data, rules and accounting."""
 
 from .actions import CorporateAction
+from .adjustments import PriceAdjustment
 from .benchmark import Benchmark
 from .china import china_rules
 from .context import Context
@@ -25,6 +26,7 @@ __all__ = [
     "Costs",
     "WeightTargets",
     "CorporateAction",
+    "PriceAdjustment",
     "china_rules",
     "CorporateEvent",
     "EntitlementRecord",

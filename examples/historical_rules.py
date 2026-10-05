@@ -5,8 +5,17 @@ the market's dated rules are historical; OHLC values below are deliberately made
 """
 
 import argparse
+from decimal import Decimal
 
-from doribt import Backtest, Context, CorporateAction, Instrument, MarketData, china_rules
+from doribt import (
+    Backtest,
+    Context,
+    CorporateAction,
+    Instrument,
+    MarketData,
+    PriceAdjustment,
+    china_rules,
+)
 
 SOURCE = (
     "https://disc.static.szse.cn/disc/disk03/finalpage/2022-06-02/"
@@ -55,6 +64,14 @@ def sample() -> MarketData:
         instruments=[Instrument(symbol=SYMBOL, kind="stock")],
         rules=china_rules({SYMBOL: "szse_chinext"}, start=dates[0], end=dates[-1]),
         actions=[action],
+        adjustments=[
+            PriceAdjustment(
+                action_id=action.action_id,
+                factor=Decimal(10) / Decimal("18.5"),
+                known_on="2022-06-09",
+                source="synthetic reference ratio: (18.5 - .5) / (1 + .8) / 18.5",
+            )
+        ],
         source="artificial OHLC, volume and bounds; sourced issuer action and market rules",
     )
 
@@ -70,7 +87,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=["python", "numba"], default="python")
     args = parser.parse_args()
-    result = Backtest(sample(), initial_cash=20000).run(sell_on_ex_date, backend=args.backend)
+    data = sample()
+    result = Backtest(data, initial_cash=20000).run(sell_on_ex_date, backend=args.backend)
     print("ARTIFICIAL PRICES; published action facts. NOT an actual historical return.")
     for fill in result.fills:
         print(
@@ -84,6 +102,8 @@ def main() -> None:
     print("Dividend:", result.entitlements[0].cash_units / 10000)
     print("Tax:", result.stats()["dividend_tax"])
     print("Final cash/equity:", result.cash[-1], result.equity[-1])
+    print("Raw closes:", data.prices("close")[:, 0])
+    print("As-of closes:", data.prices("close", adjustment="asof", as_of="2022-06-10")[:, 0])
 
 
 if __name__ == "__main__":
