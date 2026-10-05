@@ -79,7 +79,7 @@ def moving_average(ctx: Context) -> None:
 
 def rotation(ctx: Context) -> None:
     # Five completed sessions between decisions, not a claim of natural-week ends.
-    count = len(ctx.history("ALPHA"))
+    count = ctx.bar_index + 1
     if count < 20 or count % 5:
         return
     momentum = {}

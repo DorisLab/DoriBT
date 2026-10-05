@@ -32,9 +32,11 @@ dev = [
     "matplotlib>=3.10,<4",
     "mypy>=1.15,<2",
     "pip-audit>=2.9,<3",
+    "psutil>=7,<8",
     "pytest>=8,<10",
     "pytest-cov>=6,<8",
     "ruff>=0.11,<1",
+    "types-psutil>=7.2.2.20260906",
 ]
 
 [tool.pytest.ini_options]
