@@ -1,8 +1,10 @@
 # API 的使用路径与职责
 
-状态：正式数据入口、共享账户、收盘函数策略、预计算目标和分红送转记账已实现；完整分析和复现产物仍待后续实现。本文不冻结兼容版本。
+状态：正式数据入口、共享账户、收盘函数策略、预计算目标、分红送转、指标／图表及标准导出已实现；真实行情和性能验收仍在推进。本文不冻结兼容版本。
 
-正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动作为 `MarketData.actions` 的事实输入，策略无需手工派息、拆股或扣税；结果保留应收、待入账股份、权益事件和税务批次，见[权益模型](corporate-actions.md)。不支持的行动影响账户时抛出 `UnsupportedCorporateAction`。
+正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, parameters=..., backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。`parameters` 是实际传给回调的关键字参数，同时以初始快照记入结果；不是仅供展示的附加标签。无参数函数仍可以直接传入。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动作为 `MarketData.actions` 的事实输入，策略无需手工派息、拆股或扣税；结果保留应收、待入账股份、权益事件和税务批次，见[权益模型](corporate-actions.md)。不支持的行动影响账户时抛出 `UnsupportedCorporateAction`。
+
+结果直接提供 `nav`、`returns`、`drawdown`、`stats(benchmark=..., periods_per_year=..., risk_free_rate=...)`、`plot(benchmark=...)`、`export(path, ...)`。不要求用户先创建报告管理器、把结果重新变成内核矩阵，或再传一遍初始资金。`run_info.to_dict()` 提供本次运行的来源快照；图表依赖延迟加载。完整口径与导出结构见[结果与研究记录](results.md)。
 
 ## 从用户的研究过程出发
 

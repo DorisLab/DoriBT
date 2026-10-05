@@ -1,4 +1,4 @@
-"""Audit the lockfile's distributable dependencies, including the Numba extra."""
+"""Audit the lockfile's distributable dependencies, including all extras."""
 
 import subprocess
 import tempfile
@@ -16,8 +16,7 @@ def main() -> None:
                 "export",
                 "--locked",
                 "--no-dev",
-                "--extra",
-                "numba",
+                "--all-extras",
                 "--no-emit-project",
                 "--output-file",
                 str(requirements),

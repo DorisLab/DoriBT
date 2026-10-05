@@ -27,6 +27,7 @@ from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
 backend = sys.argv[1]
 assert 'numba' not in sys.modules, 'Importing DoriBT must not import Numba'
+assert 'matplotlib' not in sys.modules, 'Importing DoriBT must not import plotting dependencies'
 installed = distribution('doribt')
 assert Path(doribt.__file__).samefile(installed.locate_file('doribt/__init__.py'))
 origin = json.loads(installed.read_text('direct_url.json'))
@@ -68,7 +69,23 @@ assert formal.tax_payments == ()
 historical = china_rules({'A': 'sse_star'}, start='2025-01-02', end='2025-01-06')
 assert historical.periods[0].rule.sell_minimum == 200
 assert historical.periods[0].rule.order_maximum == 100000
+assert formal.run_info.to_dict()['data']['fingerprint'] == data.fingerprint
+output = formal.export(Path.cwd() / 'report', periods_per_year=252, plot=backend == 'numba')
+manifest = json.loads((output / 'manifest.json').read_text(encoding='utf-8'))
+assert manifest['schema'] == 'doribt.export/1'
+assert json.loads((output / 'stats.json').read_text())['fill_count'] == 2
+for name, facts in manifest['files'].items():
+    assert hashlib.sha256((output / name).read_bytes()).hexdigest() == facts['sha256']
+if backend == 'numba':
+    assert (output / 'equity.png').stat().st_size > 1000
 if backend == 'python':
+    assert importlib.util.find_spec('matplotlib') is None
+    try:
+        formal.plot()
+    except ImportError as error:
+        assert 'doribt[plot]' in str(error)
+    else:
+        raise AssertionError('Missing plotting dependency must be explicit')
     try:
         Backtest(b).run(CloseSignals(sessions=b.sessions, hold=[True]*3), backend='numba')
     except ImportError as error:
@@ -102,14 +119,14 @@ def check_wheel(wheel: Path, backend: str) -> None:
         requirements = Path(temporary) / "requirements.txt"
         export = ["uv", "export", "--locked", "--no-dev", "--no-emit-project"]
         if backend == "numba":
-            export += ["--extra", "numba"]
+            export += ["--extra", "numba", "--extra", "plot"]
         subprocess.run(
             [*export, "--output-file", str(requirements)],
             cwd=ROOT,
             check=True,
             stdout=subprocess.DEVNULL,
         )
-        package = str(wheel) + ("[numba]" if backend == "numba" else "")
+        package = str(wheel) + ("[numba,plot]" if backend == "numba" else "")
         subprocess.run(
             [
                 "uv",

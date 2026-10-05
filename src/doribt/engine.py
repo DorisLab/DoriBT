@@ -1,6 +1,6 @@
 """Daily lifecycle orchestrator. Strategy callbacks never run inside JIT."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 import numpy as np
 
@@ -12,6 +12,7 @@ from .data import MarketData
 from .execution import BUY_STEP, MINIMUM, ORDER_MAXIMUM, SELL_STEP, IntArray, executor
 from .intents import IntentBook
 from .orders import REASONS, Order
+from .provenance import RunInfo, bind_strategy, parameters_copy, run_info
 from .result import BacktestResult
 from .rights import RightsBook
 from .targets import WeightTargets
@@ -39,12 +40,19 @@ class Backtest:
         return self._initial_cash / 10_000
 
     def run(
-        self, strategy: Callable[[Context], None], *, backend: str = "python"
+        self,
+        strategy: Callable[..., None],
+        *,
+        parameters: Mapping[str, object] | None = None,
+        backend: str = "python",
     ) -> BacktestResult:
         if isinstance(strategy, WeightTargets):
             strategy.validate(self.data)
+        values = parameters_copy(parameters)
+        callback = bind_strategy(strategy, values)
         run = _Run(self.data, self._initial_cash, self.costs, backend)
-        return run.execute(strategy)
+        info = run_info(self.data, self._initial_cash, self.costs, strategy, values, backend)
+        return run.execute(callback, info)
 
 
 class _Run:
@@ -67,7 +75,7 @@ class _Run:
             np.zeros(days, dtype=np.int64),
         )
 
-    def execute(self, strategy: Callable[[Context], None]) -> BacktestResult:
+    def execute(self, strategy: Callable[[Context], None], info: RunInfo) -> BacktestResult:
         for index, session in enumerate(self.data.sessions):
             self._open(index)
             self._close(index)
@@ -114,6 +122,7 @@ class _Run:
             self.pending_shares,
             self.receivable,
             self.tax_payable,
+            self.compiled.closes,
         ):
             array.setflags(write=False)
         return BacktestResult(
@@ -136,6 +145,8 @@ class _Run:
             self.rights.tax.records(),
             self.rights.tax.lot_records(),
             tuple(self.rights.tax.payments),
+            self.compiled.closes,
+            info,
         )
 
     def _open(self, index: int) -> None:
