@@ -9,7 +9,7 @@ from .compiled import compile_data
 from .context import Context, account_view
 from .costs import Costs
 from .data import MarketData
-from .execution import IntArray, executor
+from .execution import BUY_STEP, MINIMUM, ORDER_MAXIMUM, SELL_STEP, IntArray, executor
 from .intents import IntentBook
 from .orders import REASONS, Order
 from .result import BacktestResult
@@ -149,7 +149,9 @@ class _Run:
             if intent := self.book.pending.get(symbol):
                 requests[column] = intent.quantity
                 if intent.kind == "target":
-                    requests[column] -= positions[column]
+                    requests[column] = self._target_request(
+                        index, column, intent.quantity - int(positions[column])
+                    )
                 if not requests[column]:
                     intent.finish(self.data.sessions[index], "fulfilled")
                     del self.book.pending[symbol]
@@ -188,7 +190,11 @@ class _Run:
         )
         self.orders.append(order)
         self.account.apply(order, index, int(self.compiled.settlement[index, column]))
-        if fill == requested:
+        completed = intent.kind == "order" or (
+            int(self.account.quantities()[column] + self.rights.pending_shares()[column])
+            == intent.quantity
+        )
+        if fill == requested and completed:
             intent.finish(session, "fulfilled")
         elif order.reason.value == "invalid_quantity":
             intent.finish(session, "rejected", order.reason.value)
@@ -196,6 +202,22 @@ class _Run:
             intent.finish(session, "expired", order.reason.value)
         if intent.status != "active":
             del self.book.pending[symbol]
+
+    def _target_request(self, index: int, column: int, quantity: int) -> int:
+        rule = self.compiled.market[index, column]
+        maximum = int(rule[ORDER_MAXIMUM])
+        # Inactive rows have no rule; retain the request for an explicit market rejection.
+        if not maximum or abs(quantity) <= maximum:
+            return quantity
+        if quantity < 0:
+            return -(maximum // int(rule[SELL_STEP]) * int(rule[SELL_STEP]))
+        minimum, step = int(rule[MINIMUM]), int(rule[BUY_STEP])
+        size = minimum + (maximum - minimum) // step * step
+        remainder = quantity - size
+        if 0 < remainder < minimum:
+            size -= (minimum - remainder + step - 1) // step * step
+        # Preserve the original invalid request if no legal first child fits.
+        return size if size >= minimum else quantity
 
     def _close(self, index: int) -> None:
         self.rights.close(index, self.account)

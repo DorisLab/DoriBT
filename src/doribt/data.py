@@ -59,6 +59,14 @@ class MarketData:
         )
         self._check_lifecycle()
         self._check_actions()
+        self._check_rule_kinds()
+
+    def _check_rule_kinds(self) -> None:
+        kinds = {instrument.symbol: instrument.kind for instrument in self.instruments}
+        for period in self.rules.periods:
+            expected = period.rule.instrument_kind
+            if expected is not None and period.symbol in kinds and kinds[period.symbol] != expected:
+                raise ValueError(f"rule instrument kind conflicts with {period.symbol}")
 
     def _check_missing(self, seen: set[tuple[date, str]]) -> None:
         missing = len(self.sessions) * len(self.instruments) - len(seen)

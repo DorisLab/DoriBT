@@ -39,6 +39,7 @@ def main() -> None:
     run(sys.executable, "examples/market_data.py")
     run(sys.executable, "examples/strategies.py", "--backend", args.backend)
     run(sys.executable, "examples/dividends.py", "--backend", args.backend)
+    run(sys.executable, "examples/historical_rules.py", "--backend", args.backend)
     with tempfile.TemporaryDirectory(prefix="doribt-build-") as temporary:
         run("uv", "build", "--out-dir", temporary)
         wheels = list(Path(temporary).glob("*.whl"))

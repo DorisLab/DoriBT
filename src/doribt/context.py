@@ -133,6 +133,8 @@ class Context:
             )
             return current + extra
         reduction = (current - desired) // rule.sell_step * rule.sell_step
+        if reduction < rule.sell_minimum:
+            reduction = 0
         return current - reduction
 
     def _symbol(self, symbol: str) -> None:

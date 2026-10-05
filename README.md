@@ -6,7 +6,7 @@ Python backtesting for A-share research, with an optional Numba execution backen
 
 DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。首个交付目标是数据、策略、执行、账户和结果分析基本完整的日线回测引擎，见[开发目标](docs/roadmap.md)。
 
-目前源码已提供多标的共享账户、收盘策略／目标权重、次日开盘执行，以及现金分红、送转和普通个人股息税。完整历史市场规则预设及分析交付仍未完成，尚未达到首版目标。原型单标的预算模型保留在 `doribt.experimental` 中。
+目前源码已提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。完整分析交付与真实行情验收仍未完成，尚未达到首版目标。原型单标的预算模型保留在 `doribt.experimental` 中。
 
 数据准备入口 `MarketData` 支持带证券标识的 CSV／字典行、历史规则和公司行动验证，见[数据契约](docs/data-contract.md)。完整执行时间和失败语义见[执行模型](docs/execution-model.md)。
 
@@ -20,7 +20,7 @@ DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现�
 - 分红登记、应收与到账，送转股份入账与可卖日，独立税务批次、税款计提和扣收。
 - Python 和可选 Numba 执行同一开盘逻辑；独立 Decimal 账本检查共享资金、费用和交收。
 
-当前要求数据提供层给出原始价格、真实交易日及有来源的历史规则，引擎自动处理执行延迟。它不下载行情、不根据证券代码猜规则，也不提供真实交易接口。[权益与税务模型](docs/corporate-actions.md)只覆盖已明确的普通个人政策和整数股份分配；影响账户的配股、合并等未知行动明确失败。市场预设和平台适配器尚未实现。
+当前要求数据提供层给出原始价格、真实交易日、每日状态／价格边界及有来源的历史规则。`china_rules` 提供显式分类的数量、交收和历史税费，见[市场支持矩阵](docs/china-market.md)。引擎不下载行情、不根据证券代码猜规则，也不提供真实交易接口。[权益与税务模型](docs/corporate-actions.md)只覆盖已明确的普通个人政策和整数股份分配；影响账户的配股、合并等未知行动明确失败。平台适配器尚未实现。
 
 ## 快速运行
 
@@ -34,6 +34,7 @@ cd DoriBT
 uv sync
 uv run python examples/strategies.py
 uv run python examples/dividends.py
+uv run python examples/historical_rules.py
 ```
 
 使用 Numba：

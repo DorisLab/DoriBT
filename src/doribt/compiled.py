@@ -19,7 +19,7 @@ class CompiledData:
 
 def compile_data(data: MarketData) -> CompiledData:
     shape = (len(data.sessions), len(data.symbols))
-    market = np.zeros((*shape, 12), dtype=np.int64)
+    market = np.zeros((*shape, 14), dtype=np.int64)
     closes = np.zeros(shape, dtype=np.int64)
     settlement = np.zeros(shape, dtype=np.int64)
     for offset, bar in enumerate(data.bars):
@@ -43,6 +43,8 @@ def compile_data(data: MarketData) -> CompiledData:
             ratio(rule.transfer_fee),
             bar.volume,
             int(rule.allow_odd_lot_liquidation),
+            rule.sell_minimum,
+            rule.order_maximum,
         )
         settlement[row, column] = rule.settlement_days
     return CompiledData(market, closes, settlement)

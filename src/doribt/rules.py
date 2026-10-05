@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 from types import MappingProxyType
+from typing import Literal
 
 from .validation import MAX_PRICE, DateLike, Number, day, integer, ratio
 
@@ -20,13 +21,20 @@ class TradingRule:
     stamp_duty_sell: Number
     transfer_fee: Number
     allow_odd_lot_liquidation: bool = True
+    sell_minimum: int = 1
+    order_maximum: int = 1_000_000_000
+    instrument_kind: Literal["stock", "etf"] | None = None
 
     def __post_init__(self) -> None:
         tick = integer(self.price_tick, 10_000, "price_tick", 1, MAX_PRICE)
         object.__setattr__(self, "price_tick", Decimal(tick) / 10_000)
-        for name in ("buy_minimum", "buy_step", "sell_step"):
+        for name in ("buy_minimum", "buy_step", "sell_step", "sell_minimum", "order_maximum"):
             value = integer(getattr(self, name), 1, name, 1, 1_000_000_000)
             object.__setattr__(self, name, value)
+        if self.order_maximum < max(self.buy_minimum, self.sell_minimum, self.sell_step):
+            raise ValueError("order maximum must cover both buy and sell minima")
+        if self.instrument_kind not in (None, "stock", "etf"):
+            raise ValueError("rule instrument kind must be stock or etf")
         settlement = integer(self.settlement_days, 1, "settlement_days", 0, 10)
         object.__setattr__(self, "settlement_days", settlement)
         for name in ("stamp_duty_sell", "transfer_fee"):

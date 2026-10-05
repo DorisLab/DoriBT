@@ -20,7 +20,8 @@ from pathlib import Path
 import numpy as np
 import doribt
 from doribt import (
-    CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets
+    CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
+    china_rules
 )
 from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
@@ -64,6 +65,9 @@ assert formal.dividend_receivable[-1] == 900
 assert formal.tax_payable[-1] == 180
 assert formal.taxes[0].amount_units == 1_800_000
 assert formal.tax_payments == ()
+historical = china_rules({'A': 'sse_star'}, start='2025-01-02', end='2025-01-06')
+assert historical.periods[0].rule.sell_minimum == 200
+assert historical.periods[0].rule.order_maximum == 100000
 if backend == 'python':
     try:
         Backtest(b).run(CloseSignals(sessions=b.sessions, hold=[True]*3), backend='numba')
