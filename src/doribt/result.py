@@ -3,14 +3,22 @@
 from dataclasses import dataclass
 from datetime import date
 from functools import cached_property
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import NDArray
 
+from .analysis import Statistics, drawdown, returns, statistics
+from .benchmark import Benchmark
 from .execution import IntArray
 from .orders import Fill, IntentRecord, Order
+from .provenance import RunInfo
 from .rights import CorporateEvent, EntitlementRecord
 from .taxes import TAX_POLICY, TaxLotRecord, TaxPayment, TaxRecord
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 
 @dataclass(frozen=True)
@@ -34,6 +42,8 @@ class BacktestResult:
     taxes: tuple[TaxRecord, ...]
     tax_lots: tuple[TaxLotRecord, ...]
     tax_payments: tuple[TaxPayment, ...]
+    close_units: IntArray
+    run_info: RunInfo
     tax_policy: str = TAX_POLICY
 
     @property
@@ -63,15 +73,57 @@ class BacktestResult:
 
     @property
     def max_drawdown(self) -> float:
-        curve = np.r_[self.initial_cash, self.equity]
-        return float(np.max(1 - curve / np.maximum.accumulate(curve)))
+        return float(np.max(self.drawdown))
 
-    def stats(self) -> dict[str, float | int]:
-        return {
-            "total_return": self.total_return,
-            "max_drawdown": self.max_drawdown,
-            "final_equity": float(self.equity[-1]),
-            "fill_count": len(self.fills),
-            "total_fees": sum(fill.fees for fill in self.fills),
-            "dividend_tax": sum(tax.amount_units for tax in self.taxes) / 10_000,
-        }
+    @property
+    def nav(self) -> NDArray[np.float64]:
+        return self.equity / self.initial_cash
+
+    @property
+    def returns(self) -> NDArray[np.float64]:
+        return returns(self.equity)
+
+    @property
+    def drawdown(self) -> NDArray[np.float64]:
+        return drawdown(self.equity, self.initial_cash)
+
+    def stats(
+        self,
+        *,
+        benchmark: Benchmark | None = None,
+        periods_per_year: float | None = None,
+        risk_free_rate: float = 0.0,
+    ) -> Statistics:
+        return statistics(
+            self,
+            benchmark=benchmark,
+            periods_per_year=periods_per_year,
+            risk_free_rate=risk_free_rate,
+        )
+
+    def plot(self, *, benchmark: Benchmark | None = None) -> "Figure":
+        """Return a Matplotlib Figure without opening a GUI or changing its backend."""
+        from .plotting import plot
+
+        return plot(self, benchmark)
+
+    def export(
+        self,
+        path: str | Path,
+        *,
+        benchmark: Benchmark | None = None,
+        periods_per_year: float | None = None,
+        risk_free_rate: float = 0.0,
+        plot: bool = False,
+    ) -> Path:
+        """Publish JSON/CSV and optional PNG to a new directory; never overwrite."""
+        from .export import export
+
+        return export(
+            self,
+            Path(path),
+            benchmark=benchmark,
+            periods_per_year=periods_per_year,
+            risk_free_rate=risk_free_rate,
+            include_plot=plot,
+        )

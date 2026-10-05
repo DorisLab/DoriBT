@@ -21,7 +21,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=["python", "numba"], default="python")
     parser.add_argument(
-        "--audit", action="store_true", help="Audit locked runtime + Numba dependencies online"
+        "--audit",
+        action="store_true",
+        help="Audit locked runtime + all optional dependencies online",
     )
     args = parser.parse_args()
     if args.backend == "numba" and importlib.util.find_spec("numba") is None:
@@ -40,6 +42,7 @@ def main() -> None:
     run(sys.executable, "examples/strategies.py", "--backend", args.backend)
     run(sys.executable, "examples/dividends.py", "--backend", args.backend)
     run(sys.executable, "examples/historical_rules.py", "--backend", args.backend)
+    run(sys.executable, "examples/research.py", "--backend", args.backend, "--plot")
     with tempfile.TemporaryDirectory(prefix="doribt-build-") as temporary:
         run("uv", "build", "--out-dir", temporary)
         wheels = list(Path(temporary).glob("*.whl"))
