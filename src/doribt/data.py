@@ -12,6 +12,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from .actions import CorporateAction
+from .adjustments import PriceAdjustment, adjust, view_end
 from .bars import Bar, calendar_days, parse_bar, validate_bar
 from .instruments import Instrument, TradingStatus
 from .rules import RuleBook
@@ -32,12 +33,16 @@ class MarketData:
     rules: RuleBook
     source: str
     actions: tuple[CorporateAction, ...] = ()
+    adjustments: tuple[PriceAdjustment, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "sessions", calendar_days(list(self.sessions)))
         object.__setattr__(self, "instruments", tuple(self.instruments))
         object.__setattr__(self, "bars", tuple(self.bars))
         object.__setattr__(self, "actions", tuple(sorted(self.actions, key=lambda a: a.action_id)))
+        object.__setattr__(
+            self, "adjustments", tuple(sorted(self.adjustments, key=lambda a: a.action_id))
+        )
         if not self.source.strip():
             raise ValueError("data source description is required")
         symbols = self.symbols
@@ -60,6 +65,7 @@ class MarketData:
         self._check_lifecycle()
         self._check_actions()
         self._check_rule_kinds()
+        self._check_adjustments()
 
     def _check_rule_kinds(self) -> None:
         kinds = {instrument.symbol: instrument.kind for instrument in self.instruments}
@@ -94,10 +100,29 @@ class MarketData:
         ids = [action.action_id for action in self.actions]
         if len(ids) != len(set(ids)):
             raise ValueError("duplicate corporate-action id")
+        event_dates = [(action.symbol, day(action.ex_date)) for action in self.actions]
+        if len(event_dates) != len(set(event_dates)):
+            raise ValueError(
+                "multiple corporate actions for one symbol/ex_date require a consolidated event"
+            )
         for action in self.actions:
             if action.symbol not in self.symbols:
                 raise ValueError(f"unknown corporate-action symbol: {action.symbol}")
             self._check_action_calendar(action)
+
+    def _check_adjustments(self) -> None:
+        ids = [item.action_id for item in self.adjustments]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate price adjustment")
+        actions = {item.action_id: item for item in self.actions}
+        for item in self.adjustments:
+            action = actions.get(item.action_id)
+            if action is None:
+                raise ValueError(f"price adjustment refers to unknown action: {item.action_id}")
+            if day(item.known_on) < day(action.announced):
+                raise ValueError(
+                    f"price adjustment cannot be known before announcement: {item.action_id}"
+                )
 
     def _check_action_calendar(self, action: CorporateAction) -> None:
         for name in ("record_date", "ex_date", "share_credit_date", "share_listing_date"):
@@ -122,6 +147,7 @@ class MarketData:
         rules: RuleBook,
         source: str,
         actions: Sequence[CorporateAction] = (),
+        adjustments: Sequence[PriceAdjustment] = (),
     ) -> "MarketData":
         return cls(
             calendar_days(list(calendar)),
@@ -130,6 +156,7 @@ class MarketData:
             rules,
             source,
             tuple(actions),
+            tuple(adjustments),
         )
 
     @classmethod
@@ -142,6 +169,7 @@ class MarketData:
         rules: RuleBook,
         source: str,
         actions: Sequence[CorporateAction] = (),
+        adjustments: Sequence[PriceAdjustment] = (),
     ) -> "MarketData":
         with Path(path).open(encoding="utf-8-sig", newline="") as stream:
             return cls.from_records(
@@ -151,16 +179,21 @@ class MarketData:
                 rules=rules,
                 source=source,
                 actions=actions,
+                adjustments=adjustments,
             )
 
-    def prices(self, field: str) -> NDArray[np.float64]:
-        """Return a read-only yuan matrix; inactive securities have NaN prices."""
+    def prices(
+        self, field: str, *, adjustment: str = "raw", as_of: DateLike | None = None
+    ) -> NDArray[np.float64]:
+        """Return a read-only yuan matrix ending at an optional explicit session."""
         if field not in {"open", "high", "low", "close"}:
             raise ValueError("price field must be open, high, low or close")
-        values = np.array(
-            [getattr(bar, field) / 10_000 if bar.close else np.nan for bar in self.bars]
-        )
-        values = values.reshape(len(self.sessions), len(self.instruments))
+        end = view_end(self, adjustment, as_of)
+        bars = self.bars[: end * len(self.instruments)]
+        values = np.array([getattr(bar, field) / 10_000 if bar.close else np.nan for bar in bars])
+        values = values.reshape(end, len(self.instruments))
+        if adjustment == "asof":
+            adjust(self, values, start=0, end=end, symbols=self.symbols)
         values.setflags(write=False)
         return values
 
@@ -173,6 +206,7 @@ class MarketData:
             "rules": [asdict(r) for r in self.rules.periods],
             "source": self.source,
             "actions": [asdict(action) for action in self.actions],
+            "adjustments": [asdict(item) for item in self.adjustments],
         }
         encoded = json.dumps(payload, default=str, sort_keys=True, separators=(",", ":")).encode()
         return hashlib.sha256(encoded).hexdigest()

@@ -21,7 +21,7 @@ import numpy as np
 import doribt
 from doribt import (
     CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
-    china_rules
+    PriceAdjustment, china_rules
 )
 from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
@@ -55,9 +55,13 @@ data = MarketData.from_records(
     actions=[CorporateAction(action_id='dividend', symbol='A', kind='distribution',
                              announced='2025-01-02', record_date='2025-01-03',
                              ex_date='2025-01-06', pay_date='2025-01-07',
-                             cash_per_share=1, source='synthetic wheel check')])
+                             cash_per_share=1, source='synthetic wheel check')],
+    adjustments=[PriceAdjustment(action_id='dividend', factor='.9', known_on='2025-01-03',
+                                 source='synthetic reference ratio')])
 assert data.prices('close').tolist() == [[10.0], [10.0], [11.0]]
 assert len(data.fingerprint) == 64
+adjusted = data.prices('close', adjustment='asof', as_of='2025-01-06')[:,0]
+np.testing.assert_allclose(adjusted, [9,9,11])
 targets = WeightTargets(sessions=data.sessions, weights={'A': [.95, 0, 0]})
 formal = doribt.Backtest(data, initial_cash=10000).run(targets, backend=backend)
 np.testing.assert_array_equal(formal.equity, [10000.,9995.,11610.])
