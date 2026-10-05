@@ -1,6 +1,6 @@
 # 0.1.0 范围与验收索引
 
-0.1.0 的第一项交付是可从本地数据完成策略编写、回测、解释成交、比较指标和导出复现记录的基础引擎。本文将[路线图](roadmap.md)要求对应到实现和可复核证据；里程碑 CI 与正式产物是否已完成，以 [Actions](https://github.com/DorisLab/DoriBT/actions/workflows/ci.yml) 中的 `v0.1.0` 运行及 [Release](https://github.com/DorisLab/DoriBT/releases/tag/v0.1.0) 为准。内部历史实施记录不覆盖后续提交的验证。
+0.1.0 已于 2026-10-06 发布，可从本地数据完成策略编写、回测、解释成交、比较指标和导出复现记录。本文将[路线图](roadmap.md)要求对应到实现和可复核证据；最终标签 [CI 37390685059](https://github.com/DorisLab/DoriBT/actions/runs/37390685059) 六个任务全部成功，[GitHub Release](https://github.com/DorisLab/DoriBT/releases/tag/v0.1.0) 已公开。内部历史实施记录不覆盖后续提交的验证。
 
 | 验收要求 | 公共入口与行为 | 证据 |
 | --- | --- | --- |
@@ -29,3 +29,17 @@ Python 3.13；Windows 与 Linux。引擎仅依赖 NumPy，Numba 和 Matplotlib �
 5. Release 交付 wheel、sdist、`SHA256SUMS`、变更与范围说明，GitHub 提供标签源码归档。下载已上传资产重新验哈希并检查实际安装，记录准确提交和 CI 链接。
 
 这次不向 PyPI 上传，不提供质量或支持时限承诺。已完成的具体证据与公开范围保留，不能以免责声明代替失败检查。
+
+## 最终发行记录
+
+发布标签 `v0.1.0` 固定在提交 `1b719cbff938ef6d1ac50a56d5184ec97af698b3`，Release 作者为 DorisLab，发布时间为 2026-10-06 07:53:08（Asia/Shanghai）。PR #10 完成性能目标，PR #11 完成最终候选；普通 PR 没有触发 CI，发布标签触发上述最终跨平台运行。
+
+本地最终门禁为完整 317 项、基础 254 项。最终六项 CI 覆盖 Windows／Linux 的两种后端、锁定运行依赖审计和完整历史凭据扫描；每种安装包均在仓库外执行。源码包的 100 个文件与公开仓库逐项核对，wheel 引擎源码一致；sdist 重建 wheel 字节完全相同。上传后下载资产验哈希，基础及 Numba＋plot 安装再次通过；发布后使用无登录的公开地址下载，三个文件均与验证产物逐字节一致。
+
+| 资产 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `doribt-0.1.0-py3-none-any.whl` | 58208 | `16baa1325e8565c070403eea2aa95f645033426f9ffd6478e4633f9ceaf10c0b` |
+| `doribt-0.1.0.tar.gz` | 165107 | `9d7aaedf81c677682eebc74f66823aa00d7278924592c2afd750541781f0eb55` |
+| `SHA256SUMS` | 184 | `f2100d90b72f283413e6c5e7aefe27585a8ef8c2b3eec8e4931074638d58dee8` |
+
+后续源码修改需新的检查与版本；本页的发行后记录不改变标签固定的源码和产物。
