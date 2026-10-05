@@ -19,7 +19,7 @@ from importlib.metadata import distribution
 from pathlib import Path
 import numpy as np
 import doribt
-from doribt import Instrument, MarketData, RuleBook, RulePeriod, TradingRule
+from doribt import Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets
 from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
 backend = sys.argv[1]
@@ -42,13 +42,18 @@ assert r.stats()['fill_count'] == 2
 rule = TradingRule(price_tick='.01', buy_minimum=100, buy_step=100, sell_step=100,
                    settlement_days=1, stamp_duty_sell=0, transfer_fee=0)
 data = MarketData.from_records(
-    [dict(session='2025-01-02', symbol='A', status='trading', open=10, high=10,
-          low=10, close=10, volume=1000, upper_limit=None, lower_limit=None)],
-    calendar=['2025-01-02'], instruments=[Instrument(symbol='A', kind='stock')],
-    rules=RuleBook((RulePeriod(symbol='A', start='2025-01-02', end='2025-01-02',
+    [dict(session=session, symbol='A', status='trading', open=price, high=price,
+          low=price, close=price, volume=1000, upper_limit=None, lower_limit=None)
+     for session, price in zip(b.sessions, (10, 10, 11), strict=True)],
+    calendar=b.sessions, instruments=[Instrument(symbol='A', kind='stock')],
+    rules=RuleBook((RulePeriod(symbol='A', start='2025-01-02', end='2025-01-06',
                               rule=rule, source='test', version='1'),)), source='test')
-assert data.prices('close').tolist() == [[10.0]]
+assert data.prices('close').tolist() == [[10.0], [10.0], [11.0]]
 assert len(data.fingerprint) == 64
+targets = WeightTargets(sessions=data.sessions, weights={'A': [.95, 0, 0]})
+formal = doribt.Backtest(data, initial_cash=10000).run(targets, backend=backend)
+np.testing.assert_array_equal(formal.equity, [10000.,9995.,10890.])
+assert [fill.quantity for fill in formal.fills] == [900, -900]
 if backend == 'python':
     try:
         Backtest(b).run(CloseSignals(sessions=b.sessions, hold=[True]*3), backend='numba')
@@ -56,6 +61,12 @@ if backend == 'python':
         assert 'doribt[numba]' in str(error)
     else:
         raise AssertionError('Missing Numba must not silently fall back')
+    try:
+        doribt.Backtest(data).run(targets, backend='numba')
+    except ImportError as error:
+        assert 'doribt[numba]' in str(error)
+    else:
+        raise AssertionError('Formal engine must not silently fall back either')
 print('Installed wheel passed:', doribt.__version__, backend)
 """
 

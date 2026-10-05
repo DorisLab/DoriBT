@@ -24,4 +24,7 @@ def test_readme_python_example_is_executable():
     snippet = text.split("```python\n", 1)[1].split("```", 1)[0]
     namespace = {}
     exec(compile(snippet, "README.md", "exec"), namespace)
-    np.testing.assert_array_equal(namespace["result"].equity, [10000, 10445, 10890])
+    result = namespace["result"]
+    assert result.equity[0] == 100000
+    assert result.equity[-1] == 116025.76
+    assert len(result.fills) == 1

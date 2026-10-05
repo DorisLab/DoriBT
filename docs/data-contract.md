@@ -1,6 +1,6 @@
 # 行情、历史规则与公司行动
 
-状态：本地数据入口与验证已实现；完整引擎的账户、公司行动记账和市场规则预设仍在实施。`MarketData` 暂不能传给 `doribt.experimental.Backtest`；后者继续使用单标的 `DailyBars`。
+状态：本地数据入口与验证已实现，可用于 `doribt.Backtest` 的多标的共享账户。公司行动记账和市场规则预设仍在实施，含公司行动的运行当前明确拒绝。`MarketData` 不能传给 `doribt.experimental.Backtest`；后者继续使用单标的 `DailyBars`。
 
 ## 面向使用者的入口
 
