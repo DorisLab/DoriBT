@@ -37,6 +37,18 @@ class Order:
     reason: Reason
 
     @property
+    def commission(self) -> float:
+        return self.commission_units / 10_000
+
+    @property
+    def stamp_duty(self) -> float:
+        return self.stamp_duty_units / 10_000
+
+    @property
+    def transfer_fee(self) -> float:
+        return self.transfer_fee_units / 10_000
+
+    @property
     def events(self) -> tuple[str, ...]:
         if self.reason == Reason.INVALID_QUANTITY:
             return ("created", "rejected")
@@ -75,6 +87,18 @@ class Fill:
     commission_units: int
     stamp_duty_units: int
     transfer_fee_units: int
+
+    @property
+    def commission(self) -> float:
+        return self.commission_units / 10_000
+
+    @property
+    def stamp_duty(self) -> float:
+        return self.stamp_duty_units / 10_000
+
+    @property
+    def transfer_fee(self) -> float:
+        return self.transfer_fee_units / 10_000
 
     @property
     def price(self) -> float:

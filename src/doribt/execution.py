@@ -17,6 +17,7 @@ type Executor = Callable[
 # Market columns. Inactive and missing limits use zero; raw prices are always positive.
 OPEN, STATUS, UPPER, LOWER, TICK, MINIMUM, BUY_STEP, SELL_STEP = range(8)
 STAMP, TRANSFER, VOLUME, ODD_LOT = range(8, 12)
+SELL_MINIMUM, ORDER_MAXIMUM = range(12, 14)
 # Output: signed fill, price, commission, stamp duty, transfer fee, reason.
 QUANTITY, PRICE, COMMISSION, STAMP_FEE, TRANSFER_FEE, REASON = range(6)
 # Reasons, also exposed by name through Order records.
@@ -61,11 +62,13 @@ def buy_size(requested: int, price: int, available: int, rule: IntArray, costs: 
 def sell_size(requested: int, position: int, sellable: int, rule: IntArray) -> tuple[int, int]:
     step = int(rule[SELL_STEP])
     liquidation = bool(rule[ODD_LOT]) and requested == position
-    if requested % step and not liquidation:
+    if (requested < rule[SELL_MINIMUM] or requested % step) and not liquidation:
         return 0, INVALID_QUANTITY
     quantity = min(requested, position, sellable)
     if not (liquidation and quantity == position):
         quantity = quantity // step * step
+        if quantity < rule[SELL_MINIMUM]:
+            quantity = 0
     reason = OK
     if requested > position:
         reason = POSITION_SHORT
@@ -138,6 +141,8 @@ def order_size(
     rule: IntArray,
     costs: IntArray,
 ) -> tuple[int, int]:
+    if abs(requested) > rule[ORDER_MAXIMUM]:
+        return 0, INVALID_QUANTITY
     if requested < 0:
         return sell_size(-requested, position, sellable, rule)
     quantity = buy_size(requested, price, cash, rule, costs)
