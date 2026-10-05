@@ -1,8 +1,8 @@
 # API 的使用路径与职责
 
-状态：当前收盘信号入口已实现；完整策略和组合接口是基础引擎的设计约束，尚未实现。本文不冻结未来类名、参数名或兼容版本。
+状态：正式数据入口、共享账户、收盘函数策略和预计算目标已实现；公司行动、分析和完整复现产物仍待后续实现。本文不冻结兼容版本。
 
-完整引擎的首项输入 `MarketData` 已实现，支持 CSV／字典行、证券、日历、历史规则和公司行动事实；见[数据契约](data-contract.md)。数据提供层构建一次完整对象，策略入口不会要求用户每次重复拼装这些字段。正式多标的 `Backtest` 尚未交付，暂不将这个对象接到实验预算模型上。
+正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动事实可以验证和保存，但当前运行明确拒绝尚不支持的权益记账。
 
 ## 从用户的研究过程出发
 
@@ -10,9 +10,9 @@
 
 此前的 `backtest(bars, regime, Config(...))` 直接暴露原型内核：调用者手动错位信号，单账户也要索引矩阵列，统计还需重复传入初始资金。它保留为底层批量接口；完整引擎应围绕上述研究过程设计，不把这个函数签名直接冻结为最终 API。
 
-## 当前可用的收盘信号入口
+## 保留的实验收盘信号入口
 
-入口为 `Backtest(data, initial_cash=..., allocation=..., costs=Costs(...)).run(signals, backend=...)`。
+以下类均属于 `doribt.experimental`，入口为 `Backtest(data, initial_cash=..., allocation=..., costs=Costs(...)).run(signals, backend=...)`，不能与包根目录的多标的类型混用。
 
 - `DailyBars`：一个标的的日期、原始开收盘价、明确的日价格边界及停牌状态。接受列表和 NumPy 数组，验证相同。必需字段缺失不能推断为“正常交易”。
 - `CloseSignals(sessions=..., hold=...)`：日期对齐的一维布尔持有意图，在当日收盘后已知。日期必须与行情逐项相同，不静默重排、广播、前填或丢弃。`True` 是希望持有，`False` 是希望空仓，不是脉冲买卖事件。

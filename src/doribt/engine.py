@@ -1,0 +1,165 @@
+"""Daily lifecycle orchestrator. Strategy callbacks never run inside JIT."""
+
+from collections.abc import Callable
+
+import numpy as np
+
+from .account import Account, Position
+from .compiled import compile_data
+from .context import Context, account_view
+from .costs import Costs
+from .data import MarketData
+from .execution import IntArray, executor
+from .intents import IntentBook
+from .orders import REASONS, Order
+from .result import BacktestResult
+from .targets import WeightTargets
+from .validation import Number, amount
+
+
+class Backtest:
+    def __init__(
+        self, data: MarketData, *, initial_cash: Number = 100_000, costs: Costs | None = None
+    ) -> None:
+        self.data = data
+        self._initial_cash = amount(initial_cash, "initial_cash")
+        if not self._initial_cash:
+            raise ValueError("initial_cash must be positive")
+        self.costs = costs or Costs()
+
+    @property
+    def initial_cash(self) -> float:
+        return self._initial_cash / 10_000
+
+    def run(
+        self, strategy: Callable[[Context], None], *, backend: str = "python"
+    ) -> BacktestResult:
+        if self.data.actions:
+            raise NotImplementedError("corporate-action accounting is not implemented yet")
+        if isinstance(strategy, WeightTargets):
+            strategy.validate(self.data)
+        run = _Run(self.data, self._initial_cash, self.costs, backend)
+        return run.execute(strategy)
+
+
+class _Run:
+    def __init__(self, data: MarketData, initial_cash: int, costs: Costs, backend: str) -> None:
+        self.data, self.initial_cash, self.backend = data, initial_cash, backend
+        self.compiled, self.costs = compile_data(data), costs.compile()
+        self.kernel = executor(backend)
+        self.account = Account(initial_cash, data.symbols)
+        self.book = IntentBook()
+        self.orders: list[Order] = []
+        self.history = {field: data.prices(field) for field in ("open", "high", "low", "close")}
+        days, columns = len(data.sessions), len(data.symbols)
+        self.equity, self.cash = np.zeros(days, dtype=np.int64), np.zeros(days, dtype=np.int64)
+        self.holdings = np.zeros((days, columns), dtype=np.int64)
+        self.sellable = np.zeros((days, columns), dtype=np.int64)
+
+    def execute(self, strategy: Callable[[Context], None]) -> BacktestResult:
+        for index, session in enumerate(self.data.sessions):
+            self._open(index)
+            self._close(index)
+            positions = [
+                Position(
+                    symbol,
+                    int(self.holdings[index, column]),
+                    int(self.sellable[index, column]),
+                    int(self.holdings[index, column])
+                    * int(self.compiled.closes[index, column])
+                    / 10_000,
+                )
+                for column, symbol in enumerate(self.data.symbols)
+            ]
+            view = account_view(self.account.cash, int(self.equity[index]), positions)
+            context = Context(
+                self.data,
+                index,
+                self.history,
+                view,
+                tuple(self.orders),
+                self.book,
+                int(self.equity[index]),
+            )
+            try:
+                strategy(context)
+            except Exception as error:
+                raise RuntimeError(f"strategy failed at close on {session}: {error}") from error
+            finally:
+                context._active = False
+        self.book.finish(self.data.sessions[-1])
+        for array in (self.equity, self.cash, self.holdings, self.sellable):
+            array.setflags(write=False)
+        return BacktestResult(
+            self.data.sessions,
+            self.data.symbols,
+            self.initial_cash / 10_000,
+            self.equity,
+            self.cash,
+            self.holdings,
+            self.sellable,
+            tuple(self.orders),
+            tuple(item.record() for item in self.book.history),
+            self.backend,
+            self.data.fingerprint,
+        )
+
+    def _open(self, index: int) -> None:
+        positions, sellable = self.account.quantities(), self.account.quantities(index)
+        requests = np.zeros(len(self.data.symbols), dtype=np.int64)
+        for column, symbol in enumerate(self.data.symbols):
+            if intent := self.book.pending.get(symbol):
+                requests[column] = intent.quantity
+                if intent.kind == "target":
+                    requests[column] -= positions[column]
+                if not requests[column]:
+                    intent.finish(self.data.sessions[index], "fulfilled")
+                    del self.book.pending[symbol]
+        cash, rows = self.kernel(
+            self.account.cash,
+            positions,
+            sellable,
+            requests,
+            self.compiled.market[index],
+            self.costs,
+        )
+        # Record in actual execution order so replay uses sale proceeds for later buys.
+        columns = sorted(range(len(requests)), key=lambda column: (requests[column] > 0, column))
+        for column in columns:
+            if requests[column]:
+                self._record(index, column, int(requests[column]), rows[column])
+        self.account.cash = cash
+
+    def _record(self, index: int, column: int, requested: int, row: IntArray) -> None:
+        symbol, session = self.data.symbols[column], self.data.sessions[index]
+        intent = self.book.pending[symbol]
+        fill, price, commission, stamp, transfer, reason = map(int, row)
+        order = Order(
+            len(self.orders) + 1,
+            intent.intent_id,
+            session,
+            symbol,
+            requested,
+            fill,
+            price,
+            commission,
+            stamp,
+            transfer,
+            REASONS[reason],
+        )
+        self.orders.append(order)
+        self.account.apply(order, index, int(self.compiled.settlement[index, column]))
+        if fill == requested:
+            intent.finish(session, "fulfilled")
+        elif order.reason.value == "invalid_quantity":
+            intent.finish(session, "rejected", order.reason.value)
+        elif intent.kind == "order":
+            intent.finish(session, "expired", order.reason.value)
+        if intent.status != "active":
+            del self.book.pending[symbol]
+
+    def _close(self, index: int) -> None:
+        self.equity[index] = self.account.value(self.compiled.closes[index])
+        self.cash[index] = self.account.cash
+        self.holdings[index] = self.account.quantities()
+        self.sellable[index] = self.account.quantities(index)

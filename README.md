@@ -2,24 +2,24 @@
 
 **面向 A 股研究的 Python 回测引擎。**
 
-Experimental backtesting primitives for A-share research, with an optional Numba backend.
+Python backtesting for A-share research, with an optional Numba execution backend.
 
 DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。首个交付目标是数据、策略、执行、账户和结果分析基本完整的日线回测引擎，见[开发目标](docs/roadmap.md)。
 
-目前源码提供 `doribt.experimental` 下的单标的日线预算模型，尚未达到这一交付目标。当前能力以本页和[模型说明](docs/model.md)为准。
+目前源码已提供多标的共享账户、收盘策略／目标权重和次日开盘执行。股票公司行动、完整历史市场规则预设及分析交付仍未完成，尚未达到首版目标。原型单标的预算模型保留在 `doribt.experimental` 中。
 
-完整引擎的数据准备入口 `MarketData` 已提供带证券标识的 CSV／字典行、历史规则和公司行动验证，见[数据契约](docs/data-contract.md)及[可执行示例](examples/market_data.py)。它与当前实验回测入口分开；账户和权益记账仍在开发。
+数据准备入口 `MarketData` 支持带证券标识的 CSV／字典行、历史规则和公司行动验证，见[数据契约](docs/data-contract.md)。完整执行时间和失败语义见[执行模型](docs/execution-model.md)。
 
 ## 当前可以做什么
 
-- 一个标的、多个独立参数账户，做多／空仓切换。
-- 开盘代理成交、收盘估值，100 份整手、0.001 元价格单位。
-- 最低佣金、按分舍入、滑点、显式停牌及方向性涨跌停限制。
-- 输出每日现金、持仓、权益、逐笔成交及未成交原因。
-- Python 和可选 Numba 两种执行方式；内部金额使用整数分，费用使用整数比例。
-- 使用独立 Decimal 账本和手算样例检查行为。
+- 多标的共享现金，收盘回调策略或日期对齐的预计算目标权重。
+- 收盘确定固定股数，次日开盘先卖后买；资金不足减量，持续目标可以重试。
+- 持仓批次、按交易日交收解锁、显式停牌及方向性涨跌停阻止成交。
+- 历史数量／价位／费率、佣金与滑点；金额按万分之一元记账，费用按分半入。
+- 意图、当日委托、实际成交和原因分别可查，附每日现金／持仓／可卖量／权益。
+- Python 和可选 Numba 执行同一开盘逻辑；独立 Decimal 账本检查共享资金、费用和交收。
 
-当前模型要求调用者提供对齐的原始价格、真实交易日及每日价格边界，并将决策延迟到可执行的交易日。它不下载行情、不自动识别证券规则，也不提供真实交易接口。完整 T+1 可卖量、多标的共享现金、公司行动和平台适配器尚未实现。详见[模型边界](docs/model.md)和[路线图](docs/roadmap.md)。
+当前要求数据提供层给出原始价格、真实交易日及有来源的历史规则，引擎自动处理执行延迟。它不下载行情、不根据证券代码猜规则，也不提供真实交易接口。含公司行动的数据暂时显式拒绝运行，不能将股息丢弃后冒充含税收益。市场预设、公司行动／股息税和平台适配器尚未实现。
 
 ## 快速运行
 
@@ -31,14 +31,14 @@ DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现�
 git clone https://github.com/DorisLab/DoriBT.git
 cd DoriBT
 uv sync
-uv run python examples/sma.py
+uv run python examples/strategies.py
 ```
 
 使用 Numba：
 
 ```sh
 uv sync --extra numba
-uv run --extra numba python examples/sma.py --backend numba
+uv run --extra numba python examples/strategies.py --backend numba
 ```
 
 首次 Numba 调用需要编译，后续调用和缓存行为取决于环境。项目尚未发布 PyPI 安装包，以上命令从源码安装。
@@ -46,28 +46,27 @@ uv run --extra numba python examples/sma.py --backend numba
 ## 最小调用
 
 ```python
-from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
+from doribt import Backtest, Context
+from examples.strategies import synthetic_market  # 源码仓库自带的人工数据
 
-# 手算样例，全部为人工构造数据。
-bars = DailyBars(
-    sessions=["2025-01-02", "2025-01-03", "2025-01-06"],
-    open=[10.0, 10.0, 11.0],
-    close=[10.0, 10.5, 11.0],
-    upper_limit=[12.0, 12.0, 12.0],
-    lower_limit=[8.0, 8.0, 8.0],
-    suspended=[False, False, False],
-)
-# 每个收盘时点决定持有或空仓，由引擎延迟到下一交易日开盘执行。
-signals = CloseSignals(sessions=bars.sessions, hold=[True, False, False])
-result = Backtest(bars, initial_cash=10_000, costs=Costs(slippage_ticks=0)).run(signals)
-print(result.equity)  # [10000. 10445. 10890.]
-print(result.total_return)  # 约 0.089，即 8.9%
+data = synthetic_market()  # 实际研究替换成自己的 MarketData。
+
+
+def buy_and_hold(ctx: Context) -> None:
+    ctx.target_weights({"ALPHA": 0.95})
+
+
+result = Backtest(data, initial_cash=100_000).run(buy_and_hold)
 print(result.stats())
+for fill in result.fills:
+    print(fill.session, fill.symbol, fill.quantity, fill.price, fill.fees)
 ```
 
-`CloseSignals` 表达收盘后的持有意图，连续 `True` 不每天重新调仓。首日空仓，最后一日收盘信号不会穿越到当日执行；日期必须与行情一致，不静默对齐。完整的均线例子见 [examples/sma.py](examples/sma.py)。
+此代码从仓库根目录运行。相同权重不每天重算股数；需要按当天权益重新配比时传 `rebalance=True`。`ctx.order(symbol, quantity)` 提交只尝试下一次开盘的有符号股数委托；`ctx.history()` 只返回截至当前收盘的数据，`ctx.account.positions` 和 `ctx.orders` 可查询账户与历史订单。
 
-单账户结果直接提供一维权益、现金和持仓，成交带交易日期，收益统计保存本次初始资金。底层 `backtest(bars, regime, config)` 仍可做独立参数账户批量实验，其中 `regime` 必须已延迟；两种入口不能混用时间语义。当前 API 可演进，未来策略／组合接口的职责见 [API 设计](docs/api-design.md)。
+均线、买入持有、多标的轮动都在[策略示例](examples/strategies.py)中，无需继承基类或修改内核。预计算入口 `WeightTargets(sessions=data.sessions, weights={"ALPHA": weights})` 使用同一执行流程；日期必须完全对齐。首日空仓，最后一次收盘决定不会提前执行；预计算因子是否含未来信息仍需策略自身验证。API 可继续演进，见 [API 设计](docs/api-design.md)。
+
+原型 `experimental.Backtest` 使用开盘预算模型，与新的固定股数模型语义不同；原说明见[实验模型](docs/model.md)，原示例仍可通过 `examples/sma.py` 运行。
 
 ## 开发与检查
 
