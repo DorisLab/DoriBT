@@ -1,6 +1,6 @@
 # 实验模型：etf-next-open-budget-v0
 
-本文描述当前代码。后续目标见[路线图](roadmap.md)，不把计划中的规则当作已经支持。
+本文仅描述 `doribt.experimental` 保留的原型预算模型。包根目录正式 API 采用[共享账户执行模型](execution-model.md)，其价格精度、下单数量与权益处理不能套用本文。后续目标见[路线图](roadmap.md)。
 
 ## 输入和时间
 

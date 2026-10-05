@@ -29,6 +29,7 @@ backend = sys.argv[1]
 assert 'numba' not in sys.modules, 'Importing DoriBT must not import Numba'
 assert 'matplotlib' not in sys.modules, 'Importing DoriBT must not import plotting dependencies'
 installed = distribution('doribt')
+assert doribt.__version__ == installed.version, 'Package and distribution versions must agree'
 assert Path(doribt.__file__).samefile(installed.locate_file('doribt/__init__.py'))
 origin = json.loads(installed.read_text('direct_url.json'))
 assert 'archive_info' in origin, 'Must load a wheel, not an editable source tree'
