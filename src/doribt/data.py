@@ -6,6 +6,7 @@ import json
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from datetime import date
+from functools import cached_property
 from pathlib import Path
 
 import numpy as np
@@ -133,7 +134,7 @@ class MarketData:
             if self.sessions[0] <= session <= self.sessions[-1] and session not in self.sessions:
                 raise ValueError(f"{name} must be a supplied trading session: {action.action_id}")
 
-    @property
+    @cached_property
     def symbols(self) -> tuple[str, ...]:
         return tuple(instrument.symbol for instrument in self.instruments)
 
@@ -197,7 +198,7 @@ class MarketData:
         values.setflags(write=False)
         return values
 
-    @property
+    @cached_property
     def fingerprint(self) -> str:
         payload = {
             "calendar": [d.isoformat() for d in self.sessions],

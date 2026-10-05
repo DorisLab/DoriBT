@@ -1,8 +1,11 @@
 """Validated data compiled once to numeric daily inputs."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 
 import numpy as np
+from numpy.typing import NDArray
 
 from .data import MarketData
 from .execution import IntArray
@@ -15,6 +18,28 @@ class CompiledData:
     market: IntArray
     closes: IntArray
     settlement: IntArray
+
+
+@dataclass(frozen=True)
+class PreparedData:
+    """Immutable market preparation reusable across independent accounts."""
+
+    data: MarketData
+    compiled: CompiledData
+    history: Mapping[str, NDArray[np.float64]]
+
+
+def prepare(data: MarketData) -> PreparedData:
+    return PreparedData(
+        data,
+        compile_data(data),
+        MappingProxyType({field: data.prices(field) for field in ("open", "high", "low", "close")}),
+    )
+
+
+def _freeze(values: IntArray) -> IntArray:
+    # Bytes-backed arrays cannot be made writable through result.close_units either.
+    return np.frombuffer(values.tobytes(), dtype=np.int64).reshape(values.shape)
 
 
 def compile_data(data: MarketData) -> CompiledData:
@@ -47,4 +72,4 @@ def compile_data(data: MarketData) -> CompiledData:
             rule.order_maximum,
         )
         settlement[row, column] = rule.settlement_days
-    return CompiledData(market, closes, settlement)
+    return CompiledData(_freeze(market), _freeze(closes), _freeze(settlement))

@@ -6,7 +6,7 @@ Python backtesting for A-share research, with an optional Numba execution backen
 
 DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。首个交付目标是数据、策略、执行、账户和结果分析基本完整的日线回测引擎，见[开发目标](docs/roadmap.md)。
 
-目前源码已提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)，完整引擎性能与发布候选验收仍在推进。原型单标的预算模型保留在 `doribt.experimental` 中。
+目前源码已提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)和[完整引擎性能测量](docs/performance.md)，发布候选验收仍在推进。原型单标的预算模型保留在 `doribt.experimental` 中。
 
 数据准备入口 `MarketData` 支持带证券标识的 CSV／字典行、历史规则和公司行动验证，见[数据契约](docs/data-contract.md)。完整执行时间和失败语义见[执行模型](docs/execution-model.md)。
 

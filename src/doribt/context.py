@@ -50,6 +50,11 @@ class Context:
         self._book, self._equity = book, equity_units
         self._active = True
 
+    @property
+    def bar_index(self) -> int:
+        """Zero-based position in the supplied calendar, including suspended sessions."""
+        return self._index
+
     def history(
         self, symbol: str, *, bars: int | None = None, field: str = "close", adjustment: str = "raw"
     ) -> NDArray[np.float64]:

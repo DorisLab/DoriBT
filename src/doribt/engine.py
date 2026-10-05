@@ -5,7 +5,7 @@ from collections.abc import Callable, Mapping
 import numpy as np
 
 from .account import Account, Position
-from .compiled import compile_data
+from .compiled import PreparedData, prepare
 from .context import Context, account_view
 from .costs import Costs
 from .data import MarketData
@@ -34,6 +34,7 @@ class Backtest:
         if not self._initial_cash:
             raise ValueError("initial_cash must be positive")
         self.costs = costs or Costs()
+        self._prepared: PreparedData | None = None
 
     @property
     def initial_cash(self) -> float:
@@ -50,21 +51,26 @@ class Backtest:
             strategy.validate(self.data)
         values = parameters_copy(parameters)
         callback = bind_strategy(strategy, values)
-        run = _Run(self.data, self._initial_cash, self.costs, backend)
+        if self._prepared is None or self._prepared.data is not self.data:
+            self._prepared = prepare(self.data)
+        run = _Run(self._prepared, self._initial_cash, self.costs, backend)
         info = run_info(self.data, self._initial_cash, self.costs, strategy, values, backend)
         return run.execute(callback, info)
 
 
 class _Run:
-    def __init__(self, data: MarketData, initial_cash: int, costs: Costs, backend: str) -> None:
+    def __init__(
+        self, prepared: PreparedData, initial_cash: int, costs: Costs, backend: str
+    ) -> None:
+        data = prepared.data
         self.data, self.initial_cash, self.backend = data, initial_cash, backend
-        self.compiled, self.costs = compile_data(data), costs.compile()
+        self.compiled, self.costs = prepared.compiled, costs.compile()
         self.kernel = executor(backend)
         self.account = Account(initial_cash, data.symbols)
         self.book = IntentBook()
         self.rights = RightsBook(data)
         self.orders: list[Order] = []
-        self.history = {field: data.prices(field) for field in ("open", "high", "low", "close")}
+        self.history = prepared.history
         days, columns = len(data.sessions), len(data.symbols)
         self.equity, self.cash = np.zeros(days, dtype=np.int64), np.zeros(days, dtype=np.int64)
         self.holdings = np.zeros((days, columns), dtype=np.int64)
