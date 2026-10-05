@@ -4,7 +4,9 @@
 
 Experimental backtesting primitives for A-share research, with an optional Numba backend.
 
-DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。项目处于早期开发阶段；目前可运行的是 `doribt.experimental` 下的单标的日线预算模型，完整 A 股引擎仍在建设中。
+DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。首个交付目标是数据、策略、执行、账户和结果分析基本完整的日线回测引擎，见[开发目标](docs/roadmap.md)。
+
+目前源码提供 `doribt.experimental` 下的单标的日线预算模型，尚未达到这一交付目标。当前能力以本页和[模型说明](docs/model.md)为准。
 
 ## 当前可以做什么
 
@@ -42,40 +44,37 @@ uv run --extra numba python examples/sma.py --backend numba
 ## 最小调用
 
 ```python
-import numpy as np
-from doribt.experimental import Config, DailyBars, backtest
+from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
 # 手算样例，全部为人工构造数据。
 bars = DailyBars(
-    sessions=np.array(["2025-01-02", "2025-01-03"], dtype="datetime64[D]"),
-    open=np.array([10.0, 11.0]),
-    close=np.array([10.5, 11.0]),
-    upper_limit=np.array([12.0, 12.0]),
-    lower_limit=np.array([8.0, 8.0]),
-    suspended=np.array([False, False]),
+    sessions=["2025-01-02", "2025-01-03", "2025-01-06"],
+    open=[10.0, 10.0, 11.0],
+    close=[10.0, 10.5, 11.0],
+    upper_limit=[12.0, 12.0, 12.0],
+    lower_limit=[8.0, 8.0, 8.0],
+    suspended=[False, False, False],
 )
-result = backtest(
-    bars,
-    regime=np.array([1, 0]),  # 已在开盘前确定：进入、退出
-    config=Config(initial_cash=10_000, slippage_ticks=0),
-)
-print(result.equity[:, 0])  # [10445. 10890.]
+# 每个收盘时点决定持有或空仓，由引擎延迟到下一交易日开盘执行。
+signals = CloseSignals(sessions=bars.sessions, hold=[True, False, False])
+result = Backtest(bars, initial_cash=10_000, costs=Costs(slippage_ticks=0)).run(signals)
+print(result.equity)  # [10000. 10445. 10890.]
+print(result.total_return)  # 约 0.089，即 8.9%
+print(result.stats())
 ```
 
-每列是独立账户，`regime=1` 表示希望持有，`0` 表示希望空仓；持有期间不每天调回目标比例。`experimental` 接口可能随开发调整。
+`CloseSignals` 表达收盘后的持有意图，连续 `True` 不每天重新调仓。首日空仓，最后一日收盘信号不会穿越到当日执行；日期必须与行情一致，不静默对齐。完整的均线例子见 [examples/sma.py](examples/sma.py)。
+
+单账户结果直接提供一维权益、现金和持仓，成交带交易日期，收益统计保存本次初始资金。底层 `backtest(bars, regime, config)` 仍可做独立参数账户批量实验，其中 `regime` 必须已延迟；两种入口不能混用时间语义。当前 API 可演进，未来策略／组合接口的职责见 [API 设计](docs/api-design.md)。
 
 ## 开发与检查
 
 ```sh
 uv sync --locked --extra numba
-uv run --no-sync ruff check .
-uv run --no-sync ruff format --check .
-uv run --no-sync pytest
-uv build
-uv run --no-sync python scripts/check_wheel.py
+uv run --no-sync python scripts/check.py --backend numba --audit
 ```
 
-GitHub Actions 对 Windows / Linux 的 Python 3.13 执行相同检查和两种后端的示例。CI 状态以实际运行结果为准。
+检查包括格式、静态类型、行为与生成式账本测试、README 示例、覆盖率报告、构建、隔离安装包验证和依赖漏洞审计。CI 分别验证 Windows / Linux 的基础安装与 Numba 安装，并扫描泄露凭据。具体门禁与定向检查见[质量检查](docs/quality.md)；CI 配置不代替实际通过记录。
 
 ## 项目状态与参与
 

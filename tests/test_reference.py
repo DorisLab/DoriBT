@@ -3,11 +3,22 @@
 from decimal import ROUND_FLOOR, ROUND_HALF_UP, Decimal
 
 import numpy as np
-import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from doribt.experimental import Config, DailyBars, backtest
 
 D = Decimal
+
+
+def market_reason(suspended, buy, sell, op, hi, lo):
+    if suspended:
+        return 1
+    if buy and op >= hi:
+        return 2
+    if sell and op <= lo:
+        return 3
+    return 0
 
 
 def reference(bars, regime, config):
@@ -22,13 +33,8 @@ def reference(bars, regime, config):
             if not buy and not sell:
                 continue
             op, hi, lo = (D(str(a[i])) for a in [bars.open, bars.upper_limit, bars.lower_limit])
-            if bars.suspended[i]:
-                reasons[i, j] = 1
-            elif buy and op >= hi:
-                reasons[i, j] = 2
-            elif sell and op <= lo:
-                reasons[i, j] = 3
-            else:
+            reasons[i, j] = market_reason(bars.suspended[i], buy, sell, op, hi, lo)
+            if reasons[i, j] == 0:
                 slip = D(config.slippage_ticks) / 1000
                 px = min(op + slip, hi) if buy else max(op - slip, lo)
                 q = shares[j]
@@ -61,7 +67,6 @@ def reference(bars, regime, config):
     return np.array(history), trades, reasons
 
 
-@pytest.mark.parametrize("backend", ["python", "numba"])
 def test_seeded_paths_against_independent_decimal(backend):
     rng = np.random.default_rng(7301)
     op = rng.integers(1000, 4000, size=200) / 1000
@@ -83,3 +88,42 @@ def test_seeded_paths_against_independent_decimal(backend):
     np.testing.assert_array_equal(result.equity, expected[:, :, 2])
     assert result.fills.tolist() == trades
     np.testing.assert_array_equal(result.blocked, reasons)
+
+
+@settings(max_examples=80, deadline=None, derandomize=True)
+@given(
+    ticks=st.lists(st.integers(100, 100_000), min_size=1, max_size=20),
+    seed=st.integers(0, 2**32 - 1),
+    initial=st.integers(1_000, 1_000_000),
+    rate=st.integers(0, 10_000),
+    minimum=st.integers(0, 1_000),
+    weight=st.integers(1, 1_000_000),
+)
+def test_generated_ledgers_match_decimal(ticks, seed, initial, rate, minimum, weight):
+    """Vary fees, affordability, paths, halts and independent accounts, not just JIT."""
+    n = len(ticks)
+    rng = np.random.default_rng(seed)
+    prices = np.array(ticks) / 1000
+    b = DailyBars(
+        np.arange(n) + np.datetime64("2020-01-01"),
+        prices,
+        prices.copy(),
+        np.full(n, 100.0),
+        np.full(n, 0.001),
+        rng.random(n) < 0.2,
+    )
+    regime = rng.integers(0, 2, size=(n, 3))
+    config = Config(
+        initial_cash=initial / 100,
+        entry_weight=weight / 1_000_000,
+        commission_rate=rate / 1_000_000,
+        minimum_commission=minimum / 100,
+    )
+    expected, trades, reasons = reference(b, regime, config)
+    result = backtest(b, regime, config)
+    np.testing.assert_array_equal(result.cash, expected[:, :, 0])
+    np.testing.assert_array_equal(result.position, expected[:, :, 1])
+    np.testing.assert_array_equal(result.equity, expected[:, :, 2])
+    np.testing.assert_array_equal(result.blocked, reasons)
+    assert result.fills.tolist() == trades
+    assert np.all(result.cash >= 0) and np.all(result.position >= 0)

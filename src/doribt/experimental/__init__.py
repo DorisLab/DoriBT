@@ -2,5 +2,16 @@
 
 from .api import backtest
 from .models import BlockReason, Config, DailyBars, Result
+from .research import Backtest, BacktestResult, CloseSignals, Costs
 
-__all__ = ["BlockReason", "Config", "DailyBars", "Result", "backtest"]
+__all__ = [
+    "Backtest",
+    "BacktestResult",
+    "BlockReason",
+    "CloseSignals",
+    "Config",
+    "Costs",
+    "DailyBars",
+    "Result",
+    "backtest",
+]

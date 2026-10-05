@@ -26,15 +26,48 @@ Issues = "https://github.com/DorisLab/DoriBT/issues"
 numba = ["numba>=0.61,<0.69"]
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+dev = [
+    "hypothesis>=6,<7",
+    "mypy>=1.15,<2",
+    "pip-audit>=2.9,<3",
+    "pytest>=8,<10",
+    "pytest-cov>=6,<8",
+    "ruff>=0.11,<1",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra --strict-config --strict-markers"
+markers = ["numba: requires the optional Numba backend (must pass in the numba job)"]
+filterwarnings = ["error"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py313"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP"]
+select = ["E", "F", "I", "B", "UP", "NPY", "C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.doribt.quality]
+max-file-lines = 400
+
+[tool.mypy]
+python_version = "3.13"
+files = ["src", "examples", "scripts"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["numba", "numba.extending"]
+# Numba does not ship typing stubs. Only this optional library boundary is untyped.
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["doribt"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true

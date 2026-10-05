@@ -1,11 +1,15 @@
 """Validated public boundary; acceleration is explicitly selected and reported."""
 
+from collections.abc import Callable
 from functools import cache
+from typing import cast
 
 import numpy as np
+from numpy.typing import ArrayLike
 
-from .kernel import simulate
+from .kernel import execution, market_block, simulate, valuation
 from .models import Config, DailyBars, Result
+from .typing import KernelOutput
 
 FILL_DTYPE = np.dtype(
     [
@@ -19,16 +23,19 @@ FILL_DTYPE = np.dtype(
 
 
 @cache
-def accelerated():
+def accelerated() -> Callable[..., KernelOutput]:
     try:
         from numba import njit
+        from numba.extending import register_jitable
     except ImportError as error:
         raise ImportError("Numba backend requires the 'doribt[numba]' extra") from error
-    return njit(cache=True)(simulate)
+    for helper in (market_block, execution, valuation):
+        register_jitable(helper)
+    return cast(Callable[..., KernelOutput], njit(cache=True)(simulate))
 
 
 def backtest(
-    bars: DailyBars, regime: np.ndarray, config: Config | None = None, *, backend: str = "python"
+    bars: DailyBars, regime: ArrayLike, config: Config | None = None, *, backend: str = "python"
 ) -> Result:
     """Run an already-lagged 0/1 regime; columns are independent accounts."""
     if backend not in {"python", "numba"}:
@@ -48,7 +55,7 @@ def backtest(
     if len(raw):
         raw = raw[np.lexsort((raw[:, 1], raw[:, 0]))]
     fills = np.empty(len(raw), dtype=FILL_DTYPE)
-    for index, field in enumerate(FILL_DTYPE.names):
+    for index, field in enumerate(FILL_DTYPE.names or ()):
         fills[field] = (
             raw[:, index] / (1000 if index == 3 else 100) if index >= 3 else raw[:, index]
         )
