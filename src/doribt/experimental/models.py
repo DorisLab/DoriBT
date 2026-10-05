@@ -5,6 +5,9 @@ from decimal import Decimal, InvalidOperation
 from enum import IntEnum
 
 import numpy as np
+from numpy.typing import ArrayLike
+
+from .typing import DateArray, FlagArray, FloatArray, IntArray, MarketArrays, RecordArray
 
 MAX_CENTS = 1_000_000_000_000
 MAX_TICKS = 1_000_000_000
@@ -18,7 +21,7 @@ class BlockReason(IntEnum):
     INSUFFICIENT_CASH = 4
 
 
-def scaled(value, scale: int, label: str, low: int, high: int) -> int:
+def scaled(value: float, scale: int, label: str, low: int, high: int) -> int:
     """Convert decimal config values without silently rounding user input."""
     try:
         exact = Decimal(str(value)) * scale
@@ -30,6 +33,25 @@ def scaled(value, scale: int, label: str, low: int, high: int) -> int:
     if not low <= integer <= high:
         raise ValueError(f"{label} is outside supported bounds")
     return integer
+
+
+def session_dates(values: ArrayLike) -> DateArray:
+    """Reject ambiguous integer dates and intraday timestamps rather than truncate."""
+    raw = np.asarray(values)
+    if raw.dtype.kind not in "MUO":
+        raise ValueError("sessions must contain calendar dates")
+    try:
+        parsed = np.asarray(values, dtype="datetime64")
+        dates = parsed.astype("datetime64[D]")
+    except (ValueError, TypeError) as error:
+        raise ValueError("sessions must contain valid calendar dates") from error
+    if dates.ndim != 1 or len(dates) == 0 or np.isnat(dates).any():
+        raise ValueError("sessions must be non-empty valid dates")
+    if (parsed != dates).any():
+        raise ValueError("sessions must be whole dates, without intraday timestamps")
+    if (np.diff(dates).astype(np.int64) <= 0).any():
+        raise ValueError("sessions must be unique and strictly increasing")
+    return dates.copy()
 
 
 @dataclass(frozen=True)
@@ -52,19 +74,15 @@ class Config:
 
 @dataclass(frozen=True)
 class DailyBars:
-    sessions: np.ndarray
-    open: np.ndarray
-    close: np.ndarray
-    upper_limit: np.ndarray
-    lower_limit: np.ndarray
-    suspended: np.ndarray
+    sessions: ArrayLike
+    open: ArrayLike
+    close: ArrayLike
+    upper_limit: ArrayLike
+    lower_limit: ArrayLike
+    suspended: ArrayLike
 
-    def normalized(self):
-        dates = np.asarray(self.sessions, dtype="datetime64[D]")
-        if dates.ndim != 1 or len(dates) == 0 or np.isnat(dates).any():
-            raise ValueError("sessions must be non-empty valid dates")
-        if (np.diff(dates).astype(int) <= 0).any():
-            raise ValueError("sessions must be unique and strictly increasing")
+    def normalized(self) -> tuple[DateArray, MarketArrays]:
+        dates = session_dates(self.sessions)
         prices = []
         for name in ["open", "close", "upper_limit", "lower_limit"]:
             values = np.asarray(getattr(self, name), dtype=np.float64)
@@ -84,21 +102,21 @@ class DailyBars:
         suspended = np.asarray(self.suspended)
         if suspended.shape != dates.shape or suspended.dtype.kind != "b":
             raise ValueError("suspended must be a boolean per session")
-        return dates.copy(), (*prices, np.ascontiguousarray(suspended))
+        return dates, (op, close, upper, lower, np.ascontiguousarray(suspended))
 
 
 @dataclass(frozen=True)
 class Result:
-    sessions: np.ndarray
-    equity: np.ndarray
-    cash: np.ndarray
-    position: np.ndarray
-    fills: np.ndarray
-    blocked: np.ndarray
+    sessions: DateArray
+    equity: FloatArray
+    cash: FloatArray
+    position: IntArray
+    fills: RecordArray
+    blocked: FlagArray
     backend: str
     model: str = "etf-next-open-budget-v0"
 
-    def total_return(self, initial_cash: float) -> np.ndarray:
+    def total_return(self, initial_cash: float) -> FloatArray:
         if not np.isfinite(initial_cash) or initial_cash <= 0:
             raise ValueError("initial_cash must be positive and finite")
-        return self.equity[-1] / initial_cash - 1
+        return np.asarray(self.equity[-1] / initial_cash - 1, dtype=np.float64)

@@ -18,11 +18,6 @@ def bars(prices):
     )
 
 
-@pytest.fixture(params=["python", "numba"])
-def backend(request):
-    return request.param
-
-
 def reconcile(b, result, initial_cash):
     flow = np.zeros_like(result.cash)
     shares = np.zeros_like(result.position)
