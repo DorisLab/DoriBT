@@ -8,8 +8,10 @@ from .engine import Backtest
 from .instruments import Instrument, TradingStatus
 from .orders import Fill, IntentRecord, Order, Reason
 from .result import BacktestResult
+from .rights import CorporateEvent, EntitlementRecord, UnsupportedCorporateAction
 from .rules import RuleBook, RulePeriod, TradingRule
 from .targets import WeightTargets
+from .taxes import TaxLotRecord, TaxPayment, TaxRecord
 
 __all__ = [
     "Backtest",
@@ -18,6 +20,12 @@ __all__ = [
     "Costs",
     "WeightTargets",
     "CorporateAction",
+    "CorporateEvent",
+    "EntitlementRecord",
+    "UnsupportedCorporateAction",
+    "TaxLotRecord",
+    "TaxPayment",
+    "TaxRecord",
     "Instrument",
     "MarketData",
     "RuleBook",

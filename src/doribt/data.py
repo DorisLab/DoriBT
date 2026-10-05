@@ -15,7 +15,7 @@ from .actions import CorporateAction
 from .bars import Bar, calendar_days, parse_bar, validate_bar
 from .instruments import Instrument, TradingStatus
 from .rules import RuleBook
-from .validation import DateLike
+from .validation import DateLike, day
 
 
 @dataclass(frozen=True)
@@ -89,6 +89,16 @@ class MarketData:
         for action in self.actions:
             if action.symbol not in self.symbols:
                 raise ValueError(f"unknown corporate-action symbol: {action.symbol}")
+            self._check_action_calendar(action)
+
+    def _check_action_calendar(self, action: CorporateAction) -> None:
+        for name in ("record_date", "ex_date", "share_credit_date", "share_listing_date"):
+            raw = getattr(action, name)
+            if raw is None:
+                continue
+            session = day(raw)
+            if self.sessions[0] <= session <= self.sessions[-1] and session not in self.sessions:
+                raise ValueError(f"{name} must be a supplied trading session: {action.action_id}")
 
     @property
     def symbols(self) -> tuple[str, ...]:

@@ -101,6 +101,14 @@ class Fill:
 
 
 @dataclass(frozen=True)
+class TargetAdjustment:
+    action_id: str
+    session: date
+    before: int
+    after: int
+
+
+@dataclass(frozen=True)
 class IntentRecord:
     intent_id: int
     created: date
@@ -110,3 +118,4 @@ class IntentRecord:
     status: str
     closed: date | None
     reason: str
+    adjustments: tuple[TargetAdjustment, ...] = ()

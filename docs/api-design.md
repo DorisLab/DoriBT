@@ -1,8 +1,8 @@
 # API 的使用路径与职责
 
-状态：正式数据入口、共享账户、收盘函数策略和预计算目标已实现；公司行动、分析和完整复现产物仍待后续实现。本文不冻结兼容版本。
+状态：正式数据入口、共享账户、收盘函数策略、预计算目标和分红送转记账已实现；完整分析和复现产物仍待后续实现。本文不冻结兼容版本。
 
-正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动事实可以验证和保存，但当前运行明确拒绝尚不支持的权益记账。
+正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动作为 `MarketData.actions` 的事实输入，策略无需手工派息、拆股或扣税；结果保留应收、待入账股份、权益事件和税务批次，见[权益模型](corporate-actions.md)。不支持的行动影响账户时抛出 `UnsupportedCorporateAction`。
 
 ## 从用户的研究过程出发
 

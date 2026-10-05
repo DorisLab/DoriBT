@@ -21,6 +21,12 @@ class AccountView:
     equity: float
     positions: Mapping[str, Position]
     frozen_cash: float = 0.0
+    dividend_receivable: float = 0.0
+    tax_payable: float = 0.0
+
+    @property
+    def available_cash(self) -> float:
+        return max(0.0, self.cash - self.tax_payable)
 
 
 class Context:
@@ -114,7 +120,8 @@ class Context:
             raise ValueError(f"cannot size a target without a current valuation: {symbol}")
         rule = self._data.rules.at(symbol, self.session).rule
         desired = self._equity * weight // 1_000_000 // bar.close
-        current = self.account.positions[symbol].quantity
+        position = self.account.positions[symbol]
+        current = position.quantity + position.pending_quantity
         if desired > current:
             extra = desired - current
             extra = (
@@ -138,9 +145,13 @@ class Context:
         self._symbol(symbol)
 
 
-def account_view(cash: int, equity: int, positions: list[Position]) -> AccountView:
+def account_view(
+    cash: int, equity: int, positions: list[Position], receivable: int = 0, tax_payable: int = 0
+) -> AccountView:
     return AccountView(
         cash / 10_000,
         equity / 10_000,
         MappingProxyType({position.symbol: position for position in positions}),
+        dividend_receivable=receivable / 10_000,
+        tax_payable=tax_payable / 10_000,
     )

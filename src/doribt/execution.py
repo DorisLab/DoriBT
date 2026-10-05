@@ -11,7 +11,7 @@ from .validation import MAX_MONEY
 
 type IntArray = NDArray[np.int64]
 type Executor = Callable[
-    [int, IntArray, IntArray, IntArray, IntArray, IntArray], tuple[int, IntArray]
+    [int, IntArray, IntArray, IntArray, IntArray, IntArray, int], tuple[int, IntArray]
 ]
 
 # Market columns. Inactive and missing limits use zero; raw prices are always positive.
@@ -99,6 +99,7 @@ def execute_one(
     requested: int,
     rule: IntArray,
     costs: IntArray,
+    reserved: int,
 ) -> tuple[int, IntArray]:
     result = np.zeros(6, dtype=np.int64)
     buying = requested > 0
@@ -108,7 +109,8 @@ def execute_one(
     if reason != OK:
         result[REASON] = reason
         return cash, result
-    quantity, reason = order_size(cash, position, sellable, requested, price, rule, costs)
+    buying_cash = max(0, cash - reserved) if buying else cash
+    quantity, reason = order_size(buying_cash, position, sellable, requested, price, rule, costs)
     result[REASON] = reason
     if quantity == 0:
         return cash, result
@@ -151,6 +153,7 @@ def simulate_open(
     requests: IntArray,
     market: IntArray,
     costs: IntArray,
+    reserved: int,
 ) -> tuple[int, IntArray]:
     fills = np.zeros((len(requests), 6), dtype=np.int64)
     for direction in (-1, 1):
@@ -159,7 +162,7 @@ def simulate_open(
             if quantity * direction <= 0:
                 continue
             cash, row = execute_one(
-                cash, positions[column], sellable[column], quantity, market[column], costs
+                cash, positions[column], sellable[column], quantity, market[column], costs, reserved
             )
             fills[column] = row
     return cash, fills

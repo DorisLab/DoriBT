@@ -1,9 +1,9 @@
 """Pending targets are distinct from their one-session child orders."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 
-from .orders import IntentRecord
+from .orders import IntentRecord, TargetAdjustment
 
 
 @dataclass
@@ -16,6 +16,7 @@ class Intent:
     status: str = "active"
     closed: date | None = None
     reason: str = ""
+    adjustments: list[TargetAdjustment] = field(default_factory=list)
 
     def finish(self, session: date, status: str, reason: str = "") -> None:
         self.closed, self.status, self.reason = session, status, reason
@@ -30,6 +31,7 @@ class Intent:
             self.status,
             self.closed,
             self.reason,
+            tuple(self.adjustments),
         )
 
 
@@ -61,3 +63,13 @@ class IntentBook:
         for intent in self.pending.values():
             intent.finish(session, "unexecuted", "end_of_data")
         self.pending.clear()
+
+    def adjust(self, symbol: str, action_id: str, session: date, bonus_ppm: int) -> None:
+        intent = self.pending.get(symbol)
+        if intent is None or intent.kind != "target" or not bonus_ppm:
+            return
+        previous = intent.quantity
+        intent.quantity = previous * (1_000_000 + bonus_ppm) // 1_000_000
+        if intent.quantity > 1_000_000_000:
+            raise OverflowError("adjusted target quantity exceeds supported bounds")
+        intent.adjustments.append(TargetAdjustment(action_id, session, previous, intent.quantity))
