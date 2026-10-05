@@ -36,6 +36,7 @@ def main() -> None:
         tests += ["-m", "not numba"]
     run(*tests)
     run(sys.executable, "examples/sma.py", "--backend", args.backend)
+    run(sys.executable, "examples/market_data.py")
     with tempfile.TemporaryDirectory(prefix="doribt-build-") as temporary:
         run("uv", "build", "--out-dir", temporary)
         wheels = list(Path(temporary).glob("*.whl"))

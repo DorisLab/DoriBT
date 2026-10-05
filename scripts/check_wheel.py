@@ -19,6 +19,7 @@ from importlib.metadata import distribution
 from pathlib import Path
 import numpy as np
 import doribt
+from doribt import Instrument, MarketData, RuleBook, RulePeriod, TradingRule
 from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
 backend = sys.argv[1]
@@ -38,6 +39,16 @@ r = Backtest(b, initial_cash=10000, costs=Costs(slippage_ticks=0)).run(
 np.testing.assert_array_equal(r.equity, [10000.,10445.,10890.])
 assert r.backend == backend
 assert r.stats()['fill_count'] == 2
+rule = TradingRule(price_tick='.01', buy_minimum=100, buy_step=100, sell_step=100,
+                   settlement_days=1, stamp_duty_sell=0, transfer_fee=0)
+data = MarketData.from_records(
+    [dict(session='2025-01-02', symbol='A', status='trading', open=10, high=10,
+          low=10, close=10, volume=1000, upper_limit=None, lower_limit=None)],
+    calendar=['2025-01-02'], instruments=[Instrument(symbol='A', kind='stock')],
+    rules=RuleBook((RulePeriod(symbol='A', start='2025-01-02', end='2025-01-02',
+                              rule=rule, source='test', version='1'),)), source='test')
+assert data.prices('close').tolist() == [[10.0]]
+assert len(data.fingerprint) == 64
 if backend == 'python':
     try:
         Backtest(b).run(CloseSignals(sessions=b.sessions, hold=[True]*3), backend='numba')
