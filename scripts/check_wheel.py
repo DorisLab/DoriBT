@@ -19,7 +19,9 @@ from importlib.metadata import distribution
 from pathlib import Path
 import numpy as np
 import doribt
-from doribt import Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets
+from doribt import (
+    CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets
+)
 from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
 
 backend = sys.argv[1]
@@ -47,13 +49,21 @@ data = MarketData.from_records(
      for session, price in zip(b.sessions, (10, 10, 11), strict=True)],
     calendar=b.sessions, instruments=[Instrument(symbol='A', kind='stock')],
     rules=RuleBook((RulePeriod(symbol='A', start='2025-01-02', end='2025-01-06',
-                              rule=rule, source='test', version='1'),)), source='test')
+                              rule=rule, source='test', version='1'),)), source='test',
+    actions=[CorporateAction(action_id='dividend', symbol='A', kind='distribution',
+                             announced='2025-01-02', record_date='2025-01-03',
+                             ex_date='2025-01-06', pay_date='2025-01-07',
+                             cash_per_share=1, source='synthetic wheel check')])
 assert data.prices('close').tolist() == [[10.0], [10.0], [11.0]]
 assert len(data.fingerprint) == 64
 targets = WeightTargets(sessions=data.sessions, weights={'A': [.95, 0, 0]})
 formal = doribt.Backtest(data, initial_cash=10000).run(targets, backend=backend)
-np.testing.assert_array_equal(formal.equity, [10000.,9995.,10890.])
+np.testing.assert_array_equal(formal.equity, [10000.,9995.,11610.])
 assert [fill.quantity for fill in formal.fills] == [900, -900]
+assert formal.dividend_receivable[-1] == 900
+assert formal.tax_payable[-1] == 180
+assert formal.taxes[0].amount_units == 1_800_000
+assert formal.tax_payments == ()
 if backend == 'python':
     try:
         Backtest(b).run(CloseSignals(sessions=b.sessions, hold=[True]*3), backend='numba')

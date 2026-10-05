@@ -25,6 +25,7 @@ class Position:
     quantity: int
     sellable: int
     value: float
+    pending_quantity: int = 0
 
 
 class Account:
@@ -38,6 +39,8 @@ class Account:
         for lot in self.lots:
             if index is None or lot.available_session <= index:
                 totals[lot.symbol] += lot.quantity
+        if any(quantity > 1_000_000_000 for quantity in totals.values()):
+            raise OverflowError("registered share quantity exceeds supported bounds")
         return np.array(list(totals.values()), dtype=np.int64)
 
     def apply(self, order: Order, index: int, settlement: int) -> None:
@@ -61,9 +64,20 @@ class Account:
         if quantity:
             raise RuntimeError("execution sold more than settled lots")
 
-    def value(self, closes: IntArray) -> int:
-        equity = self.cash
-        for quantity, price in zip(self.quantities(), closes, strict=True):
+    def value(
+        self,
+        closes: IntArray,
+        pending_shares: IntArray | None = None,
+        receivable: int = 0,
+        tax_payable: int = 0,
+    ) -> int:
+        equity = self.cash + receivable - tax_payable
+        quantities = self.quantities()
+        if pending_shares is not None:
+            quantities = quantities + pending_shares
+        if np.any(quantities > 1_000_000_000):
+            raise OverflowError("economic share quantity exceeds supported bounds")
+        for quantity, price in zip(quantities, closes, strict=True):
             if quantity and price <= 0:
                 raise ValueError("held security has no active valuation; unsupported delisting")
             equity += int(quantity) * int(price)

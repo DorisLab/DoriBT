@@ -71,7 +71,9 @@ def test_rule_parameters_reject_invalid_values(change):
 
 
 def test_actions_keep_dates_beyond_horizon_and_change_provenance():
-    distribution = action(bonus_per_share="1.5", share_listing_date="2025-01-09")
+    distribution = action(
+        bonus_per_share="1.5", share_listing_date="2025-01-09", share_credit_date="2025-01-06"
+    )
     data = market(actions=[distribution])
     assert distribution.pay_date == date(2025, 1, 8)
     assert distribution.share_listing_date == date(2025, 1, 9)

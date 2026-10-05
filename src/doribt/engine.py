@@ -13,11 +13,18 @@ from .execution import IntArray, executor
 from .intents import IntentBook
 from .orders import REASONS, Order
 from .result import BacktestResult
+from .rights import RightsBook
 from .targets import WeightTargets
 from .validation import Number, amount
 
 
 class Backtest:
+    """Long-only daily cash account with ordinary domestic individual dividend tax.
+
+    Decisions made at a session's close first execute at the next supplied open.
+    Raw prices, rule periods and distribution facts belong to ``MarketData``.
+    """
+
     def __init__(
         self, data: MarketData, *, initial_cash: Number = 100_000, costs: Costs | None = None
     ) -> None:
@@ -34,8 +41,6 @@ class Backtest:
     def run(
         self, strategy: Callable[[Context], None], *, backend: str = "python"
     ) -> BacktestResult:
-        if self.data.actions:
-            raise NotImplementedError("corporate-action accounting is not implemented yet")
         if isinstance(strategy, WeightTargets):
             strategy.validate(self.data)
         run = _Run(self.data, self._initial_cash, self.costs, backend)
@@ -49,12 +54,18 @@ class _Run:
         self.kernel = executor(backend)
         self.account = Account(initial_cash, data.symbols)
         self.book = IntentBook()
+        self.rights = RightsBook(data)
         self.orders: list[Order] = []
         self.history = {field: data.prices(field) for field in ("open", "high", "low", "close")}
         days, columns = len(data.sessions), len(data.symbols)
         self.equity, self.cash = np.zeros(days, dtype=np.int64), np.zeros(days, dtype=np.int64)
         self.holdings = np.zeros((days, columns), dtype=np.int64)
         self.sellable = np.zeros((days, columns), dtype=np.int64)
+        self.pending_shares = np.zeros((days, columns), dtype=np.int64)
+        self.receivable, self.tax_payable = (
+            np.zeros(days, dtype=np.int64),
+            np.zeros(days, dtype=np.int64),
+        )
 
     def execute(self, strategy: Callable[[Context], None]) -> BacktestResult:
         for index, session in enumerate(self.data.sessions):
@@ -65,13 +76,20 @@ class _Run:
                     symbol,
                     int(self.holdings[index, column]),
                     int(self.sellable[index, column]),
-                    int(self.holdings[index, column])
+                    int(self.holdings[index, column] + self.pending_shares[index, column])
                     * int(self.compiled.closes[index, column])
                     / 10_000,
+                    int(self.pending_shares[index, column]),
                 )
                 for column, symbol in enumerate(self.data.symbols)
             ]
-            view = account_view(self.account.cash, int(self.equity[index]), positions)
+            view = account_view(
+                self.account.cash,
+                int(self.equity[index]),
+                positions,
+                int(self.receivable[index]),
+                int(self.tax_payable[index]),
+            )
             context = Context(
                 self.data,
                 index,
@@ -88,7 +106,15 @@ class _Run:
             finally:
                 context._active = False
         self.book.finish(self.data.sessions[-1])
-        for array in (self.equity, self.cash, self.holdings, self.sellable):
+        for array in (
+            self.equity,
+            self.cash,
+            self.holdings,
+            self.sellable,
+            self.pending_shares,
+            self.receivable,
+            self.tax_payable,
+        ):
             array.setflags(write=False)
         return BacktestResult(
             self.data.sessions,
@@ -102,10 +128,22 @@ class _Run:
             tuple(item.record() for item in self.book.history),
             self.backend,
             self.data.fingerprint,
+            self.pending_shares,
+            self.receivable,
+            self.tax_payable,
+            self.rights.records(),
+            tuple(self.rights.events),
+            self.rights.tax.records(),
+            self.rights.tax.lot_records(),
+            tuple(self.rights.tax.payments),
         )
 
     def _open(self, index: int) -> None:
+        self.rights.start(index, self.account, self.book)
         positions, sellable = self.account.quantities(), self.account.quantities(index)
+        positions = positions + self.rights.pending_shares()
+        if np.any(positions > 1_000_000_000):
+            raise OverflowError("economic share quantity exceeds supported bounds")
         requests = np.zeros(len(self.data.symbols), dtype=np.int64)
         for column, symbol in enumerate(self.data.symbols):
             if intent := self.book.pending.get(symbol):
@@ -122,13 +160,14 @@ class _Run:
             requests,
             self.compiled.market[index],
             self.costs,
+            self.rights.tax.payable,
         )
         # Record in actual execution order so replay uses sale proceeds for later buys.
         columns = sorted(range(len(requests)), key=lambda column: (requests[column] > 0, column))
         for column in columns:
             if requests[column]:
                 self._record(index, column, int(requests[column]), rows[column])
-        self.account.cash = cash
+        self.account.cash = self.rights.tax.settle(self.data.sessions[index], cash)
 
     def _record(self, index: int, column: int, requested: int, row: IntArray) -> None:
         symbol, session = self.data.symbols[column], self.data.sessions[index]
@@ -159,7 +198,18 @@ class _Run:
             del self.book.pending[symbol]
 
     def _close(self, index: int) -> None:
-        self.equity[index] = self.account.value(self.compiled.closes[index])
+        self.rights.close(index, self.account)
+        self.pending_shares[index] = self.rights.pending_shares()
+        self.receivable[index], self.tax_payable[index] = (
+            self.rights.receivable,
+            self.rights.tax.payable,
+        )
+        self.equity[index] = self.account.value(
+            self.compiled.closes[index],
+            self.pending_shares[index],
+            int(self.receivable[index]),
+            int(self.tax_payable[index]),
+        )
         self.cash[index] = self.account.cash
         self.holdings[index] = self.account.quantities()
         self.sellable[index] = self.account.quantities(index)
