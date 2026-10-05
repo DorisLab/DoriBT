@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "doribt"
+version = "0.1.0a1"
+description = "Experimental Python backtesting primitives for A-share research"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "DoriBT contributors"}]
+dependencies = ["numpy>=2.0,<3"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+
+[project.urls]
+Repository = "https://github.com/DorisLab/DoriBT"
+Issues = "https://github.com/DorisLab/DoriBT/issues"
+
+[project.optional-dependencies]
+numba = ["numba>=0.61,<0.69"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
