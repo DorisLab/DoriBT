@@ -107,3 +107,9 @@ PyPI、GitHub Release、教程与 Pages 发布目标完成。发布及 PR 合入
 Windows 本地完整门禁通过：基础 367 项、含 Numba 完整 532 项；Ruff、72 个文件 strict mypy、400 行／复杂度、公开示例、两类全新 wheel 仓库外安装通过。新增独立 Decimal 部分成交账本、三种滑点模型高低点、涨跌停两个方向、限价、冻结资金、非正价格、日线／分钟、预计算／回调和导出回读检查。严格文档构建、站内链接及基础／Numba 仓库外教程均通过。依赖未改，未重复联网漏洞审计；本轮不创建发行或里程碑标签、不运行远程 CI、不发布 PyPI／Pages，Linux 新行为和新版性能尚未据此验收。下一步按实际发布计划进行里程碑与发行验证。
 
 2026-10-06 准备 0.3.0 发行：公开包与源码版本、安装教程更新至 0.3.0，运行依赖保持锁定。发行包含滑点边界策略及对应成交参考价、来源记录、教程和检查。正式标签仅指向已合入 main 的提交；发布工作流须通过跨平台门禁、依赖审计、凭据扫描和实际 wheel 验证后上传 PyPI。正式发布和公开下载验证结果随后记录，不沿用本地检查代替远程结论。
+
+2026-10-06 0.3.0 发布完成：PR #20 合入 c516366cef5414824d9659a7f9498ccece45f4e3，annotated 标签 v0.3.0 固定该提交。[发行运行 37460612281](https://github.com/DorisLab/DoriBT/actions/runs/37460612281) 的 Windows／Linux × Python／Numba、锁定依赖审计、完整历史凭据扫描、构建及 PyPI 上传全部成功。同一 push 另出现相同标签与提交的排队运行 37460612661，已取消，保留首条完整发行运行。
+
+公开 PyPI 0.3.0 的 wheel／sdist 与发行构建、SHA256SUMS 三方一致；GitHub Release 三个资产均通过无登录下载和逐字节哈希核对。独立 Python 3.13 环境从官方 PyPI 安装 doribt[numba,plot]==0.3.0，Python／Numba 三种滑点模式示例及全部仓库外教程通过，实际导入来自该环境的 site-packages。wheel SHA-256 为 cb9e5ae096d974410654be6167e58cd45b3d7724c57138e9a8119a308ed1f79b，sdist 为 95af528715d4fe77394660dd5fa55c2aa2d156efb12c8ce2169aa22fc766cef6。
+
+[GitHub Release v0.3.0](https://github.com/DorisLab/DoriBT/releases/tag/v0.3.0) 由 DorisLab 发布，为 Latest 正式版本。[Pages 运行 37461243552](https://github.com/DorisLab/DoriBT/actions/runs/37461243552) 的 Linux 文档构建、教程检查与部署成功；公开首页与分钟教程返回 HTTP 200，首页版本为 0.3.0，教程包含 slippage_policy。本次仅使用发行事件运行 CI／Pages，普通 PR 不触发；消费者环境未修改。发布目标完成，后续研究使用 cost 模式需显式配置，默认 strict 保持不变。
