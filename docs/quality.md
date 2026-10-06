@@ -38,11 +38,11 @@ uv run --no-sync python scripts/check.py --backend numba --audit
 
 覆盖率包含分支并列出遗漏位置，用于找缺失行为；当前不以一个百分比代替关键案例，也不为凑数字添加同义测试。生成式测试采用固定的可复现配置并由 Hypothesis 缩减失败输入；独立预期使用 Decimal，不能导入内核的计费或记账函数计算答案。
 
-CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；另有依赖审计与凭据扫描。仅 `milestone/**` 或 `v*` 标签 push，以及里程碑时手动触发会运行；普通提交、分支 push 和 PR 更新不触发。主要目标先通过本地门禁再提交，里程碑的 CI 全部通过后才具备跨平台验收证据。工作流使用固定 Action 提交、只读默认权限、超时和旧运行取消，不执行发布。仓库是否强制 required checks 由远端分支保护设置决定，提交 workflow 本身不等于已启用保护。
+CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；另有依赖审计与凭据扫描。`milestone/**` 标签直接运行；`v*` 标签由发布工作流复用同一套门禁，通过后构建并上传 PyPI。里程碑可手动触发，普通提交、分支 push 和 PR 更新不触发。主要目标先通过本地门禁再提交，里程碑的 CI 全部通过后才具备跨平台验收证据。工作流使用固定 Action 提交、只读默认权限与超时；仅独立上传 job 获得 PyPI OIDC 权限。仓库是否强制 required checks 由远端分支保护设置决定，提交 workflow 本身不等于已启用保护。
 
 ## 迭代与新增能力
 
-日常迭代先跑受影响用例，例如 `uv run --no-sync pytest tests/test_research.py -m 'not numba'`；代码稳定后再跑完整入口。基础任务会明确排除标为 `numba` 的用例，对应 Numba CI 任务必须执行这些用例，不使用 `importorskip` 隐藏依赖问题。
+日常迭代先跑受影响用例，例如 `uv run --no-sync python -m pytest tests/test_minute_execution.py -m 'not numba'`；代码稳定后再跑完整入口。基础任务会明确排除标为 `numba` 的用例，对应 Numba CI 任务必须执行这些用例，不使用 `importorskip` 隐藏依赖问题。
 
 后续能力需要的最小验证包括：
 
@@ -59,3 +59,9 @@ CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；�
 `scripts/benchmark.py` 在两个独立进程、全新 Numba 缓存中运行单标的、参数网格和共享资金组合；逐项核对输出摘要后才发布报告。`psutil` 仅为开发依赖，采样包含 Windows 虚拟环境启动器的子进程。CI 运行小规模功能检查，不以速度排名决定通过；完整测量方法与结果见[性能基线](performance.md)。
 
 失败不能通过删断言、提高账本误差容忍度或增加广泛忽略来解决。必要例外须说明原因、受影响范围、替代证据和复查期限；当前没有依赖漏洞或告警豁免。
+
+分钟新增门禁包括独立 Decimal 成交／账户重建、佣金累计、冻结／释放、T+1 与日内权益边界、缺分钟／时区错位失败、时间因果与导出。基础与 Numba wheel 安装检查都实际执行分钟多次成交。`benchmarks/` 同样纳入 400 行、复杂度、格式及 strict mypy；vectorbt 是隔离比较环境依赖，不进入 DoriBT 运行依赖。比较脚本中的浮点核对仅为 vectorbt 运算舍入容差，DoriBT 与 Decimal 仍逐单位精确相等。
+
+预计算分段执行须与逐 bar 路径核对所有结果数组及意图／订单／成交／权益／税务记录，不只核对最终收益；两种 wheel 实际运行 PositionTargets。来源缓存须保持规范 JSON，并在替换行情、费用或依赖版本后反映新事实。性能样本中的分钟／日线成交量差异可作为来源元数据保留，不因此截断效率测试区间；两种引擎必须读取同一份分钟输入。
+
+参数与研究输出的定向入口为 test_research_parameters／test_research_outputs／test_research_report：费用必须真实改变成交资金并按订单累计最低值，参数错误必须在首次回调前失败，自定义输出不得覆盖已有 namespace 或在失败时留下半份导出。日频报告必须纳入首日费用、按日末采样分钟结果、明确基准对齐；交易盈亏以手算移动成本及独立 Decimal 公司行动账本验证。两种隔离 wheel 实际运行 RunConfig、声明参数、record、自定义指标和 daily 导出，验证源码分目录后依赖及公开导入完整。

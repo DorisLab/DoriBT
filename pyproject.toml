@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "doribt"
-version = "0.1.0"
-description = "Daily cash-account backtesting for A-share research"
+version = "0.2.0"
+description = "Daily and minute cash-account backtesting for A-share research"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 license = "Apache-2.0"
@@ -19,6 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
+Documentation = "https://dorislab.github.io/DoriBT/"
 Repository = "https://github.com/DorisLab/DoriBT"
 Issues = "https://github.com/DorisLab/DoriBT/issues"
 
@@ -60,7 +61,7 @@ max-file-lines = 400
 
 [tool.mypy]
 python_version = "3.13"
-files = ["src", "examples", "scripts"]
+files = ["src", "examples", "scripts", "benchmarks"]
 strict = true
 
 [[tool.mypy.overrides]]

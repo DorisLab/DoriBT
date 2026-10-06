@@ -94,3 +94,23 @@ def test_interactive_function_source_unavailable_is_not_claimed_as_captured():
     exec("def callback(ctx):\n    pass", scope)
     info = Backtest(data_for([10])).run(scope["callback"]).run_info.to_dict()
     assert info["strategy"]["source_sha256"] is None
+
+
+def test_cached_fragments_keep_canonical_json_and_refresh_changed_inputs(monkeypatch):
+    import doribt.provenance as provenance
+
+    data = data_for([10] * 3)
+    targets = WeightTargets(sessions=data.timeline, weights={"A": [0.5] * 3})
+    test = Backtest(data)
+    old = test.run(targets)
+    assert old.run_info.json == provenance.encode(old.run_info.to_dict())
+    test.data = replace(data, source="changed snapshot")
+    test.costs = Costs(commission=0.001)
+    monkeypatch.setattr(provenance, "_versions", lambda backend: {"python": "test-version"})
+    new = test.run(targets)
+    facts = new.run_info.to_dict()
+    assert facts["data"]["source"] == "changed snapshot"
+    assert facts["costs"]["commission_ppm"] == 1000
+    assert facts["versions"] == {"python": "test-version"}
+    assert new.run_info.json == provenance.encode(facts)
+    assert new.run_info.fingerprint != old.run_info.fingerprint

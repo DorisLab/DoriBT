@@ -6,7 +6,7 @@ import pytest
 from engine_fixtures import data_for
 
 from doribt import Backtest, Costs, WeightTargets
-from doribt.orders import Reason
+from doribt.accounting.orders import Reason
 
 FREE = Costs(commission=0, minimum_commission=0)
 

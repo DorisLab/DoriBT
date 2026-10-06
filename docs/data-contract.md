@@ -1,8 +1,10 @@
 # 行情、历史规则与公司行动
 
-状态：本地数据入口与验证已实现，可用于 `doribt.Backtest` 的多标的共享账户；分红送转执行见[权益模型](corporate-actions.md)，沪深基础预设见[市场支持矩阵](china-market.md)。`MarketData` 不能传给 `doribt.experimental.Backtest`；后者继续使用单标的 `DailyBars`。
+状态：本地数据入口与验证已实现，可用于 `doribt.Backtest` 的多标的共享账户；分红送转执行见[权益模型](corporate-actions.md)，沪深基础预设见[市场支持矩阵](china-market.md)。开发版仅保留正式 `MarketData` 入口。
 
 ## 面向使用者的入口
+
+开发版另有 `MarketData.from_minutes`：日期日历仍只含交易日，行提供带 +08:00 的 `timestamp` 及 `phase`，`frequency` 为 1min／5min。每个日期／证券必须覆盖完整时段网格，详见[分钟数据与时间契约](minute-execution.md)。以下日线契约适用于 from_records／from_csv。
 
 `MarketData.from_records(rows, calendar=..., instruments=..., rules=..., source=..., actions=..., adjustments=...)` 接受字典行；`MarketData.from_csv(path, ...)` 接受相同字段的 UTF-8 CSV（允许 BOM）。构造后数据不可修改，行自动按交易日和声明的证券顺序排列。交易日、证券、规则和来源由数据提供层组织一次，策略只接收验证后的对象，不重复填写规则。
 

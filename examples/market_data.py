@@ -1,4 +1,4 @@
-"""Validate a tiny fictional multi-security market without downloading data."""
+"""验证一份人工多证券行情，无需下载数据。"""
 
 from doribt import CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule
 
@@ -6,7 +6,7 @@ from doribt import CorporateAction, Instrument, MarketData, RuleBook, RulePeriod
 def sample_data() -> MarketData:
     sessions = ["2025-01-02", "2025-01-03", "2025-01-06"]
     instruments = [Instrument(symbol="STOCK", kind="stock"), Instrument(symbol="ETF", kind="etf")]
-    # Illustrative rules only. A real adapter supplies sourced historical periods.
+    # 仅为示例规则；实际数据适配器需提供有来源的历史规则区间。
     rule = TradingRule(
         price_tick="0.01",
         buy_minimum=100,
@@ -68,6 +68,6 @@ def sample_data() -> MarketData:
 
 if __name__ == "__main__":
     data = sample_data()
-    print("Securities:", data.symbols)
-    print("Close prices (yuan):\n", data.prices("close"))
-    print("Data identity:", data.fingerprint)
+    print("证券：", data.symbols)
+    print("收盘价（元）：\n", data.prices("close"))
+    print("数据指纹：", data.fingerprint)

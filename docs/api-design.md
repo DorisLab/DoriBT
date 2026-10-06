@@ -1,5 +1,11 @@
 # API 的使用路径与职责
 
+0.2 开发版的[研究接口](research-contract.md)增加 RunConfig（含可配置佣金比例和最低佣金）、ParameterSet、研究输出和日频报告。RunConfig 入口统一采用 BarExecution；下面保留旧直接参数入口的兼容语义。源代码按 market／accounting／runtime／kernels／reporting／research 分目录，公开对象继续从顶层 doribt 导入。
+
+0.2 开发版增量见[分钟执行](minute-execution.md)：复用 Backtest／Context／MarketData，增加 BarExecution 与一单多次成交；从实验包迁移的示例已统一。下面保留 0.1.0 正式入口的基线说明。
+
+预计算固定股数现可使用 `PositionTargets(sessions=data.timeline, quantities={symbol: values})`；与 WeightTargets 一样保持时间对齐和同一结果接口。分钟场景自动采用[事件分段执行](scheduled-execution.md)，回调路径继续保留。
+
 本文描述 0.1.0 的正式数据入口、共享账户、收盘函数策略、预计算目标、分红送转、指标／图表及标准导出。真实 ETF 对账和完整引擎性能证据见[首版验收](release-0.1.0.md)。后续 API 可以演进，行为变化须进入版本记录。
 
 正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, parameters=..., backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。`parameters` 是实际传给回调的关键字参数，同时以初始快照记入结果；不是仅供展示的附加标签。无参数函数仍可以直接传入。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动作为 `MarketData.actions` 的事实输入，策略无需手工派息、拆股或扣税；结果保留应收、待入账股份、权益事件和税务批次，见[权益模型](corporate-actions.md)。不支持的行动影响账户时抛出 `UnsupportedCorporateAction`。
@@ -14,22 +20,9 @@
 
 正常路径为：准备有日期和证券标识的数据 → 编写策略 → 配置账户与执行假设 → 运行 → 分析和导出结果。默认使用者不需要知道内核数组的轴顺序、原因码整数值或 Numba 回调签名。
 
-此前的 `backtest(bars, regime, Config(...))` 直接暴露原型内核：调用者手动错位信号，单账户也要索引矩阵列，统计还需重复传入初始资金。它保留为底层批量接口；完整引擎应围绕上述研究过程设计，不把这个函数签名直接冻结为最终 API。
+原型预算模型已从开发版移除，历史实现保留在 v0.1.0。均线示例改用正式入口；独立 Decimal 账本、半分舍入和费用可负担性继续由正式引擎测试覆盖。
 
-## 保留的实验收盘信号入口
-
-以下类均属于 `doribt.experimental`，入口为 `Backtest(data, initial_cash=..., allocation=..., costs=Costs(...)).run(signals, backend=...)`，不能与包根目录的多标的类型混用。
-
-- `DailyBars`：一个标的的日期、原始开收盘价、明确的日价格边界及停牌状态。接受列表和 NumPy 数组，验证相同。必需字段缺失不能推断为“正常交易”。
-- `CloseSignals(sessions=..., hold=...)`：日期对齐的一维布尔持有意图，在当日收盘后已知。日期必须与行情逐项相同，不静默重排、广播、前填或丢弃。`True` 是希望持有，`False` 是希望空仓，不是脉冲买卖事件。
-- `Backtest`：账户初始资金、入场预算与成本配置；`run` 执行一次独立模拟。引擎自动延迟一行，首日空仓，最后收盘信号不在样本内执行。连续持有不每日重新平衡，成交受阻且意图持续时下一输入交易日重试。
-- `BacktestResult`：一维现金、持仓和权益，以及带日期的成交、未成交原因、实际后端、模型和配置。`total_return` 为小数比例；`max_drawdown` 为正数损失比例并把初始资金计入历史峰值。`stats()` 不暗中指定年化天数或无风险利率。
-
-样例见 [README](../README.md)和[均线策略](../examples/sma.py)。这个入口继续使用现有预算型次日开盘模型，未增加多资产、股票税费或完整委托生命周期。
-
-信号自动延迟只能约束执行时间，无法证明调用者的预计算因子没有使用未来价格。策略仍需前缀稳定性检查；正式 `Context.history` 只暴露截至当时的数据视图。
-
-底层 `backtest` 的 `regime` 已是执行日方向，不再自动延迟；列表示独立参数账户，不能当作一个账户的多个证券。两套时间约定明确分离，避免重复或缺失延迟。已有底层调用保持兼容。
+预计算目标须与行情时点严格对齐；信号自动延迟不能证明因子没有未来数据，仍需前缀稳定性检查。
 
 ## 基础引擎应提供的接口
 

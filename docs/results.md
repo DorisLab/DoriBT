@@ -2,6 +2,8 @@
 
 正式 `BacktestResult` 表示一次共享现金账户运行。证券列顺序为 `result.symbols`，行顺序为 `result.sessions`；不会把参数组合放进证券列。金额账本与分析浮点数分别使用，指标不反向修改账本。
 
+0.2 开发版新增 `report()` 日频报告和 `ctx.record`／`analyze`／`with_outputs` 研究扩展，详见[研究契约](research-contract.md)。`report()` 从初始资金开始计算每天收益（包含首日影响），默认 252 个交易日年化；下面的 `stats()` 仍保留输入周期语义。新版 [research.py](../examples/research.py) 演示声明参数、可配置费用、自定义输出与日频导出。
+
 ## 日常用法
 
 ```python
@@ -63,9 +65,13 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 ## 图表
 
-`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端。中文标签需要用户环境中适用的字体；默认示例使用英文图例。
+`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤；提供基准时，中间另显示累计超额收益。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端或字体设置。默认优先中文标题与图例，自动选择本机已安装的 Noto Sans SC／CJK SC、微软雅黑等中文字体；缺少这些字体时内置标签回退为英文，避免缺字。安装 Noto Sans CJK SC 后可使用中文；用户自定义基准名称保持原文，所需字体由调用环境提供。
 
 `plot` 是可选安装项；导入和运行基础引擎不加载 Matplotlib。`export(..., plot=True)` 才请求绘图，缺依赖会明确报错并清理此次临时输出。
+
+默认按图表含义配色：策略净值红色（`#c83932`）、基准蓝色（`#477bb5`）、累计超额收益金色（`#b98b2f`）、负向回撤浅红色（`#df8a87`），零线与网格用中性灰。累计超额收益为 `result.nav - benchmark.nav`，与累计收益差指标一致，单独以百分比坐标显示，不与净值共用纵轴。没有基准时不显示超额面板。
+
+红／灰／绿用于表达上涨、平收或停牌、下跌的行情状态，不按此规则为上述研究系列分配颜色。当前导出为净值、超额和回撤图，不包含 K 线或行情状态图。净值线不随每段涨跌变色；需要定制可编辑返回的 Figure。分钟图保留每根 bar 的结束时点，横轴按输入市场时区显示；`export(daily=True, plot=True)` 则显示日末采样后的曲线。
 
 ## 导出契约
 
@@ -80,6 +86,8 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 | `taxes.csv` / `tax_payments.csv` / `tax_lots.csv` | 税款确认、扣收和期末剩余税务批次 |
 | `ledger.json` | 以上离散账本记录的有类型版本，保留空值与嵌套调整信息 |
 | `stats.json` | 指标以及本次指定的年化周期和无风险利率 |
+| `research.json` | 自定义指标、完整时点对齐的曲线、同构表格及其单位／说明；独立 namespace |
+| `report.json` | `daily=True` 时的日频统计、每日账户、月收益、卖出价格盈亏、已平仓轮次、未平仓成本和定义；stats.json 同时采用日频口径 |
 | `run.json` | 实际运行假设、初始资金、参数、模型、来源、规则、权益和依赖版本 |
 | `benchmark.json` | 指定基准时保存全部基准输入及来源 |
 | `equity.png` | 请求绘图时保存的净值／回撤图 |
@@ -102,3 +110,6 @@ CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保�
 不读取环境变量、不抓取闭包／全局变量／对象状态、不复制策略源代码或原始行情。回调来源不可读取时明确为 `null`，外部状态标记 `not_captured`。调用者仍需保留自己的原始数据、脚本、锁定环境以及显式随机种子；参数不能存放凭据，来源描述也不应带认证信息。指纹可以核对输入和程序是否一致，不能证明任意有外部状态的 Python 回调完全可复现。
 
 `run_info.fingerprint` 标识执行记录；同一结果使用不同分析假设导出时，执行指纹保持相同，`stats.json`、基准和文件清单哈希随分析输入变化。可选绘图库版本不算执行依赖，其环境由研究项目的锁文件保留。
+# 分钟结果增量
+
+0.2 开发版 `result.sessions` 为完整 bar 结束时点；账户／持仓 CSV 相应逐 bar 输出，并增加 frozen_cash_units／frozen_quantity。`Fill.timestamp` 标识该成交最早可知的时点，同一 order_id 可有多行。订单金额／费用为累计值。原始 stats／plot 的 `Benchmark` 同样须与分钟时点严格对齐；原始统计不自动重采样，不能直接把分钟曲线按 252 个周期年化。新 report／export(daily=True) 按日末采样，并接受完整 bar 或精确交易日对齐的基准，前述旧约束不适用于新的日频入口。
