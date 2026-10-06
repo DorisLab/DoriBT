@@ -26,6 +26,7 @@ from doribt import (
 assert importlib.util.find_spec('doribt.experimental') is None
 
 backend = sys.argv[1]
+assert sys.flags.utf8_mode == 1, 'Isolated installation checks require explicit UTF-8 mode'
 assert 'numba' not in sys.modules, 'Importing DoriBT must not import Numba'
 assert 'matplotlib' not in sys.modules, 'Importing DoriBT must not import plotting dependencies'
 installed = distribution('doribt')
@@ -172,6 +173,8 @@ def check_wheel(wheel: Path, backend: str) -> None:
                 str(requirements),
                 "python",
                 "-I",
+                "-X",
+                "utf8",
                 "-c",
                 SMOKE,
                 backend,
