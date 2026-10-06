@@ -24,7 +24,23 @@ DAY 的有效期为首个可执行 bar 所属交易日，午休保留、该日�
 
 ## 费用、滑点与失败
 
-`Costs` 管理费用；`BarExecution(participation=.05, slippage=FixedBps(5))` 管理容量和滑点，另外支持 FixedTicks、VolumeImpact。成交价按方向不利取整到 tick；超出 bar 高低、日边界或用户限价就不成交，不把价格截断为一个虚构成交。成交量冲击使用本 bar 已使用量加本次拟成交量的参与率平方，并明确系数是假设。
+`Costs` 管理费用；`BarExecution(participation=.05, slippage=FixedBps(5))` 管理容量和滑点，另外支持 FixedTicks、VolumeImpact。滑点先按买入加价、卖出减价计算，并向不利方向对齐 tick。成交量冲击使用本 bar 已使用量加本次拟成交量的参与率平方，系数是调用者的研究假设。
+
+`slippage_policy` 决定滑点后的价格如何处理，适用于上述三种模型：
+
+| 取值 | 越过 bar 高低价或当日涨跌停价时 | 适用假设 |
+| --- | --- | --- |
+| `strict`（默认） | 本次不成交，记录 `price_out_of_range` | 要求模拟成交价处于历史价格范围内 |
+| `cap` | 将价格截到 bar 区间与当日涨跌停区间的交集 | 接受滑点被边界削减，不保证扣足设定成本 |
+| `cost` | 保留完整滑点，允许模拟结算价越界 | 将滑点视为研究成本，避免仅因越界取消交易 |
+
+例如开盘价与最高价都是 10 元，买入滑点 0.02 元：`strict` 不成交，`cap` 以 10 元结算，`cost` 以 10.02 元结算。最低价卖出同理；日涨跌停边界也使用同一策略。
+
+三种策略都先按原始开盘价和行情状态判断成交资格。停牌、无量、竞价，以及开盘已在涨停价时买入／跌停价时卖出的阻断不变；也不放宽 T+1、持仓、共享量限和资金约束。`cost` 允许的是**滑点后的模拟结算价**越界，不能据此推断涨停可以买到或跌停可以卖出。
+
+显式 `limit_price` 仍保护最终结算价，超过限价返回 `limit_price`，不会为满足用户限价自动截价。结算价必须为正。买入可负担数量、成交金额及按金额计算的税费均使用最终结算价，因此增加成本仍可能因资金不足减少数量。挂单冻结预算用提交时已知价格及完整滑点估算，不读取未来 bar 的边界；`cap` 在实际执行时用截价后的价格计算可买量。
+
+`Fill.reference_price` 记录滑点前的开盘参考价，`Fill.price` 是最终模拟结算价；两者的差额乘有符号成交数量得到 `Fill.slippage_cost`。该成本已经计入成交金额，不是单独收取的手续费，不能再次从现金扣除。`run_info` 和导出记录保留边界策略与参考价，详见[结果契约](results.md)。
 
 滑点通过 `BarExecution.slippage` 配置，不能同时设置非零 `Costs.slippage_ticks`。冲击系数由调用者指定，不静默推断真实冲击或卖出可用量。
 
@@ -50,5 +66,4 @@ print(result.stats())
 
 预计算目标使用 `WeightTargets(sessions=data.timeline, weights=...)`。`data.sessions` 保留唯一交易日；`data.timeline` 是 bar 结束时点。分钟 `prices(as_of=...)` 必须传带时区的具体结束时点。
 
-完整可运行脚本见[分钟教程](guide/minutes.md)，预计算优化与边界见[分段执行](scheduled-execution.md)。
 完整可运行脚本见[分钟教程](guide/minutes.md)，预计算优化与边界见[分段执行](scheduled-execution.md)。

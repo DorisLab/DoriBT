@@ -82,7 +82,14 @@ def run_examples(python: str, backend: str) -> None:
             ["examples/market_data.py"],
             *[
                 [f"examples/{name}.py", "--backend", backend]
-                for name in ("sma", "strategies", "dividends", "historical_rules", "minute")
+                for name in (
+                    "sma",
+                    "strategies",
+                    "dividends",
+                    "historical_rules",
+                    "minute",
+                    "slippage",
+                )
             ],
             ["examples/minute.py", "--backend", backend, "--precomputed"],
             ["examples/research.py", "--backend", backend, "--plot", "--output", "report"],

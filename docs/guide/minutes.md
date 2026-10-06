@@ -38,11 +38,21 @@ from doribt import BarExecution, Costs, FixedBps, RunConfig
 config = RunConfig(
     initial_cash=100_000,
     costs=Costs(commission=0.0003, minimum_commission=5),
-    execution=BarExecution(participation=0.1, slippage=FixedBps(5)),
+    execution=BarExecution(participation=0.1, slippage=FixedBps(5), slippage_policy="cost"),
 )
 ```
 
-5 bps 为单边 0.05%。也可使用 `FixedTicks(1)` 或 `VolumeImpact(coefficient=0.1)`。价格按不利方向对齐最小价位；超过 bar 高低价、当日边界或用户限价时不成交。
+5 bps 为单边 0.05%。也可使用 `FixedTicks(1)` 或 `VolumeImpact(coefficient=0.1)`。上例选择 `cost`：完整计入滑点，允许模拟结算价超过 bar 高低价或当日涨跌停价。省略 `slippage_policy` 时默认 `strict`，越界不成交；`cap` 则截到边界，会削减滑点成本。
+
+三种模式都保留原始行情的成交资格、T+1、量限与资金约束，以及用户对最终结算价设置的 `limit_price`。涨停买入、跌停卖出的原始开盘阻断仍然有效，详见[滑点边界契约](../minute-execution.md#费用滑点与失败)。
+
+完整{download}`滑点比较示例 <../../examples/slippage.py>`在三日平价人工行情上演示高点买入、低点卖出：
+
+```sh
+python examples/slippage.py
+```
+
+零手续费、100 份、单边 0.02 元滑点：`strict` 没有成交，`cap` 买卖都按 10 元结算，`cost` 买入 10.02 元、卖出 9.98 元，往返滑点成本为 4 元。`Fill.reference_price` 保留 10 元参考价，`Fill.slippage_cost` 可用于解释成本；它已计入现金与收益，不要重复扣减。
 
 `next_bar` 只尝试下一根；`day` 持续到首个可执行 bar 所属交易日结束，午休不撤单。T+1 按交易日推进，不能在同一天买入后再卖出未解锁股份。
 

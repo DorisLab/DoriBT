@@ -63,7 +63,7 @@ print(report.stats)
 result.export("new-report", daily=True)
 ```
 
-`RunConfig.schema().to_dict()`、`schema.to_dict()` 提供可序列化描述，`RunConfig.from_dict(values)` 校验表单数据；运行配置的 JSON 字段为 initial_cash、commission、minimum_commission、participation、slippage_kind、slippage_value、backend。佣金比例用小数（万一为 0.0001），最低佣金单位元、精确到分；后者不是每次部分成交重复收取，而是一个订单累计计算。固定 tick 滑点数值为整数档位，bps 为单边基点（5 表示 0.05%），volume_impact 为冲击系数。每个模型仍按内核支持精度／上限校验。
+`RunConfig.schema().to_dict()`、`schema.to_dict()` 提供可序列化描述，`RunConfig.from_dict(values)` 校验表单数据；运行配置的 JSON 字段为 initial_cash、commission、minimum_commission、participation、slippage_kind、slippage_value、slippage_policy、backend。佣金比例用小数（万一为 0.0001），最低佣金单位元、精确到分；后者不是每次部分成交重复收取，而是一个订单累计计算。固定 tick 滑点数值为整数档位，bps 为单边基点（5 表示 0.05%），volume_impact 为冲击系数。`slippage_policy` 可选 strict／cap／cost，默认 strict；含义见[滑点契约](minute-execution.md)。每个模型仍按内核支持精度／上限校验。
 
 策略声明只支持 int／float／str／bool 标量；无声明 parameters 仍接受 JSON 对象和列表。声明的缺省参数由 default 补齐，未知键失败；step 从 minimum（未指定则 0）起算并参与校验，用于表单和后续参数扫描，不等于已提供优化器。跨字段关系由策略检查。后端可在 run 时显式覆盖，实际值写入运行信息。
 

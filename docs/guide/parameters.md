@@ -25,6 +25,7 @@ config = RunConfig(
 | `participation` | 0.05 | 每证券每 bar 最大成交比例 |
 | `slippage_kind` | ticks | ticks／bps／volume_impact |
 | `slippage_value` | 0 | 档位／基点／冲击系数 |
+| `slippage_policy` | strict | strict 拒绝越界／cap 截到行情边界／cost 保留完整成本 |
 | `backend` | python | python／numba |
 
 `config.to_dict()` 可保存 JSON；`RunConfig.from_dict(values)` 校验并重建配置。
