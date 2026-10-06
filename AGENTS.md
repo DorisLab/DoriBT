@@ -1,8 +1,8 @@
 # DoriBT development
 
 Read README.md, docs/roadmap.md, docs/api-design.md and docs/quality.md before changes.
-Keep implementation status distinct from release targets. The first release requires
-the complete baseline engine in the roadmap, not only the experimental simulator.
+Keep current capabilities, future plans and historical evidence distinct.
+User documentation lives in docs; development records live in engineering.
 
 - Implement one coherent objective at a time; review public API usage with a runnable example.
 - 图表文案、项目自有日志及新增或修改的代码注释优先使用中文；保留 API 名称、
@@ -14,7 +14,8 @@ the complete baseline engine in the roadmap, not only the experimental simulator
   checks during iteration and the full local gate on the final change.
 - Commit completed main objectives with a concise Chinese Conventional Commit.
 - Only milestone or release tags trigger CI; ordinary pushes and PR updates do not.
+- 文档变更运行 scripts/check_docs.py，检查严格构建、站内链接及可执行教程。
 - Use codex/ branches and PRs. Preserve dedicated repository author identity DorisLab;
   check author, committer and SSH destination before any push.
 - Do not publish private consumer code, credentials or unlicensed datasets.
-- Update docs/release-progress.md with evidence, unresolved requirements and the next objective.
+- Update engineering/release-progress.md with evidence, unresolved requirements and the next objective.

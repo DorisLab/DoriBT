@@ -56,6 +56,6 @@ rules = china_rules(
 - 财政部[2008 年单边印花税规定](https://www.mof.gov.cn/zhengwuxinxi/caizhengxinwen/200809/t20080919_76432.htm)和[2023 年减半公告](https://m.mof.gov.cn/czxw/202308/t20230827_3904226.htm)。
 - 港交所[中国结算过户费修订对照](https://www.hkex.com.hk/-/media/HKEX-Market/Services/Rules-and-Forms-and-Fees/Rules/SEHK/Securities/Rule-Update_Rules-of-the-Exchange/049_22_SEHK_Reduction-of-transfer-fee_e_markup.pdf)及[规则更新记录](https://www.hkex.com.hk/Services/Rules-and-Forms-and-Fees/Rules/SEHK/Rules-of-the-Exchange/Rules/Rule-Update_Rules-of-the-Exchange?sc_lang=en)：中国结算费率于 2022-04-29 切换；不要与港交所规则文字于 6 月更新的日期混淆。
 
-[有来源案例](../examples/historical_rules.py)采用超捷股份公开的 2021 年度分配事实：2022-06-09 登记，次日每股派 0.5 元、转增 0.8 股，现金与股份均于除权日入账。**行情与价格边界为人工构造，不代表该股历史收益**。独立预期为买入 1000 股、收到 500 元与 800 股，卖出 1800 股仍仅发生原 1000 股的净税务减持；交易费用 29.32 元、股息税 100 元，初始 20000 元最后剩 19870.68 元。发行人原始公告链接保留在样例的行动来源中。
+[有来源案例](https://github.com/DorisLab/DoriBT/blob/main/examples/historical_rules.py)采用超捷股份公开的 2021 年度分配事实：2022-06-09 登记，次日每股派 0.5 元、转增 0.8 股，现金与股份均于除权日入账。**行情与价格边界为人工构造，不代表该股历史收益**。独立预期为买入 1000 股、收到 500 元与 800 股，卖出 1800 股仍仅发生原 1000 股的净税务减持；交易费用 29.32 元、股息税 100 元，初始 20000 元最后剩 19870.68 元。发行人原始公告链接保留在样例的行动来源中。
 
-另有 2022-04-29、2023-08-28 前后的手算费用断点、科创板卖出门槛与分批目标检查。它们证明相应政策事实及记账路径；真实行情与完整引擎性能采用另外的[市场案例](market-validation.md)和[性能基线](performance.md)，不扩大本页支持矩阵。
+另有 2022-04-29、2023-08-28 前后的手算费用断点、科创板卖出门槛与分批目标检查。它们证明相应政策事实及记账路径；真实行情与完整引擎性能采用另外的[市场案例](https://github.com/DorisLab/DoriBT/blob/main/engineering/history/market-validation.md)和[性能基线](https://github.com/DorisLab/DoriBT/blob/main/engineering/history/performance.md)，不扩大本页支持矩阵。

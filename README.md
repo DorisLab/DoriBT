@@ -2,6 +2,8 @@
 
 面向 A 股研究的 Python 回测引擎，支持日线与 1／5 分钟现金账户回测。
 
+[文档中心](https://dorislab.github.io/DoriBT/) · [PyPI](https://pypi.org/project/doribt/) · [使用教程](https://dorislab.github.io/DoriBT/guide/quickstart.html)
+
 - 多标的共享资金、T+1、历史交易规则和分红送转。
 - 部分成交、可配置佣金与最低佣金、成交量参与率和滑点。
 - 函数策略与预计算目标，参数声明、自定义指标和研究输出。
@@ -68,7 +70,7 @@ print("总收益率：", result.report().stats["total_return"])
 
 完整示例位于 [examples](https://github.com/DorisLab/DoriBT/tree/main/examples)：买入持有、均线、组合轮动、分钟订单、权益处理、参数化研究与报告。
 
-[数据输入](https://github.com/DorisLab/DoriBT/blob/main/docs/data-contract.md) · [策略与执行](https://github.com/DorisLab/DoriBT/blob/main/docs/execution-model.md) · [分钟回测](https://github.com/DorisLab/DoriBT/blob/main/docs/minute-execution.md) · [结果与导出](https://github.com/DorisLab/DoriBT/blob/main/docs/results.md)
+[数据输入](https://dorislab.github.io/DoriBT/guide/data.html) · [策略编写](https://dorislab.github.io/DoriBT/guide/strategies.html) · [分钟回测](https://dorislab.github.io/DoriBT/guide/minutes.html) · [结果与导出](https://dorislab.github.io/DoriBT/guide/reports.html) · [API 参考](https://dorislab.github.io/DoriBT/api.html)
 
 原始价用于成交与账户记账，按决策时点复权的价格用于研究。规则预设覆盖 2020–2025 沪深普通股票与境内股票 ETF；自定义规则须提供适用区间和来源。不提供行情下载或实盘接口，不覆盖盘口排队、融资融券、期货期权与 ETF 申赎。
 

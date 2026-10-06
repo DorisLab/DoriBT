@@ -11,6 +11,7 @@ from doribt import (
     MarketData,
     RuleBook,
     RulePeriod,
+    RunConfig,
     TradingRule,
 )
 
@@ -31,7 +32,7 @@ def sample() -> MarketData:
         share_credit_date="2025-01-07",
         share_listing_date="2025-01-08",
         taxable_bonus_amount_per_share=".5",
-        source="fictional taxable bonus announcement",
+        source="人工应税红股公告",
     )
     rule = TradingRule(
         price_tick=".01",
@@ -49,7 +50,7 @@ def sample() -> MarketData:
                 start=dates[0],
                 end=dates[-1],
                 rule=rule,
-                source="fictional rules",
+                source="人工交易规则",
                 version="1",
             ),
         )
@@ -73,7 +74,7 @@ def sample() -> MarketData:
         rows,
         calendar=dates,
         rules=rules,
-        source="fictional example",
+        source="人工分红送转行情",
         instruments=[Instrument(symbol="STOCK", kind="stock")],
         actions=[action],
     )
@@ -90,9 +91,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=["python", "numba"], default="python")
     args = parser.parse_args()
-    result = Backtest(
-        sample(), initial_cash=10000, costs=Costs(commission=0, minimum_commission=0)
-    ).run(sell_after_record, backend=args.backend)
+    config = RunConfig(
+        initial_cash=10000,
+        costs=Costs(commission=0, minimum_commission=0),
+        backend=args.backend,
+    )
+    result = Backtest(sample(), config=config).run(sell_after_record)
     print("合成示例：价格、日期与交易费用不代表真实证券情况。")
     print("日期         现金   应收分红   应付股息税   权益")
     for i, session in enumerate(result.sessions):

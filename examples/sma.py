@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from doribt import Backtest, Instrument, MarketData, WeightTargets, china_rules
+from doribt import Backtest, Instrument, MarketData, RunConfig, WeightTargets, china_rules
 
 
 def sma_hold(close: ArrayLike, fast: int = 5, slow: int = 20) -> NDArray[np.bool_]:
@@ -44,7 +44,7 @@ def synthetic_bars() -> MarketData:
         calendar=sessions,
         instruments=[Instrument(symbol="DEMO", kind="etf")],
         rules=china_rules({"DEMO": "szse_equity_etf"}, start=sessions[0], end=sessions[-1]),
-        source="synthetic weekday demo; not an exchange calendar",
+        source="人工工作日示例，不是交易所日历",
     )
 
 
@@ -54,9 +54,10 @@ def main() -> None:
     args = parser.parse_args()
     bars = synthetic_bars()
     signals = WeightTargets(
-        sessions=bars.sessions, weights={"DEMO": sma_hold(bars.prices("close")[:, 0]) * 0.95}
+        sessions=bars.timeline, weights={"DEMO": sma_hold(bars.prices("close")[:, 0]) * 0.95}
     )
-    result = Backtest(bars, initial_cash=100_000).run(signals, backend=args.backend)
+    config = RunConfig(initial_cash=100_000, backend=args.backend)
+    result = Backtest(bars, config=config).run(signals)
     print("合成示例：价格、日历与价格限制均不是真实行情。")
     print(f"执行后端：{result.backend}")
     print(f"期末权益：{result.equity[-1]:,.2f}；成交数：{len(result.fills)}")

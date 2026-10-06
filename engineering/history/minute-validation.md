@@ -24,9 +24,9 @@
 
 ## 独立账本
 
-公开工具 [minute_case.py](../scripts/minute_case.py) 每天 09:45 按已完成分钟的 60／240 均线选择目标 10,000 份或空仓。十万元现金、T+1、万三佣金／单笔委托最低五元、1 tick 不利滑点、0.1% 成交量参与率。DAY 子单可部分成交，未满足持仓目标跨日重试；不强制期末清仓。
+公开工具 [minute_case.py](../../scripts/minute_case.py) 每天 09:45 按已完成分钟的 60／240 均线选择目标 10,000 份或空仓。十万元现金、T+1、万三佣金／单笔委托最低五元、1 tick 不利滑点、0.1% 成交量参与率。DAY 子单可部分成交，未满足持仓目标跨日重试；不强制期末清仓。
 
-Python／Numba 的每分钟现金、持仓、权益及逐笔成交时间、数量、价格、佣金均与 [独立 Decimal 实现](../scripts/minute_reference.py) 精确一致。结果为 52 个子单、115 笔成交、佣金 326.59 元，期末现金／权益 103,572.903 元。这里只记录程序验证案例，不将该参数样本视为策略有效性证据。
+Python／Numba 的每分钟现金、持仓、权益及逐笔成交时间、数量、价格、佣金均与 [独立 Decimal 实现](../../scripts/minute_reference.py) 精确一致。结果为 52 个子单、115 笔成交、佣金 326.59 元，期末现金／权益 103,572.903 元。这里只记录程序验证案例，不将该参数样本视为策略有效性证据。
 
 ```sh
 uv run --no-sync python scripts/minute_case.py PRIVATE_SNAPSHOT --output NEW_RESULT.json
@@ -37,4 +37,4 @@ uv run --no-sync python scripts/minute_case.py PRIVATE_SNAPSHOT --backend numba 
 
 人工分钟用例另外覆盖共享量限、同一订单最低佣金累加、资金与股数冻结／撤销、日终到期、午休、次交易日 T+1、日内分红税一次计提、送转一次入账与解锁、价格和限价阻断、目标替换、未来数据隔离、五分钟输入及导出读回。真实 ETF 无公司行动，不能代替上述事件验证。
 
-性能比较协议见 [benchmarks/minute](../benchmarks/minute/README.md)，实测结果见[分钟性能比较](minute-performance.md)。vectorbt 另实现有限模型，先逐参数对账，再统计耗时；适配器不调用 DoriBT 的撮合、费用或账户函数。
+性能比较协议见 [benchmarks/minute](../../benchmarks/minute/README.md)，实测结果见[分钟性能比较](minute-performance.md)。vectorbt 另实现有限模型，先逐参数对账，再统计耗时；适配器不调用 DoriBT 的撮合、费用或账户函数。

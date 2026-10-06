@@ -14,6 +14,7 @@ from doribt import (
     Instrument,
     MarketData,
     PriceAdjustment,
+    RunConfig,
     china_rules,
 )
 
@@ -88,7 +89,8 @@ def main() -> None:
     parser.add_argument("--backend", choices=["python", "numba"], default="python")
     args = parser.parse_args()
     data = sample()
-    result = Backtest(data, initial_cash=20000).run(sell_on_ex_date, backend=args.backend)
+    config = RunConfig(initial_cash=20000, backend=args.backend)
+    result = Backtest(data, config=config).run(sell_on_ex_date)
     print("使用人工价格与公开公司行动事实，不代表真实历史收益。")
     for fill in result.fills:
         print(

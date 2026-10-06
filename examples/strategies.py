@@ -5,7 +5,16 @@ from datetime import date, timedelta
 
 import numpy as np
 
-from doribt import Backtest, Context, Instrument, MarketData, RuleBook, RulePeriod, TradingRule
+from doribt import (
+    Backtest,
+    Context,
+    Instrument,
+    MarketData,
+    RuleBook,
+    RulePeriod,
+    RunConfig,
+    TradingRule,
+)
 
 
 def synthetic_market() -> MarketData:
@@ -34,7 +43,7 @@ def synthetic_market() -> MarketData:
                 start=sessions[0],
                 end=sessions[-1],
                 rule=rule,
-                source="fictional ETF rules",
+                source="人工 ETF 规则",
                 version="1",
             )
             for symbol in paths
@@ -61,7 +70,7 @@ def synthetic_market() -> MarketData:
         calendar=sessions,
         instruments=[Instrument(symbol=symbol, kind="etf") for symbol in paths],
         rules=rules,
-        source="fixed synthetic paths v1",
+        source="固定人工双证券行情",
     )
 
 
@@ -97,8 +106,9 @@ def main() -> None:
     data = synthetic_market()
     print("合成示例：日期、价格与规则均为人工构造。")
     for strategy in (buy_and_hold, moving_average, rotation):
-        result = Backtest(data, initial_cash=100_000).run(strategy, backend=args.backend)
-        print(strategy.__name__, result.stats())
+        config = RunConfig(initial_cash=100_000, backend=args.backend)
+        result = Backtest(data, config=config).run(strategy)
+        print(strategy.__name__, result.report().stats)
 
 
 if __name__ == "__main__":

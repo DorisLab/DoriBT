@@ -12,6 +12,7 @@ from doribt import (
     MarketData,
     MinuteClock,
     PositionTargets,
+    RunConfig,
     china_rules,
 )
 
@@ -40,7 +41,7 @@ def sample() -> MarketData:
         calendar=days,
         instruments=[Instrument(symbol="DEMO", kind="etf")],
         rules=china_rules({"DEMO": "szse_equity_etf"}, start=days[0], end=days[-1]),
-        source="fictional two-day minute example",
+        source="人工两日分钟行情",
     )
 
 
@@ -61,9 +62,10 @@ def main() -> None:
         sessions=data.timeline,
         quantities={"DEMO": [1000] * 240 + [0] * 240},
     )
-    result = Backtest(data, execution=BarExecution(participation=0.1, slippage=FixedTicks(1))).run(
-        targets if args.precomputed else strategy, backend=args.backend
+    config = RunConfig(
+        execution=BarExecution(participation=0.1, slippage=FixedTicks(1)), backend=args.backend
     )
+    result = Backtest(data, config=config).run(targets if args.precomputed else strategy)
     print("执行路径：", result.run_info.to_dict()["execution_path"])
     print("合成分钟数据：每根 bar 结束后才能知道其中的成交。")
     for order in result.orders:
