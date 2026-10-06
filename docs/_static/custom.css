@@ -1,6 +1,0 @@
-body { --font-stack: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
-.content { line-height: 1.8; }
-.sidebar-brand-text { font-weight: 750; }
-article table { font-size: .92rem; }
-article pre { line-height: 1.6; }
-dl.py dt { overflow-wrap: anywhere; }
