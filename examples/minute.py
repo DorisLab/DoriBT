@@ -1,4 +1,4 @@
-"""Synthetic 1-minute orders with shared volume, T+1 and cumulative commission."""
+"""合成 1 分钟示例：共享成交量、T+1 与累计佣金。"""
 
 import argparse
 from datetime import date
@@ -54,7 +54,7 @@ def strategy(ctx: Context) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("python", "numba"), default="python")
-    parser.add_argument("--precomputed", action="store_true", help="Use timestamped fixed targets")
+    parser.add_argument("--precomputed", action="store_true", help="使用按时点对齐的预计算股数目标")
     args = parser.parse_args()
     data = sample()
     targets = PositionTargets(
@@ -64,16 +64,16 @@ def main() -> None:
     result = Backtest(data, execution=BarExecution(participation=0.1, slippage=FixedTicks(1))).run(
         targets if args.precomputed else strategy, backend=args.backend
     )
-    print("Execution:", result.run_info.to_dict()["execution_path"])
-    print("SYNTHETIC minute data. Fills are known only at each bar's end.")
+    print("执行路径：", result.run_info.to_dict()["execution_path"])
+    print("合成分钟数据：每根 bar 结束后才能知道其中的成交。")
     for order in result.orders:
         print(order.order_id, order.quantity, order.filled, order.status, order.fees)
     print(
-        "Orders:",
+        "委托数：",
         len(result.orders),
-        "fills:",
+        "成交数：",
         len(result.fills),
-        "final equity:",
+        "期末权益：",
         result.equity[-1],
     )
 

@@ -1,4 +1,4 @@
-"""Run with: uv run python examples/sma.py [--backend numba]. Synthetic data."""
+"""合成均线示例：uv run python examples/sma.py [--backend numba]。"""
 
 import argparse
 
@@ -9,7 +9,7 @@ from doribt import Backtest, Instrument, MarketData, WeightTargets, china_rules
 
 
 def sma_hold(close: ArrayLike, fast: int = 5, slow: int = 20) -> NDArray[np.bool_]:
-    """Desired holding at each close; Backtest handles next-session execution."""
+    """每次收盘后的目标持仓，由 Backtest 处理下一交易日执行。"""
     if not 0 < fast < slow:
         raise ValueError("moving-average windows require 0 < fast < slow")
     prices = np.asarray(close, dtype=np.float64)
@@ -20,7 +20,7 @@ def sma_hold(close: ArrayLike, fast: int = 5, slow: int = 20) -> NDArray[np.bool
 
 
 def synthetic_bars() -> MarketData:
-    """Artificial prices, weekday calendar and limits; not tradable market data."""
+    """人工价格、工作日日历与价格限制，不是真实可交易行情。"""
     rng = np.random.default_rng(7301)
     close = np.round(2 * np.exp(np.cumsum(rng.normal(0, 0.01, 240))), 3)
     op = np.round(np.r_[2.0, close[:-1]] * (1 + rng.normal(0, 0.003, 240)), 3)
@@ -57,11 +57,11 @@ def main() -> None:
         sessions=bars.sessions, weights={"DEMO": sma_hold(bars.prices("close")[:, 0]) * 0.95}
     )
     result = Backtest(bars, initial_cash=100_000).run(signals, backend=args.backend)
-    print("SYNTHETIC DEMO: prices, calendar and limits are not market data.")
-    print(f"Backend: {result.backend}")
-    print(f"Final equity: {result.equity[-1]:,.2f}; fills: {len(result.fills)}")
-    print(f"Total return: {result.total_return:.2%}")
-    print(f"Max drawdown: {result.max_drawdown:.2%}")
+    print("合成示例：价格、日历与价格限制均不是真实行情。")
+    print(f"执行后端：{result.backend}")
+    print(f"期末权益：{result.equity[-1]:,.2f}；成交数：{len(result.fills)}")
+    print(f"总收益率：{result.total_return:.2%}")
+    print(f"最大回撤：{result.max_drawdown:.2%}")
 
 
 if __name__ == "__main__":

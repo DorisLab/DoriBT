@@ -1,4 +1,4 @@
-"""Run a parameterized strategy, compare a benchmark, and export a research report."""
+"""运行参数化策略，对比基准并导出研究报告。"""
 
 import argparse
 import tempfile
@@ -41,7 +41,7 @@ PARAMETERS = ParameterSet(
 
 def moving_average(ctx: Context, *, fast: int, slow: int, allocation: float) -> None:
     if not 1 <= fast < slow:
-        raise ValueError("windows must satisfy 1 <= fast < slow")
+        raise ValueError("均线窗口必须满足 1 <= fast < slow")
     closes = ctx.history("ALPHA", bars=slow)
     if len(closes) < slow:
         return
@@ -52,7 +52,7 @@ def moving_average(ctx: Context, *, fast: int, slow: int, allocation: float) -> 
 
 def run(output: Path, backend: str, plot: bool) -> None:
     data = synthetic_market()
-    # Same JSON-compatible values a client form can send; zero minimum is also valid.
+    # 可直接接收客户端表单的 JSON 配置；最低佣金也允许设为零。
     config = RunConfig.from_dict(
         {"initial_cash": 100_000, "commission": 0.0002, "minimum_commission": 1, "backend": backend}
     )
@@ -66,7 +66,7 @@ def run(output: Path, backend: str, plot: bool) -> None:
                 "fees_per_fill": Metric(
                     sum(fill.fees for fill in r.fills) / len(r.fills) if r.fills else None,
                     unit="CNY",
-                    description="Average transaction fees per fill",
+                    description="每笔成交的平均交易费用",
                 )
             },
             tables={
@@ -83,12 +83,12 @@ def run(output: Path, backend: str, plot: bool) -> None:
     benchmark = Benchmark(
         sessions=data.sessions,
         prices=data.prices("close")[:, 0],
-        name="ALPHA price index",
+        name="ALPHA",
         source=data.source,
     )
-    # 252 is an explicit illustration, not inferred from the fictional weekday calendar.
+    # 明确采用 252 个交易日的年化假设，不从人工工作日日历推断。
     summary = result.report(benchmark=benchmark).stats
-    print("SYNTHETIC: artificial prices/calendar; explicit 252-period annualization.")
+    print("合成示例：使用人工价格与日历，明确按 252 个交易日年化。")
     for name in (
         "total_return",
         "max_drawdown",
@@ -100,24 +100,22 @@ def run(output: Path, backend: str, plot: bool) -> None:
     ):
         print(name, summary[name])
     result.export(output, benchmark=benchmark, daily=True, plot=plot)
-    print("Parameters:", result.run_info.to_dict()["parameters"])
-    print("Report:", output)
+    print("策略参数：", result.run_info.to_dict()["parameters"])
+    print("报告目录：", output)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=["python", "numba"], default="python")
-    parser.add_argument(
-        "--output", type=Path, help="New directory; existing paths are never overwritten"
-    )
-    parser.add_argument("--plot", action="store_true", help="Include PNG (requires doribt[plot])")
+    parser.add_argument("--output", type=Path, help="保存到新目录，不覆盖已有路径")
+    parser.add_argument("--plot", action="store_true", help="导出 PNG 图表（需要 doribt[plot]）")
     args = parser.parse_args()
     if args.output is not None:
         run(args.output, args.backend, args.plot)
     else:
         with tempfile.TemporaryDirectory(prefix="doribt-research-") as temporary:
             run(Path(temporary) / "report", args.backend, args.plot)
-        print("Demonstration report cleaned up; use --output to keep one.")
+        print("临时示例报告已清理；使用 --output 可保存报告。")
 
 
 if __name__ == "__main__":

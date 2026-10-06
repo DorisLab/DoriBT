@@ -1,4 +1,4 @@
-"""Read-back accounting and failed publication must preserve earlier outputs."""
+"""从导出文件重建账户；导出失败时保留已有结果。"""
 
 import csv
 import hashlib
@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 from corporate_fixtures import distribution, market_with_actions
 from engine_fixtures import data_for
+from minute_fixtures import minute_data
 
 from doribt import Backtest, Benchmark, Costs, WeightTargets
 
@@ -204,3 +205,46 @@ def test_optional_plot_and_benchmark_export_contains_rendered_series(tmp_path):
     assert read_json(output / "benchmark.json")["source"] == "fixture"
     assert read_json(output / "stats.json")["benchmark_total_return"] == pytest.approx(0.1)
     assert "equity.png" in read_json(output / "manifest.json")["files"]
+
+
+@pytest.mark.parametrize("frequency,minutes", [("1min", 1), ("5min", 5)])
+def test_minute_plot_preserves_bar_times_and_market_timezone(tmp_path, frequency, minutes):
+    from matplotlib import rc_context
+    from matplotlib.dates import date2num
+
+    result = Backtest(minute_data(days=1, frequency=frequency)).run(lambda ctx: None)
+    benchmark = Benchmark(
+        sessions=result.sessions,
+        prices=[10] * len(result.sessions),
+        name="Reference",
+        source="synthetic minute fixture",
+    )
+    with rc_context(
+        {
+            "timezone": "UTC",
+            "date.autoformatter.hour": "%Y-%m-%d %H:%M",
+            "date.autoformatter.minute": "%Y-%m-%d %H:%M",
+        }
+    ):
+        figure = result.plot(benchmark=benchmark)
+        for axis in figure.axes:
+            for line in axis.lines:
+                assert tuple(line.get_xdata()) == result.sessions
+                x = line.get_xdata(orig=False)
+                assert x[1] - x[0] == pytest.approx(minutes / (24 * 60))
+        output = result.export(tmp_path / "minute-plot", benchmark=benchmark, plot=True)
+        formatter = figure.axes[1].xaxis.get_major_formatter()
+        figure.axes[1].xaxis.get_majorticklocs()
+        first = result.sessions[0]
+        assert formatter.format_data(date2num(first)) == first.strftime("%Y-%m-%d %H:%M")
+    assert (output / "equity.png").read_bytes().startswith(b"\x89PNG")
+
+
+def test_plot_without_chinese_fonts_uses_readable_fallback(tmp_path, monkeypatch):
+    from matplotlib.font_manager import fontManager
+
+    monkeypatch.setattr(fontManager, "get_font_names", lambda: [])
+    figure = simple().plot()
+    assert figure.axes[0].get_title() == "DoriBT | Equity and drawdown"
+    figure.savefig(tmp_path / "fallback.png")
+    assert (tmp_path / "fallback.png").read_bytes().startswith(b"\x89PNG")

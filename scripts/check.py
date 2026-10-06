@@ -1,4 +1,4 @@
-"""One fail-fast quality entry for local development and CI."""
+"""本地开发与 CI 的统一质量入口，任一步失败即停止。"""
 
 import argparse
 import importlib.util
@@ -23,7 +23,7 @@ def main() -> None:
     parser.add_argument(
         "--audit",
         action="store_true",
-        help="Audit locked runtime + all optional dependencies online",
+        help="联网审计锁定的运行依赖及全部可选依赖",
     )
     args = parser.parse_args()
     if args.backend == "numba" and importlib.util.find_spec("numba") is None:
@@ -53,7 +53,7 @@ def main() -> None:
         check_wheel(wheels[0], args.backend)
     if args.audit:
         run(sys.executable, "scripts/audit.py")
-    print(f"Quality checks passed ({args.backend}); dependency audit: {args.audit}")
+    print(f"质量检查通过（{args.backend}）；依赖审计：{'已通过' if args.audit else '未运行'}")
 
 
 if __name__ == "__main__":

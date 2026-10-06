@@ -65,9 +65,11 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 ## 图表
 
-`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端。中文标签需要用户环境中适用的字体；默认示例使用英文图例。
+`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端或字体设置。默认优先中文标题与图例，自动选择本机已安装的 Noto Sans SC／CJK SC、微软雅黑等中文字体；缺少这些字体时内置标签回退为英文，避免缺字。安装 Noto Sans CJK SC 后可使用中文；用户自定义基准名称保持原文，所需字体由调用环境提供。
 
 `plot` 是可选安装项；导入和运行基础引擎不加载 Matplotlib。`export(..., plot=True)` 才请求绘图，缺依赖会明确报错并清理此次临时输出。
+
+默认采用红、绿、灰配色：策略净值红色（`#c83932`）、基准灰色（`#7a828e`）、负向回撤绿色（`#27845b`）。净值线颜色用于区分系列，不随每段涨跌变色；需要定制可编辑返回的 Figure。分钟图保留每根 bar 的结束时点，横轴按输入市场时区显示；`export(daily=True, plot=True)` 则显示日末采样后的曲线。
 
 ## 导出契约
 

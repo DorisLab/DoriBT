@@ -5,6 +5,8 @@ Keep implementation status distinct from release targets. The first release requ
 the complete baseline engine in the roadmap, not only the experimental simulator.
 
 - Implement one coherent objective at a time; review public API usage with a runnable example.
+- 图表文案、项目自有日志及新增或修改的代码注释优先使用中文；保留 API 名称、
+  标识符和常用指标缩写。不翻译第三方工具输出或改写用户自定义标签。
 - Python files in src, tests, examples and scripts must be at most 400 physical lines.
 - Every function must satisfy Ruff C901 complexity <= 10. Split by responsibility;
   do not hide branches in clever expressions or add blanket exclusions.

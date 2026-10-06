@@ -1,7 +1,7 @@
-"""Published 2022 distribution facts with artificial prices for ledger verification.
+"""结合 2022 年公开分配事实与人工价格验证账本。
 
-This is NOT a historical return for 301005.SZ. Only the issuer's action facts and
-the market's dated rules are historical; OHLC values below are deliberately made up.
+仅发行人的公司行动和有日期的市场规则来自历史事实，OHLC 为人工构造。
+本示例不代表 301005.SZ 的真实历史收益。
 """
 
 import argparse
@@ -89,7 +89,7 @@ def main() -> None:
     args = parser.parse_args()
     data = sample()
     result = Backtest(data, initial_cash=20000).run(sell_on_ex_date, backend=args.backend)
-    print("ARTIFICIAL PRICES; published action facts. NOT an actual historical return.")
+    print("使用人工价格与公开公司行动事实，不代表真实历史收益。")
     for fill in result.fills:
         print(
             fill.session,
@@ -99,11 +99,14 @@ def main() -> None:
             fill.stamp_duty,
             fill.transfer_fee,
         )
-    print("Dividend:", result.entitlements[0].cash_units / 10000)
-    print("Tax:", result.stats()["dividend_tax"])
-    print("Final cash/equity:", result.cash[-1], result.equity[-1])
-    print("Raw closes:", data.prices("close")[:, 0])
-    print("As-of closes:", data.prices("close", adjustment="asof", as_of="2022-06-10")[:, 0])
+    print("现金分红：", result.entitlements[0].cash_units / 10000)
+    print("股息税：", result.stats()["dividend_tax"])
+    print("期末现金／权益：", result.cash[-1], result.equity[-1])
+    print("原始收盘价：", data.prices("close")[:, 0])
+    print(
+        "按决策时点复权的收盘价：",
+        data.prices("close", adjustment="asof", as_of="2022-06-10")[:, 0],
+    )
 
 
 if __name__ == "__main__":

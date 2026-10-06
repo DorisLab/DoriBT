@@ -1,4 +1,4 @@
-"""Fictional stock distribution: cash and shares arrive on separate dates."""
+"""人工股票分配示例：现金与股份在不同日期到账。"""
 
 import argparse
 
@@ -93,8 +93,8 @@ def main() -> None:
     result = Backtest(
         sample(), initial_cash=10000, costs=Costs(commission=0, minimum_commission=0)
     ).run(sell_after_record, backend=args.backend)
-    print("SYNTHETIC: no claim that these prices, dates or trade fees describe a real security.")
-    print("date         cash   receivable   tax payable   equity")
+    print("合成示例：价格、日期与交易费用不代表真实证券情况。")
+    print("日期         现金   应收分红   应付股息税   权益")
     for i, session in enumerate(result.sessions):
         print(
             session,
@@ -103,8 +103,8 @@ def main() -> None:
             result.tax_payable[i],
             result.equity[i],
         )
-    print("Tax:", result.stats()["dividend_tax"])
-    print("Distributions:", result.entitlements)
+    print("股息税：", result.stats()["dividend_tax"])
+    print("分配权益：", result.entitlements)
 
 
 if __name__ == "__main__":

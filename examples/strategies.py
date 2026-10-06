@@ -1,4 +1,4 @@
-"""Three public API strategies over one fictional two-security dataset."""
+"""使用公开 API，在同一份人工双证券行情上运行三种策略。"""
 
 import argparse
 from datetime import date, timedelta
@@ -17,7 +17,7 @@ def synthetic_market() -> MarketData:
         "ALPHA": np.round(10 + index * 0.015 + np.sin(index / 4), 2),
         "BETA": np.round(12 - index * 0.005 + np.cos(index / 5), 2),
     }
-    # Fictional calendar and rules. No claim of exchange holiday or rule coverage.
+    # 人工日历与规则，不代表真实交易所节假日或制度覆盖情况。
     rule = TradingRule(
         price_tick=".01",
         buy_minimum=100,
@@ -78,7 +78,7 @@ def moving_average(ctx: Context) -> None:
 
 
 def rotation(ctx: Context) -> None:
-    # Five completed sessions between decisions, not a claim of natural-week ends.
+    # 每隔五个已完成交易日决策一次，不代表自然周的周末。
     count = ctx.bar_index + 1
     if count < 20 or count % 5:
         return
@@ -95,7 +95,7 @@ def main() -> None:
     parser.add_argument("--backend", choices=["python", "numba"], default="python")
     args = parser.parse_args()
     data = synthetic_market()
-    print("SYNTHETIC: dates, prices and rules are fictional.")
+    print("合成示例：日期、价格与规则均为人工构造。")
     for strategy in (buy_and_hold, moving_average, rotation):
         result = Backtest(data, initial_cash=100_000).run(strategy, backend=args.backend)
         print(strategy.__name__, result.stats())
