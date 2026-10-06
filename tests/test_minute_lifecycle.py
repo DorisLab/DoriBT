@@ -148,6 +148,45 @@ def test_next_bar_suspension_expires_order_but_day_retries(backend):
     assert result.fills[0].timestamp == data.timeline[2]
 
 
+def test_partial_sales_can_raise_cash_when_tax_exceeds_each_fill(backend):
+    action = CorporateAction(
+        action_id="owed",
+        symbol="A",
+        kind="distribution",
+        announced="2025-01-02",
+        record_date="2025-01-02",
+        ex_date="2025-01-03",
+        pay_date="2025-01-10",
+        cash_per_share=1,
+        source="synthetic unpaid dividend tax",
+    )
+    data = minute_data(
+        days=3,
+        symbols=("A", "B"),
+        volume=100000,
+        actions=(action,),
+        changes={i * 2 + 1: {"volume": 20} for i in range(480, 720)},
+    )
+    observed = []
+
+    def strategy(ctx):
+        if ctx.bar_index == 0:
+            ctx.target_positions({"A": 1000})
+        elif ctx.bar_index == 240:
+            ctx.target_positions({"A": 0, "B": 1000})
+        elif ctx.bar_index == 479:
+            ctx.order("B", -100, valid_for="day")
+        elif ctx.bar_index == 480:
+            observed.append((ctx.account.cash, ctx.account.tax_payable, ctx.account.available_cash))
+
+    result = Backtest(data, initial_cash=10000, costs=FREE).run(strategy, backend=backend)
+    assert observed == [(10, 200, 0)]
+    assert result.fills[3].quantity == -1
+    assert result.fills[3].timestamp == data.timeline[480]
+    assert result.orders[-1].filled == -100
+    assert result.cash[-1] == 1000 and result.tax_payable[-1] == 200
+
+
 def test_five_minute_history_and_final_order_are_identified():
     data = minute_data(frequency="5min")
     assert len(data.timeline) == 96

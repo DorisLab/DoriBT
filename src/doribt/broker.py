@@ -211,7 +211,9 @@ class Broker:
         quantity, price, commission, stamp, transfer, reason = map(int, row)
         order = self.orders[item.order_id - 1]
         cost = quantity * price + commission + stamp + transfer
-        if quantity < 0 and self.account.cash - cost < self.frozen_cash + self.tax:
+        # A sale can raise cash toward unpaid tax even when it cannot clear all tax at once.
+        # Existing buy reservations still cannot fund the sale's fees.
+        if quantity < 0 and self.account.cash - cost < self.frozen_cash:
             row[:] = (0, 0, 0, 0, 0, 7)
             quantity, cost, commission, stamp, transfer, reason = 0, 0, 0, 0, 0, 7
         if quantity:
