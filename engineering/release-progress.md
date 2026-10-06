@@ -93,3 +93,7 @@ Windows 基础与 Numba 完整门禁通过：312 项基础测试、423 项完整
 
 2026-10-06 文档里程碑首次运行 [37435119172](https://github.com/DorisLab/DoriBT/actions/runs/37435119172)：Linux 严格构建、内部链接、API 锚点和中文索引通过，仓库外示例失败。原因是检查脚本对虚拟环境解释器使用 Path.resolve，解析了 Linux 的 Python 软链接，转而启动没有安装 DoriBT 的系统解释器。改用保留软链接的绝对路径；不修改引擎、包依赖或已发布标签。下一文档里程碑将重新验证教程及部署。
 修正后的 Windows 文档完整门禁、Ruff 和 71 个文件 strict mypy 通过；Linux 修正结果以随后里程碑运行记录为准。
+
+2026-10-06 文档正式上线：`milestone/docs/0.2.0-2` 指向 316b2b9f024ae6ecd5e200fec9e33dae12007f20，[Pages 运行 37435434122](https://github.com/DorisLab/DoriBT/actions/runs/37435434122) 的 Linux 构建、24 页链接／资源／锚点、中文索引、全部基础教程及部署成功。公开站点 https://dorislab.github.io/DoriBT/ 返回 HTTP 200；浏览器确认首页和深层教程正常、代码复制按钮显示成功、“最低佣金”搜索返回 11 个相关页面。从线上下载 quickstart.py 后，用独立的 PyPI 安装环境以 `-I -X utf8` 执行，期末权益为 10895 元，与教程一致。站点 API 签名由严格构建验证，Windows 浏览器也已实际检查排版。
+
+PyPI、GitHub Release、教程与 Pages 发布目标完成。发布及 PR 合入账号核对为 DorisLab；普通分支／PR 无 CI，只有 v0.2.0 发行和两次文档里程碑运行对应工作流。本次记录在工程目录追加，不改变已发布的包或站点内容。后续按实际研究需求推进，不再把已归档的阶段计划作为待完成发布工作。
