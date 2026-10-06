@@ -1,14 +1,14 @@
 # 行情、历史规则与公司行动
 
-状态：本地数据入口与验证已实现，可用于 `doribt.Backtest` 的多标的共享账户；分红送转执行见[权益模型](corporate-actions.md)，沪深基础预设见[市场支持矩阵](china-market.md)。开发版仅保留正式 `MarketData` 入口。
+本页定义 MarketData 的输入、时点和验证规则。分红送转见[权益模型](corporate-actions.md)，沪深预设见[市场支持矩阵](china-market.md)。
 
 ## 面向使用者的入口
 
-开发版另有 `MarketData.from_minutes`：日期日历仍只含交易日，行提供带 +08:00 的 `timestamp` 及 `phase`，`frequency` 为 1min／5min。每个日期／证券必须覆盖完整时段网格，详见[分钟数据与时间契约](minute-execution.md)。以下日线契约适用于 from_records／from_csv。
+分钟入口为 `MarketData.from_minutes`：日期日历仍只含交易日，行提供带 +08:00 的 `timestamp` 及 `phase`，`frequency` 为 1min／5min。每个日期／证券必须覆盖完整时段网格，详见[分钟数据与时间契约](minute-execution.md)。以下日线契约适用于 from_records／from_csv。
 
 `MarketData.from_records(rows, calendar=..., instruments=..., rules=..., source=..., actions=..., adjustments=...)` 接受字典行；`MarketData.from_csv(path, ...)` 接受相同字段的 UTF-8 CSV（允许 BOM）。构造后数据不可修改，行自动按交易日和声明的证券顺序排列。交易日、证券、规则和来源由数据提供层组织一次，策略只接收验证后的对象，不重复填写规则。
 
-完整可执行的人工数据示例见 [examples/market_data.py](../examples/market_data.py)。示例中的规则是测试输入，不是官方市场规则预设；来源版本只是标识，不代表引擎已经核验外部来源的真实性。
+完整可执行的人工数据示例见 [examples/market_data.py](https://github.com/DorisLab/DoriBT/blob/main/examples/market_data.py)。示例中的规则是测试输入，不是官方市场规则预设；来源版本只是标识，不代表引擎已经核验外部来源的真实性。
 
 ## 价格和状态
 
@@ -40,7 +40,7 @@
 
 普通现金分红／送转的理论参考比例可由 `((前收盘价-每股参考现金额)/(1+参考送转比例))/前收盘价` 得到。但**参考现金额不一定等于账户应得现金**，例如差异化分派中不参与分配的回购股份会改变摊薄口径，因此引擎不从账户 `cash_per_share` 自动猜复权因子。参考[深交所公式说明](https://investor.szse.cn/institute/video/classroom/operation/t20190131_564542.html)与[差异化分派公告示例](https://disc.static.szse.cn/disc/disk03/finalpage/2023-05-17/38d11fdc-233a-43bd-88d3-d87a7983adcd.PDF)。事件因子由提供层根据适用规则、行情或有来源的供应商数据准备，并记录口径；不同供应商的舍入与累计方式可能不同。
 
-这是一种截至当前时点归一化的乘法前复权研究价，不是税后分红再投资净值、真实成交价或可直接代替账户收益的全收益指数。账户分红、税款及送转仍只在权益账本中处理一次。示例 [historical_rules.py](../examples/historical_rules.py) 将人工原始收盘价 `[18.5, 18.5, 10]` 换算为除权日视图 `[10, 10, 10]`，并独立保持原始成交和税务结果。
+这是一种截至当前时点归一化的乘法前复权研究价，不是税后分红再投资净值、真实成交价或可直接代替账户收益的全收益指数。账户分红、税款及送转仍只在权益账本中处理一次。示例 [historical_rules.py](https://github.com/DorisLab/DoriBT/blob/main/examples/historical_rules.py) 将人工原始收盘价 `[18.5, 18.5, 10]` 换算为除权日视图 `[10, 10, 10]`，并独立保持原始成交和税务结果。
 
 ## 历史规则
 
@@ -64,4 +64,4 @@
 
 `fingerprint` 覆盖交易日、证券顺序、原始行情、状态／价格边界、历史规则、公司行动、研究复权因子及其可知日期和来源。等价的 CSV 行顺序与规则输入顺序得到相同标识；声明的证券顺序则保留，因为后续共同现金的订单处理需要确定顺序。它用于识别输入变化，不替代供应商授权、来源核验或策略代码与参数的记录。
 
-公开测试和示例只含人工行情。权益、税务及基础历史规则已有独立账本和政策依据，支持矩阵明确排除范围；真实 ETF 历史行情在授权本地环境完成[案例对账](market-validation.md)，公开的是工具、汇总证据与输入标识，不附原始数据。不将通过字段校验或单个市场案例描述为所有市场情况都已正确覆盖。
+公开测试和示例只含人工行情。权益、税务及基础历史规则已有独立账本和政策依据，支持矩阵明确排除范围；真实 ETF 历史行情在授权本地环境完成[案例对账](https://github.com/DorisLab/DoriBT/blob/main/engineering/history/market-validation.md)，公开的是工具、汇总证据与输入标识，不附原始数据。不将通过字段校验或单个市场案例描述为所有市场情况都已正确覆盖。

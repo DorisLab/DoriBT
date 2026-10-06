@@ -34,7 +34,7 @@ Python、Numba 两个后端分别与一个不导入 DoriBT 内核／费用／定
 
 ## 可重复执行的检查工具
 
-源码仓库中的 [market_case.py](../scripts/market_case.py) 接受标准行情 CSV、带 `session` 列的独立日历 CSV、显式 ETF 市场分类和来源描述。用户须确认区间没有公司行动。它执行两种策略，逐项对账，再以不替换已有文件的方式保存报告；报告包含输入／结果摘要和本次运行假设。检查不用 Python `assert` 控制，即使用 `python -O` 也不能静默移除验证。
+源码仓库中的 [market_case.py](../../scripts/market_case.py) 接受标准行情 CSV、带 `session` 列的独立日历 CSV、显式 ETF 市场分类和来源描述。用户须确认区间没有公司行动。它执行两种策略，逐项对账，再以不替换已有文件的方式保存报告；报告包含输入／结果摘要和本次运行假设。检查不用 Python `assert` 控制，即使用 `python -O` 也不能静默移除验证。
 
 ```sh
 uv run python scripts/market_case.py --market market.csv --calendar calendar.csv \
@@ -64,4 +64,4 @@ uv run --extra numba python scripts/market_case.py --market market.csv --calenda
 
 2020-08-24 的 159915 价格边界切换另有人工价格回归：相同 110 元开盘在旧 10% 上界处阻止买入，在新 20% 边界内允许买入。价格边界属于显式数据输入，不由 `china_rules` 根据证券代码猜测。
 
-股票税费与公司行动已有 [301005 分派案例](china-market.md#依据与复核案例)（真实公告事实＋人工价格）及独立账本；它不是该股票的真实历史行情收益。真实 ETF 案例不涵盖所有市场和特殊制度，支持范围仍以[市场矩阵](china-market.md)为准。完整引擎性能报告和发布候选验收尚需完成。
+股票税费与公司行动已有 [301005 分派案例](../../docs/china-market.md#依据与复核案例)（真实公告事实＋人工价格）及独立账本；它不是该股票的真实历史行情收益。真实 ETF 案例不涵盖所有市场和特殊制度，支持范围仍以[市场矩阵](../../docs/china-market.md)为准。完整引擎性能报告和发布候选验收尚需完成。

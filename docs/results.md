@@ -2,18 +2,18 @@
 
 正式 `BacktestResult` 表示一次共享现金账户运行。证券列顺序为 `result.symbols`，行顺序为 `result.sessions`；不会把参数组合放进证券列。金额账本与分析浮点数分别使用，指标不反向修改账本。
 
-0.2 开发版新增 `report()` 日频报告和 `ctx.record`／`analyze`／`with_outputs` 研究扩展，详见[研究契约](research-contract.md)。`report()` 从初始资金开始计算每天收益（包含首日影响），默认 252 个交易日年化；下面的 `stats()` 仍保留输入周期语义。新版 [research.py](../examples/research.py) 演示声明参数、可配置费用、自定义输出与日频导出。
+`report()` 从初始资金开始计算每天收益，包含首日成本，默认 252 个交易日年化。`stats()` 按原始 bar 统计且不默认年化。自定义输出见[研究契约](research-contract.md)，完整流程见[报告教程](guide/reports.md)。
 
 ## 日常用法
 
 ```python
-result = Backtest(data, initial_cash=100_000).run(
+result = Backtest(data, config=RunConfig(initial_cash=100_000)).run(
     moving_average,
     parameters={"fast": 5, "slow": 20, "allocation": 0.95},
     backend="python",
 )
 benchmark = Benchmark(
-    sessions=data.sessions,
+    sessions=data.timeline,
     prices=index_levels,
     name="自备指数",
     source="说明价格或全收益口径及来源",
@@ -24,19 +24,19 @@ figure.savefig("comparison.png")
 result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True)
 ```
 
-上例变量由研究脚本提供；完整可运行版本见 [research.py](../examples/research.py)。策略的签名是 `moving_average(ctx, *, fast, slow, allocation)`。`parameters` 接受 JSON 对象／列表／标量，不接受 NaN、Infinity、非字符串键或任意 Python 对象。运行前检查函数签名并复制嵌套参数；参数实际传入回调，记录的是初始值，回调内对复制后可变参数的修改不污染调用者。`WeightTargets` 自带其完整预计算输入，不再接收额外策略参数。
+上例变量由研究脚本提供；完整可运行版本见 [research.py](https://github.com/DorisLab/DoriBT/blob/main/examples/research.py)。策略的签名是 `moving_average(ctx, *, fast, slow, allocation)`。`parameters` 接受 JSON 对象／列表／标量，不接受 NaN、Infinity、非字符串键或任意 Python 对象。运行前检查函数签名并复制嵌套参数；参数实际传入回调，记录的是初始值，回调内对复制后可变参数的修改不污染调用者。`WeightTargets` 自带其完整预计算输入，不再接收额外策略参数。
 
 基础结果仍可直接读 `equity`、`cash`、`holdings`、`sellable`、`orders`、`fills`、`intents` 和权益／税务记录。`*_units` 为整数万分之一元，`equity` 等便利属性为元。`close_units` 保留每个证券的记账估值价，`pending_shares` 为尚未入账但已计入经济权益的股份；不能只用已入账持仓解释全部净值。
 
 ## 指标口径
 
-令 `E[t]` 为日终权益，`E[0]` 为首日空仓初始资金。引擎没有期间外部入金或出金，不在最后一天强制清仓。净值包含应收分红、待入账股份及已确认税款负债。
+以下表格为原始 `stats()` 口径，令 `E[t]` 为每根 bar 完成后的权益。引擎没有期间外部入金或出金，不在最后一天强制清仓。净值包含应收分红、待入账股份及已确认税款负债。
 
 | 输出 | 定义 |
 | --- | --- |
-| `nav` | `E[t] / initial_cash`，首日为 1 |
-| `returns` | 相邻日终 `E[t]/E[t-1]-1`；第一行 0 只用于对齐，不进入风险样本 |
-| `total_return` | 末日权益／初始资金 − 1 |
+| `nav` | `E[t] / initial_cash` |
+| `returns` | 相邻 bar `E[t]/E[t-1]-1`；第一行 0 只用于对齐，不进入风险样本 |
+| `total_return` | 末尾权益／初始资金 − 1 |
 | `drawdown` / `max_drawdown` | `1-E[t]/历史最高权益`；最高值包含初始资金，结果为正数损失比例 |
 | `annual_return` | `(1+total_return) ** (P/N) - 1`，`N` 为相邻收盘区间数，`P` 为显式年化周期 |
 | `annual_volatility` | 收益样本标准差（`ddof=1`）× `sqrt(P)` |
@@ -44,7 +44,7 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 | `sortino` | `mean(r-q) / sqrt(mean(min(r-q,0)^2)) * sqrt(P)`；分母对所有区间取均值 |
 | `total_fees` | 实际成交佣金＋印花税＋过户费；同时提供三个分项，股息税单列 |
 | `dividend_tax` | 已确认的股息税，包含已扣和尚未扣收；`unpaid_dividend_tax` 为末日未扣收部分 |
-| `order_count` / `fill_count` | 当日委托／实际成交条数；不是完整买卖交易次数或胜率 |
+| `order_count` / `fill_count` | 委托／实际成交条数；不是完整买卖交易轮次或胜率 |
 | `unfilled_order_count` / `partial_order_count` | 无成交／部分成交的委托数；持续目标的不同交易日尝试分别计数 |
 
 `risk_free_rate` 是年有效利率，默认 0；每区间门槛 `q=(1+rate)**(1/P)-1`。它只参与分析，不向现金账户计息。未指定 `periods_per_year` 时不计算年化、Sharpe、Sortino 或年化跟踪指标；非零无风险利率此时会报错。即便输入日线，也不猜测应采用 250、252 或其他天数。不按自然日跨度悄悄换一种 CAGR 算法。
@@ -79,8 +79,8 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 | 文件 | 内容 |
 | --- | --- |
-| `account.csv` | 每日现金、可用现金、权益、应收、税负债、净值、收益、回撤 |
-| `positions.csv` | 每日每标的数量、可卖量、待入账股份、估值价、含待入账股份的价值 |
+| `account.csv` | 每根 bar 的现金、可用现金、权益、应收、税负债、净值、收益、回撤 |
+| `positions.csv` | 每根 bar、每标的数量、可卖量、待入账股份、估值价、含待入账股份的价值 |
 | `orders.csv` / `fills.csv` / `intents.csv` | 委托、成交、意图及目标调整，带关联 ID 和原因 |
 | `entitlements.csv` / `corporate_events.csv` | 登记权益、应收／到账／入账事件 |
 | `taxes.csv` / `tax_payments.csv` / `tax_lots.csv` | 税款确认、扣收和期末剩余税务批次 |
@@ -90,10 +90,10 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 | `report.json` | `daily=True` 时的日频统计、每日账户、月收益、卖出价格盈亏、已平仓轮次、未平仓成本和定义；stats.json 同时采用日频口径 |
 | `run.json` | 实际运行假设、初始资金、参数、模型、来源、规则、权益和依赖版本 |
 | `benchmark.json` | 指定基准时保存全部基准输入及来源 |
-| `equity.png` | 请求绘图时保存的净值／回撤图 |
+| `equity.png` | 请求绘图时保存的净值／可选超额／回撤图 |
 | `manifest.json` | `doribt.export/1`、数据／运行指纹、单位与空值约定，以及其他每个文件的 SHA-256 和字节数 |
 
-CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保留列头。整数记账字段保持整数；金额／价格 `units` 是 `0.0001 CNY`，税务每股收入 `income_micros` 是 `0.000001 CNY/share`。`positions.csv` 包含所有证券／交易日组合；未上市或已退市的空价格以内部 0 表示，不作为可交易价格。
+CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保留列头。整数记账字段保持整数；金额／价格 `units` 是 `0.0001 CNY`，税务每股收入 `income_micros` 是 `0.000001 CNY/share`。`positions.csv` 包含所有证券／bar 组合；未上市或已退市的空价格以内部 0 表示，不作为可交易价格。
 
 当前交付标准 CSV／JSON，不要求 pandas／Arrow。Parquet、交互报告与产品侧资产管理可在实际消费者需要时追加。
 
@@ -110,6 +110,8 @@ CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保�
 不读取环境变量、不抓取闭包／全局变量／对象状态、不复制策略源代码或原始行情。回调来源不可读取时明确为 `null`，外部状态标记 `not_captured`。调用者仍需保留自己的原始数据、脚本、锁定环境以及显式随机种子；参数不能存放凭据，来源描述也不应带认证信息。指纹可以核对输入和程序是否一致，不能证明任意有外部状态的 Python 回调完全可复现。
 
 `run_info.fingerprint` 标识执行记录；同一结果使用不同分析假设导出时，执行指纹保持相同，`stats.json`、基准和文件清单哈希随分析输入变化。可选绘图库版本不算执行依赖，其环境由研究项目的锁文件保留。
-# 分钟结果增量
+## 分钟结果
 
-0.2 开发版 `result.sessions` 为完整 bar 结束时点；账户／持仓 CSV 相应逐 bar 输出，并增加 frozen_cash_units／frozen_quantity。`Fill.timestamp` 标识该成交最早可知的时点，同一 order_id 可有多行。订单金额／费用为累计值。原始 stats／plot 的 `Benchmark` 同样须与分钟时点严格对齐；原始统计不自动重采样，不能直接把分钟曲线按 252 个周期年化。新 report／export(daily=True) 按日末采样，并接受完整 bar 或精确交易日对齐的基准，前述旧约束不适用于新的日频入口。
+分钟回测的 `result.sessions` 为完整 bar 结束时点；账户／持仓 CSV 逐 bar 输出，包含 frozen_cash_units／frozen_quantity。`Fill.timestamp` 标识该成交最早可知的时点，同一 order_id 可有多行，订单金额／费用为累计值。
+
+`stats()`／`plot()` 的基准须与完整分钟时点严格对齐，不自动重采样，不能直接按 252 个周期年化。`report()`／`export(daily=True)` 按日末采样，接受完整 bar 或精确交易日对齐的基准。

@@ -1,6 +1,6 @@
 # 质量检查
 
-本文规定开发检查，不表示基础引擎已完成，也不承诺特定用途的适用性。新增能力须连同有独立预期的行为验证交付。CI 结果以对应提交实际运行状态为准。
+本文规定维护者的开发检查。新增能力须连同有独立预期的行为验证交付，CI 结果以对应提交的实际运行状态为准。
 
 ## 本地入口
 
@@ -38,7 +38,9 @@ uv run --no-sync python scripts/check.py --backend numba --audit
 
 覆盖率包含分支并列出遗漏位置，用于找缺失行为；当前不以一个百分比代替关键案例，也不为凑数字添加同义测试。生成式测试采用固定的可复现配置并由 Hypothesis 缩减失败输入；独立预期使用 Decimal，不能导入内核的计费或记账函数计算答案。
 
-CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；另有依赖审计与凭据扫描。`milestone/**` 标签直接运行；`v*` 标签由发布工作流复用同一套门禁，通过后构建并上传 PyPI。里程碑可手动触发，普通提交、分支 push 和 PR 更新不触发。主要目标先通过本地门禁再提交，里程碑的 CI 全部通过后才具备跨平台验收证据。工作流使用固定 Action 提交、只读默认权限与超时；仅独立上传 job 获得 PyPI OIDC 权限。仓库是否强制 required checks 由远端分支保护设置决定，提交 workflow 本身不等于已启用保护。
+引擎 CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合，另有依赖审计与凭据扫描。`milestone/**`（排除 `milestone/docs/**`）直接运行；`v*` 由发布工作流复用同一套门禁，通过后构建并上传 PyPI。`milestone/docs/**` 与正式 GitHub Release 的 published 事件仅触发文档构建、教程验证及 Pages 发布。引擎里程碑可手动触发；普通提交、分支 push 和 PR 更新均不触发。工作流固定 Action 提交，默认只读，仅部署 job 获得对应发布权限。
+
+文档入口：`uv sync --locked --group docs` 后运行 `uv run --no-sync python scripts/check_docs.py`。它严格构建 Sphinx、检查生成页面的内部链接／锚点／资源，将示例复制到临时目录执行，并验证教程正文的 Python 片段。`--python <path>` 可改用从 PyPI 安装的独立环境，`--backend numba` 验证可选后端。文档构建依赖不进入运行依赖。
 
 ## 迭代与新增能力
 
@@ -56,7 +58,7 @@ CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；�
 
 性能比较先核对结果与输出相同，再分别记录冷启动、预热后耗时和内存。公共 CI 不用一个易受机器负载影响的毫秒阈值决定财务正确性。建立代表性完整引擎基线后再制定性能退化门槛。
 
-`scripts/benchmark.py` 在两个独立进程、全新 Numba 缓存中运行单标的、参数网格和共享资金组合；逐项核对输出摘要后才发布报告。`psutil` 仅为开发依赖，采样包含 Windows 虚拟环境启动器的子进程。CI 运行小规模功能检查，不以速度排名决定通过；完整测量方法与结果见[性能基线](performance.md)。
+`scripts/benchmark.py` 在两个独立进程、全新 Numba 缓存中运行单标的、参数网格和共享资金组合；逐项核对输出摘要后才发布报告。`psutil` 仅为开发依赖，采样包含 Windows 虚拟环境启动器的子进程。CI 运行小规模功能检查，不以速度排名决定通过；完整测量方法与结果见[性能基线](../engineering/history/performance.md)。
 
 失败不能通过删断言、提高账本误差容忍度或增加广泛忽略来解决。必要例外须说明原因、受影响范围、替代证据和复查期限；当前没有依赖漏洞或告警豁免。
 

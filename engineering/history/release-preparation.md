@@ -6,7 +6,7 @@
 
 - GitHub 最新公开版本为 `v0.1.0`；本地为 `0.2.0.dev0`，位于 `codex/minute-execution`。
 - 开发版已包含分钟行情、部分成交、滑点、预计算分段执行、运行配置、参数声明、自定义输出及日频报告。
-- 图表默认采用策略红、基准蓝、超额金、回撤浅红；红／灰／绿用于涨／平收或停牌／跌的行情状态。分钟横轴保留完整时点和市场时区。验证记录见 [release-progress.md](release-progress.md)。
+- 图表默认采用策略红、基准蓝、超额金、回撤浅红；红／灰／绿用于涨／平收或停牌／跌的行情状态。分钟横轴保留完整时点和市场时区。验证记录见 [release-progress.md](../release-progress.md)。
 - 现有 CI 覆盖 Windows／Linux × Python／Numba，以及依赖和凭据检查。远程最新成功运行对应 `v0.1.0`，不能用于证明当前开发版通过。
 - 仓库中尚无文档站配置或 Pages 工作流。清除旧终端继承的 token 后确认 GitHub API 身份为 DorisLab，具备仓库管理权限；仓库元数据 `has_pages=false`，尚未启用 Pages。
 
@@ -25,7 +25,7 @@ PyPI 首次发行前完成候选验收、版本／包元数据和最低限度的
 | 发行产物 | 版本仍为开发版 | 同步版本和 CHANGELOG；从最终标签构建 wheel／sdist，检查包内容、隔离安装与源码包重建，生成 SHA256SUMS，核对实际上传下载的文件 |
 | 发布身份 | 本地提交作者／提交者为 DorisLab，SSH 使用 github-dorislab；清除旧终端继承的 token 后，gh API 身份已验证为 DorisLab | 使用已清理环境的进程；PR／Release／Pages 等写操作前复核 API 身份，每次推送核对 Git 署名与 SSH 目的地 |
 
-当前尚未推送本地增量或发布新版本。发行顺序调整为先发布到 PyPI，再基于实际可安装版本整理教程与文档站；GitHub Releases 保留变更说明和发行资产。PyPI 配置见 [Trusted Publisher 配置](pypi-publishing.md)。首次上传前仍须完成候选检查、版本与包元数据核对，README 暂不宣称 PyPI 已可安装。
+当前尚未推送本地增量或发布新版本。发行顺序调整为先发布到 PyPI，再基于实际可安装版本整理教程与文档站；GitHub Releases 保留变更说明和发行资产。PyPI 配置见 [Trusted Publisher 配置](../publishing.md)。首次上传前仍须完成候选检查、版本与包元数据核对，README 暂不宣称 PyPI 已可安装。
 
 ## 文档整理方案
 

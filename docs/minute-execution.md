@@ -1,6 +1,6 @@
 # 分钟行情、部分成交与滑点
 
-状态：0.2.0.dev0 已实现，本轮仅本地交付，尚未发布；验收记录见 [release-progress.md](release-progress.md)。旧日线默认执行保持兼容；分钟数据及显式 `BarExecution` 使用新的订单生命周期。
+使用 `RunConfig` 时，日线和分钟均由 `BarExecution` 控制成交量、滑点和订单有效期。本页定义 bar 级模拟的完整行为。
 
 ## 数据与时间
 
@@ -26,13 +26,14 @@ DAY 的有效期为首个可执行 bar 所属交易日，午休保留、该日�
 
 `Costs` 管理费用；`BarExecution(participation=.05, slippage=FixedBps(5))` 管理容量和滑点，另外支持 FixedTicks、VolumeImpact。成交价按方向不利取整到 tick；超出 bar 高低、日边界或用户限价就不成交，不把价格截断为一个虚构成交。成交量冲击使用本 bar 已使用量加本次拟成交量的参与率平方，并明确系数是假设。
 
-旧 `Costs.slippage_ticks` 仍适用于默认日线；与显式执行配置同时非零时报错，分钟应迁移到 `BarExecution`，避免双重滑点。不静默推断真实冲击系数或卖出可用量。
+滑点通过 `BarExecution.slippage` 配置，不能同时设置非零 `Costs.slippage_ticks`。冲击系数由调用者指定，不静默推断真实冲击或卖出可用量。
 
-当前限价是成交价格保护，参考价仍是下一 bar 开盘加滑点；不模拟盘中触价、队列优先或竞价撤单规则。冻结字段记录完成 bar、策略回调前的状态；回调内连续提交仍由 broker 的即时余额控制。无自动日频重采样或分钟年化天数推断，`stats()` 默认只给无年化假设的指标。
+当前限价是成交价格保护，参考价仍是下一 bar 开盘加滑点；不模拟盘中触价、队列优先或竞价撤单规则。冻结字段记录完成 bar、策略回调前的状态；回调内连续提交仍由 broker 的即时余额控制。`stats()` 保留输入 bar 口径且不默认年化；`report()` 按日末采样，默认每年 252 个交易日。
 
 ```python
-from doribt import Backtest, BarExecution, FixedBps
-from examples.minute import sample  # 人工输入；实际使用自行提供 MarketData
+from doribt import Backtest, BarExecution, FixedBps, RunConfig
+
+# data 为调用者已准备的 MarketData；完整示例见下文。
 
 
 def strategy(ctx):
@@ -41,19 +42,13 @@ def strategy(ctx):
 
 
 result = Backtest(
-    sample(),
-    execution=BarExecution(
-        participation=0.05,
-        slippage=FixedBps(5),
-    ),
+    data,
+    config=RunConfig(execution=BarExecution(participation=0.05, slippage=FixedBps(5))),
 ).run(strategy)
 print(result.stats())
 ```
 
 预计算目标使用 `WeightTargets(sessions=data.timeline, weights=...)`。`data.sessions` 保留唯一交易日；`data.timeline` 是 bar 结束时点。分钟 `prices(as_of=...)` 必须传带时区的具体结束时点。
 
-## 验收与性能
-
-独立 Decimal 核对现金/持仓/佣金，验证部分成交、共用容量、T+1、午休/DAY 到期、撤单和目标替换、公司行动不重复、价格越界和未来数据隔离。运行公开分钟示例及 Python/Numba 安装门禁。真实行情只保留本地；公共仓库保存提取协议、输入哈希和汇总证据。
-
-vectorbt 使用独立实现的相同策略和成本假设，先核对成交/账户再计时。分别测预热运行、准备/冷启动与参数组；区分预计算目标与 Python 回调，报告输出范围、版本及峰值内存。0.1.0 原型性能不代替完整分钟引擎结果。
+完整可运行脚本见[分钟教程](guide/minutes.md)，预计算优化与边界见[分段执行](scheduled-execution.md)。
+完整可运行脚本见[分钟教程](guide/minutes.md)，预计算优化与边界见[分段执行](scheduled-execution.md)。

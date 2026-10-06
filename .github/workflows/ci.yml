@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'milestone/**'
+      - '!milestone/docs/**'
   workflow_dispatch:
   workflow_call:
 
