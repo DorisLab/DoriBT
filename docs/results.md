@@ -65,11 +65,13 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 ## 图表
 
-`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端或字体设置。默认优先中文标题与图例，自动选择本机已安装的 Noto Sans SC／CJK SC、微软雅黑等中文字体；缺少这些字体时内置标签回退为英文，避免缺字。安装 Noto Sans CJK SC 后可使用中文；用户自定义基准名称保持原文，所需字体由调用环境提供。
+`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤；提供基准时，中间另显示累计超额收益。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端或字体设置。默认优先中文标题与图例，自动选择本机已安装的 Noto Sans SC／CJK SC、微软雅黑等中文字体；缺少这些字体时内置标签回退为英文，避免缺字。安装 Noto Sans CJK SC 后可使用中文；用户自定义基准名称保持原文，所需字体由调用环境提供。
 
 `plot` 是可选安装项；导入和运行基础引擎不加载 Matplotlib。`export(..., plot=True)` 才请求绘图，缺依赖会明确报错并清理此次临时输出。
 
-默认采用红、绿、灰配色：策略净值红色（`#c83932`）、基准灰色（`#7a828e`）、负向回撤绿色（`#27845b`）。净值线颜色用于区分系列，不随每段涨跌变色；需要定制可编辑返回的 Figure。分钟图保留每根 bar 的结束时点，横轴按输入市场时区显示；`export(daily=True, plot=True)` 则显示日末采样后的曲线。
+默认按图表含义配色：策略净值红色（`#c83932`）、基准蓝色（`#477bb5`）、累计超额收益金色（`#b98b2f`）、负向回撤浅红色（`#df8a87`），零线与网格用中性灰。累计超额收益为 `result.nav - benchmark.nav`，与累计收益差指标一致，单独以百分比坐标显示，不与净值共用纵轴。没有基准时不显示超额面板。
+
+红／灰／绿用于表达上涨、平收或停牌、下跌的行情状态，不按此规则为上述研究系列分配颜色。当前导出为净值、超额和回撤图，不包含 K 线或行情状态图。净值线不随每段涨跌变色；需要定制可编辑返回的 Figure。分钟图保留每根 bar 的结束时点，横轴按输入市场时区显示；`export(daily=True, plot=True)` 则显示日末采样后的曲线。
 
 ## 导出契约
 
