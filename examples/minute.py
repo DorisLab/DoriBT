@@ -10,10 +10,10 @@ from doribt import (
     FixedTicks,
     Instrument,
     MarketData,
+    MinuteClock,
     PositionTargets,
     china_rules,
 )
-from doribt.market.clock import MinuteClock
 
 
 def sample() -> MarketData:

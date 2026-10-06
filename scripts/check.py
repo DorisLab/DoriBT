@@ -37,6 +37,7 @@ def main() -> None:
     if args.backend == "python":
         tests += ["-m", "not numba"]
     run(*tests)
+    run(sys.executable, "examples/quickstart.py")
     run(sys.executable, "examples/sma.py", "--backend", args.backend)
     run(sys.executable, "examples/minute.py", "--backend", args.backend)
     run(sys.executable, "examples/minute.py", "--backend", args.backend, "--precomputed")

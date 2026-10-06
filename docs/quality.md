@@ -38,7 +38,7 @@ uv run --no-sync python scripts/check.py --backend numba --audit
 
 覆盖率包含分支并列出遗漏位置，用于找缺失行为；当前不以一个百分比代替关键案例，也不为凑数字添加同义测试。生成式测试采用固定的可复现配置并由 Hypothesis 缩减失败输入；独立预期使用 Decimal，不能导入内核的计费或记账函数计算答案。
 
-CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；另有依赖审计与凭据扫描。仅 `milestone/**` 或 `v*` 标签 push，以及里程碑时手动触发会运行；普通提交、分支 push 和 PR 更新不触发。主要目标先通过本地门禁再提交，里程碑的 CI 全部通过后才具备跨平台验收证据。工作流使用固定 Action 提交、只读默认权限、超时和旧运行取消，不执行发布。仓库是否强制 required checks 由远端分支保护设置决定，提交 workflow 本身不等于已启用保护。
+CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；另有依赖审计与凭据扫描。`milestone/**` 标签直接运行；`v*` 标签由发布工作流复用同一套门禁，通过后构建并上传 PyPI。里程碑可手动触发，普通提交、分支 push 和 PR 更新不触发。主要目标先通过本地门禁再提交，里程碑的 CI 全部通过后才具备跨平台验收证据。工作流使用固定 Action 提交、只读默认权限与超时；仅独立上传 job 获得 PyPI OIDC 权限。仓库是否强制 required checks 由远端分支保护设置决定，提交 workflow 本身不等于已启用保护。
 
 ## 迭代与新增能力
 

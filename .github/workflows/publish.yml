@@ -1,0 +1,79 @@
+name: Release to PyPI
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pypi-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: 核对发行来源与版本
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+          python - <<'PY'
+          import os, re, tomllib
+          from pathlib import Path
+          version = tomllib.loads(Path('pyproject.toml').read_text())['project']['version']
+          if not re.fullmatch(r'\d+\.\d+\.\d+', version) or os.environ['RELEASE_TAG'] != 'v' + version:
+              raise SystemExit('发行标签与正式版本不一致')
+          PY
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install uv==0.10.11
+      - run: uv sync --locked --extra numba
+      - name: 构建并验证实际发行包
+        run: |
+          uv build
+          uv run --no-sync python scripts/check_wheel.py dist/*.whl
+          uv run --no-sync python scripts/check_wheel.py dist/*.whl --backend numba
+          (cd dist && sha256sum *.whl *.tar.gz > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/doribt/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-dist
+          path: dist/
+      - name: 核对构建产物
+        run: |
+          cd dist
+          sha256sum --check SHA256SUMS
+          mkdir ../packages
+          cp *.whl *.tar.gz ../packages/
+      - name: 发布到 PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
+        with:
+          packages-dir: packages/

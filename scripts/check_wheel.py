@@ -69,7 +69,7 @@ historical = china_rules({'A': 'sse_star'}, start='2025-01-02', end='2025-01-06'
 assert historical.periods[0].rule.sell_minimum == 200
 assert historical.periods[0].rule.order_maximum == 100000
 assert formal.run_info.to_dict()['data']['fingerprint'] == data.fingerprint
-from doribt.market.clock import MinuteClock
+from doribt import MinuteClock
 clock = MinuteClock.build(data.sessions[:1], '5min')
 minutes = MarketData.from_minutes(
     [dict(timestamp=point, phase='continuous', symbol='A', status='trading',
@@ -128,7 +128,8 @@ if backend == 'python':
         assert 'doribt[numba]' in str(error)
     else:
         raise AssertionError('Formal engine must not silently fall back either')
-print('Installed wheel passed:', doribt.__version__, backend)
+exec(compile(sys.argv[3], 'quickstart.py', 'exec'), {})
+print('安装包验证通过：', doribt.__version__, backend)
 """
 
 
@@ -175,6 +176,7 @@ def check_wheel(wheel: Path, backend: str) -> None:
                 SMOKE,
                 backend,
                 json.dumps(hashes),
+                (ROOT / "examples" / "quickstart.py").read_text(encoding="utf-8"),
             ],
             cwd=temporary,
             check=True,

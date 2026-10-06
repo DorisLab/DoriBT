@@ -7,6 +7,7 @@ from doribt.accounting.taxes import TaxLotRecord, TaxPayment, TaxRecord
 from doribt.market.actions import CorporateAction
 from doribt.market.adjustments import PriceAdjustment
 from doribt.market.china import china_rules
+from doribt.market.clock import MinuteClock
 from doribt.market.data import MarketData
 from doribt.market.instruments import Instrument, TradingStatus
 from doribt.market.rules import RuleBook, RulePeriod, TradingRule
@@ -23,6 +24,7 @@ from doribt.runtime.slippage import BarExecution, FixedBps, FixedTicks, VolumeIm
 from doribt.runtime.targets import PositionTargets, WeightTargets
 
 __all__ = [
+    "MinuteClock",
     "RunConfig",
     "Parameter",
     "ParameterSet",
@@ -64,4 +66,4 @@ __all__ = [
     "Reason",
 ]
 
-__version__ = "0.2.0.dev0"
+__version__ = "0.2.0"

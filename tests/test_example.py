@@ -25,6 +25,8 @@ def test_readme_python_example_is_executable():
     namespace = {}
     exec(compile(snippet, "README.md", "exec"), namespace)
     result = namespace["result"]
-    assert result.equity[0] == 100000
-    assert result.equity[-1] == 116025.76
+    assert result.equity[0] == 10000
+    assert result.equity[-1] == 10895
     assert len(result.fills) == 1
+    assert result.fills[0].quantity == 900
+    assert result.fills[0].fees == 5
