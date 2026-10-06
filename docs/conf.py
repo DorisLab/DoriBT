@@ -22,11 +22,7 @@ autodoc_member_order = "bysource"
 html_theme = "furo"
 html_title = f"DoriBT {release} 文档"
 html_baseurl = "https://dorislab.github.io/DoriBT/"
-html_static_path = ["_static"]
-html_css_files = ["custom.css"]
 html_theme_options = {
-    "light_css_variables": {"color-brand-primary": "#ac302b", "color-brand-content": "#a72d28"},
-    "dark_css_variables": {"color-brand-primary": "#ed918a", "color-brand-content": "#ed918a"},
     "source_repository": "https://github.com/DorisLab/DoriBT/",
     "source_branch": "main",
     "source_directory": "docs/",
