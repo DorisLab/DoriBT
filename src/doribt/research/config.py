@@ -1,11 +1,11 @@
 """One explicit runtime configuration for daily and minute research."""
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, cast
 
 from doribt.accounting.costs import Costs
 from doribt.research.parameters import Parameter, ParameterSet
-from doribt.runtime.slippage import BarExecution, FixedBps, FixedTicks, VolumeImpact
+from doribt.runtime.slippage import BarExecution, FixedBps, FixedTicks, SlippagePolicy, VolumeImpact
 from doribt.validation import Number, amount
 
 
@@ -42,6 +42,7 @@ class RunConfig:
             "participation": float(self.execution.participation),
             "slippage_kind": kind,
             "slippage_value": size,
+            "slippage_policy": self.execution.slippage_policy,
             "backend": self.backend,
         }
 
@@ -101,6 +102,13 @@ class RunConfig:
                     ),
                 ),
                 "backend": Parameter(type="str", default="python", choices=("python", "numba")),
+                "slippage_policy": Parameter(
+                    type="str",
+                    default="strict",
+                    choices=("strict", "cap", "cost"),
+                    label="滑点越界处理",
+                    description="strict：拒绝；cap：截到行情边界；cost：保留完整滑点成本",
+                ),
             }
         )
 
@@ -123,6 +131,10 @@ class RunConfig:
                 commission=str(resolved["commission"]),
                 minimum_commission=str(resolved["minimum_commission"]),
             ),
-            execution=BarExecution(participation=str(resolved["participation"]), slippage=slip),
+            execution=BarExecution(
+                participation=str(resolved["participation"]),
+                slippage=slip,
+                slippage_policy=cast(SlippagePolicy, resolved["slippage_policy"]),
+            ),
             backend="numba" if resolved["backend"] == "numba" else "python",
         )

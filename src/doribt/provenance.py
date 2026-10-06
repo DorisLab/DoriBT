@@ -151,6 +151,8 @@ def run_info(
             "participation_ppm": int(execution.compile()[0]),
             "slippage": type(execution.slippage).__name__,
             "parameters": asdict(execution.slippage),
+            "slippage_policy": execution.slippage_policy,
+            "reference_price": "bar_open",
             "quantity_unit": "shares",
             "fill_known": "bar_end",
         },

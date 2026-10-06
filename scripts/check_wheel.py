@@ -91,6 +91,16 @@ scheduled = Backtest(minutes, execution=BarExecution(slippage=FixedTicks(1))).ru
 np.testing.assert_array_equal(scheduled.cash_units, minute_result.cash_units)
 assert scheduled.run_info.to_dict()['execution_path'] == 'scheduled_segments'
 assert len(scheduled.fills) == 4
+for policy, expected in [('strict', []), ('cap', [10]), ('cost', [10.02])]:
+    boundary_config = doribt.RunConfig.from_dict({
+        'slippage_value': 2, 'slippage_policy': policy, 'participation': .1, 'backend': backend})
+    boundary = Backtest(data, config=boundary_config).run(
+        lambda ctx: ctx.order('A', 100) if ctx.bar_index == 0 else None)
+    assert [fill.price for fill in boundary.fills] == expected
+    assert boundary.run_info.to_dict()['execution']['slippage_policy'] == policy
+    if boundary.fills:
+        assert boundary.fills[0].reference_price == 10
+        assert boundary.fills[0].slippage_cost == (2 if policy == 'cost' else 0)
 config = doribt.RunConfig.from_dict({'commission': 0, 'minimum_commission': 1, 'backend': backend})
 schema = doribt.ParameterSet({
     'quantity': doribt.Parameter(type='int', default=100, minimum=100, step=100)})

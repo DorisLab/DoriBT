@@ -104,6 +104,26 @@ class Fill:
     stamp_duty_units: int
     transfer_fee_units: int
     timestamp: datetime | None = None
+    reference_price_units: int | None = None
+
+    @property
+    def reference_price(self) -> float | None:
+        """滑点前的 bar 开盘参考价；旧日线执行路径未记录时为 None。"""
+        if self.reference_price_units is None:
+            return None
+        return self.reference_price_units / 10_000
+
+    @property
+    def slippage_cost_units(self) -> int | None:
+        """已经计入成交金额的滑点价差成本，不应再次从现金扣除。"""
+        if self.reference_price_units is None:
+            return None
+        return self.quantity * (self.price_units - self.reference_price_units)
+
+    @property
+    def slippage_cost(self) -> float | None:
+        units = self.slippage_cost_units
+        return None if units is None else units / 10_000
 
     @property
     def commission(self) -> float:

@@ -270,6 +270,7 @@ class Broker:
                 stamp,
                 transfer,
                 point if isinstance(point, datetime) else None,
+                reference_price_units=int(self.compiled.market[self.index, item.column, OPEN]),
             )
         )
         event = replace(order, session=session, filled=quantity, price_units=price)

@@ -27,6 +27,7 @@ CAPACITY, LIMIT_PRICE, AUCTION = 11, 12, 13
 # State: remaining quantity, cumulative notional, commission paid, cash budget,
 #        reserved sellable shares, limit price (0 means market).
 LEFT, NOTIONAL, PAID, BUDGET, RESERVED, LIMIT = range(6)
+STRICT, CAP, COST = range(3)
 type Matcher = Callable[[IntArray, IntArray, IntArray, IntArray, int, int, int], IntArray]
 
 
@@ -68,13 +69,28 @@ def fill_costs(
     )
 
 
+def settlement_price(price: int, policy: int, low: int, high: int) -> int:
+    # 仅 cap 减少滑点；cost 保留成本假设，strict 留待价格保护检查。
+    if policy == CAP:
+        return min(high, max(low, price))
+    return price
+
+
 def affordable(
-    quantity: int, state: IntArray, rule: IntArray, costs: IntArray, config: IntArray, used: int
+    quantity: int,
+    state: IntArray,
+    rule: IntArray,
+    costs: IntArray,
+    config: IntArray,
+    used: int,
+    price_low: int,
+    price_high: int,
 ) -> int:
     low, high = 0, quantity
     while low < high:
         middle = (low + high + 1) // 2
         price = slip_price(rule, config, middle, used, True)
+        price = settlement_price(price, int(config[3]), price_low, price_high)
         fees = fill_costs(middle, price, True, state, rule, costs)
         if middle * price + sum(fees) <= state[BUDGET]:
             low = middle
@@ -83,8 +99,10 @@ def affordable(
     return low
 
 
-def price_block(price: int, buying: bool, state: IntArray, low: int, high: int) -> int:
-    if price < low or price > high:
+def price_block(price: int, buying: bool, state: IntArray, low: int, high: int, policy: int) -> int:
+    if price <= 0:
+        return BAD_PRICE
+    if policy == STRICT and (price < low or price > high):
         return BAD_PRICE
     limit = int(state[LIMIT])
     if limit and (price > limit if buying else price < limit):
@@ -93,12 +111,19 @@ def price_block(price: int, buying: bool, state: IntArray, low: int, high: int) 
 
 
 def fill_size(
-    state: IntArray, rule: IntArray, costs: IntArray, config: IntArray, used: int, capacity: int
+    state: IntArray,
+    rule: IntArray,
+    costs: IntArray,
+    config: IntArray,
+    used: int,
+    capacity: int,
+    low: int,
+    high: int,
 ) -> tuple[int, int]:
     wanted = abs(int(state[LEFT]))
     capped = min(wanted, max(0, capacity - used))
     if state[LEFT] > 0:
-        quantity = affordable(capped, state, rule, costs, config, used)
+        quantity = affordable(capped, state, rule, costs, config, used, low, high)
         short = CASH_SHORT
     else:
         quantity = min(capped, int(state[RESERVED]))
@@ -124,20 +149,20 @@ def match(
     if reason:
         row[5] = reason
         return row
+    low = max(low, int(rule[LOWER]))
+    high = min(high, int(rule[UPPER])) if rule[UPPER] else high
+    if low > high:
+        row[5] = BAD_PRICE
+        return row
     capacity = int(rule[VOLUME]) // 1_000_000 * int(config[0])
     capacity += int(rule[VOLUME]) % 1_000_000 * int(config[0]) // 1_000_000
-    quantity, size_reason = fill_size(state, rule, costs, config, used, capacity)
+    quantity, size_reason = fill_size(state, rule, costs, config, used, capacity, low, high)
     if not quantity:
         row[5] = size_reason
         return row
     price = slip_price(rule, config, quantity, used, buying)
-    reason = price_block(
-        price,
-        buying,
-        state,
-        max(low, int(rule[LOWER])),
-        min(high, int(rule[UPPER])) if rule[UPPER] else high,
-    )
+    price = settlement_price(price, int(config[3]), low, high)
+    reason = price_block(price, buying, state, low, high, int(config[3]))
     if reason:
         row[5] = reason
         return row
@@ -154,7 +179,16 @@ def accelerated() -> Matcher:
         from numba.extending import register_jitable
     except ImportError as error:
         raise ImportError("Numba execution requires doribt[numba]") from error
-    for function in (fee, market_block, slip_price, fill_costs, affordable, price_block, fill_size):
+    for function in (
+        fee,
+        market_block,
+        slip_price,
+        fill_costs,
+        settlement_price,
+        affordable,
+        price_block,
+        fill_size,
+    ):
         register_jitable(function)
     return cast(Matcher, njit(cache=True)(match))
 

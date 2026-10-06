@@ -11,6 +11,7 @@
 | 预计算均线 | `python examples/sma.py` | 不含未来信息的窗口、WeightTargets |
 | 买入持有／均线／轮动 | `python examples/strategies.py` | 同一数据的函数策略与共享资金 |
 | 分钟订单 | `python examples/minute.py` | 部分成交、T+1、累计佣金 |
+| 滑点边界 | `python examples/slippage.py` | 高点买入／低点卖出、三种边界策略与成本 |
 | 分钟预计算 | `python examples/minute.py --precomputed` | PositionTargets 和事件分段 |
 | 数据字段 | `python examples/market_data.py` | 状态、规则与数据指纹 |
 | 分红送转 | `python examples/dividends.py` | 现金／股份分日到账、税务 |

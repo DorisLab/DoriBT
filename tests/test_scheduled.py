@@ -63,6 +63,22 @@ def test_scheduled_shared_cash_partial_fills_and_replacements(backend, settlemen
     assert result.fills and any(o.status == "cancelled" for o in result.orders)
 
 
+@pytest.mark.parametrize("policy", ["strict", "cap", "cost"])
+def test_scheduled_boundary_policy_matches_callbacks_with_partial_fills(backend, policy):
+    data = minute_data(frequency="5min", changes={i: {"high": 10, "low": 10} for i in range(96)})
+    targets = PositionTargets(sessions=data.timeline, quantities={"A": [200] * 47 + [0] * 49})
+    result = compare(
+        data,
+        targets,
+        backend,
+        initial_cash=10000,
+        costs=Costs(commission=0, minimum_commission=0),
+        execution=BarExecution(slippage=FixedTicks(2), slippage_policy=policy),
+    )
+    assert result.cash[-1] == (9992 if policy == "cost" else 10000)
+    assert len(result.fills) == (0 if policy == "strict" else 8)
+
+
 @pytest.mark.parametrize("rebalance", [False, True])
 def test_scheduled_weights_keep_fixed_shares_and_optional_rebalance(backend, rebalance):
     data = minute_data(volume=100000, symbols=("A", "B"), frequency="5min")

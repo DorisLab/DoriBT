@@ -28,6 +28,12 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 基础结果仍可直接读 `equity`、`cash`、`holdings`、`sellable`、`orders`、`fills`、`intents` 和权益／税务记录。`*_units` 为整数万分之一元，`equity` 等便利属性为元。`close_units` 保留每个证券的记账估值价，`pending_shares` 为尚未入账但已计入经济权益的股份；不能只用已入账持仓解释全部净值。
 
+## 成交价格与滑点成本
+
+使用 `BarExecution` 的成交记录同时保留 `reference_price_units`（原始开盘价）与 `price_units`（滑点及边界处理后的模拟结算价）。便利属性 `reference_price`／`price` 的单位为元；`slippage_cost_units = quantity × (price_units - reference_price_units)`，`slippage_cost` 为对应元值，买入加价和卖出减价均形成正成本。它已进入成交金额与收益，不包含在 `fees`，不能再扣一次。
+
+`fills.csv` 和 `ledger.json` 导出参考价整数字段；派生滑点成本可由上述公式重建。旧日线执行路径的参考价和滑点成本属性为 `None`，CSV 为空、JSON 为 `null`，不能解释成零成本。`run.json` 的 execution 保留 `slippage_policy` 和 `reference_price="bar_open"`；通过 RunConfig 运行时 config 中也保存策略。`cost` 模式下的 `price` 可能越过行情范围，表示研究结算假设；持仓仍按原始收盘价估值。
+
 ## 指标口径
 
 以下表格为原始 `stats()` 口径，令 `E[t]` 为每根 bar 完成后的权益。引擎没有期间外部入金或出金，不在最后一天强制清仓。净值包含应收分红、待入账股份及已确认税款负债。

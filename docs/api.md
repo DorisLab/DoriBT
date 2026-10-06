@@ -44,6 +44,8 @@
 .. autoclass:: doribt.BarExecution
 ```
 
+`slippage_policy="strict"` 拒绝越界，`"cap"` 截到行情边界，`"cost"` 保留完整滑点成本；日线和分钟都适用。成交资格、用户限价及资金约束继续有效，完整语义见[滑点契约](minute-execution.md)。旧日线 `Costs.slippage_ticks` 路径不提供该选择；需要配置时使用 `RunConfig(execution=BarExecution(...))`。
+
 ```{eval-rst}
 .. autoclass:: doribt.FixedTicks
 ```
