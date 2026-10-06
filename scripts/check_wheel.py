@@ -23,7 +23,7 @@ from doribt import (
     CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
     PriceAdjustment, china_rules
 )
-from doribt.experimental import Backtest, CloseSignals, Costs, DailyBars
+assert importlib.util.find_spec('doribt.experimental') is None
 
 backend = sys.argv[1]
 assert 'numba' not in sys.modules, 'Importing DoriBT must not import Numba'
@@ -37,20 +37,14 @@ for name, expected_hash in json.loads(sys.argv[2]).items():
     assert hashlib.sha256(installed.locate_file(name).read_bytes()).hexdigest() == expected_hash
 if backend == 'python':
     assert importlib.util.find_spec('numba') is None, 'Base install unexpectedly includes Numba'
-b = DailyBars(['2025-01-02', '2025-01-03', '2025-01-06'], [10.,10.,11.],
-              [10.,10.5,11.], [12.,12.,12.], [8.,8.,8.], [False,False,False])
-r = Backtest(b, initial_cash=10000, costs=Costs(slippage_ticks=0)).run(
-    CloseSignals(sessions=b.sessions, hold=[True,False,True]), backend=backend)
-np.testing.assert_array_equal(r.equity, [10000.,10445.,10890.])
-assert r.backend == backend
-assert r.stats()['fill_count'] == 2
+sessions = ['2025-01-02', '2025-01-03', '2025-01-06']
 rule = TradingRule(price_tick='.01', buy_minimum=100, buy_step=100, sell_step=100,
                    settlement_days=1, stamp_duty_sell=0, transfer_fee=0)
 data = MarketData.from_records(
     [dict(session=session, symbol='A', status='trading', open=price, high=price,
           low=price, close=price, volume=1000, upper_limit=None, lower_limit=None)
-     for session, price in zip(b.sessions, (10, 10, 11), strict=True)],
-    calendar=b.sessions, instruments=[Instrument(symbol='A', kind='stock')],
+     for session, price in zip(sessions, (10, 10, 11), strict=True)],
+    calendar=sessions, instruments=[Instrument(symbol='A', kind='stock')],
     rules=RuleBook((RulePeriod(symbol='A', start='2025-01-02', end='2025-01-06',
                               rule=rule, source='test', version='1'),)), source='test',
     actions=[CorporateAction(action_id='dividend', symbol='A', kind='distribution',
@@ -91,12 +85,6 @@ if backend == 'python':
         assert 'doribt[plot]' in str(error)
     else:
         raise AssertionError('Missing plotting dependency must be explicit')
-    try:
-        Backtest(b).run(CloseSignals(sessions=b.sessions, hold=[True]*3), backend='numba')
-    except ImportError as error:
-        assert 'doribt[numba]' in str(error)
-    else:
-        raise AssertionError('Missing Numba must not silently fall back')
     try:
         doribt.Backtest(data).run(targets, backend='numba')
     except ImportError as error:

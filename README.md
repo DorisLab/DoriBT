@@ -6,7 +6,7 @@ Python backtesting for A-share research, with an optional Numba execution backen
 
 DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。0.1.0 提供数据、策略、执行、账户和结果分析的日线研究流程，范围与逐项证据见[首版验收](docs/release-0.1.0.md)。
 
-本版本提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)和[完整引擎性能测量](docs/performance.md)。原型单标的预算模型保留在 `doribt.experimental` 中。
+本版本提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)和[完整引擎性能测量](docs/performance.md)。原型已从开发版安装包移除，历史实现保留在 v0.1.0。
 
 数据准备入口 `MarketData` 支持带证券标识的 CSV／字典行、历史规则和公司行动验证，见[数据契约](docs/data-contract.md)。完整执行时间和失败语义见[执行模型](docs/execution-model.md)。
 
@@ -94,7 +94,7 @@ uv run --extra plot python examples/research.py --plot --output results-demo
 
 `results-demo` 必须尚不存在，父目录须存在。`result.export("results-demo", periods_per_year=252, plot=True)` 写出每日账户、逐标的持仓、委托、成交、权益、税务、指标和带校验和的来源清单。已有目录不会被覆盖，失败不会发布半份报告。图表也可以直接用 `result.plot(benchmark=...)` 返回的 Matplotlib Figure 编辑、保存；基础安装无图表依赖。指标公式、缺失值及复现边界见[结果与研究记录](docs/results.md)。
 
-原型 `experimental.Backtest` 使用开盘预算模型，与新的固定股数模型语义不同；原说明见[实验模型](docs/model.md)，原示例仍可通过 `examples/sma.py` 运行。
+均线示例 `examples/sma.py` 使用正式 `MarketData` 和 `WeightTargets`。原型预算模型仅留存于 v0.1.0 Git 历史。
 
 ## 开发与检查
 
