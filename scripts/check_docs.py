@@ -134,7 +134,8 @@ def main() -> None:
     )
     check_links(site.resolve())
     check_search(site)
-    run_examples(str(Path(args.python).resolve()), args.backend)
+    # Linux 虚拟环境的 Python 通常是软链接；解析真实路径会丢失环境。
+    run_examples(os.path.abspath(args.python), args.backend)
     print("文档构建与教程验证通过")
 
 
