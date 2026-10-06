@@ -4,59 +4,23 @@ import hashlib
 import inspect
 import json
 import platform
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from datetime import date
-from decimal import Decimal
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any, cast
 
-from .context import Context
-from .costs import Costs
-from .data import MarketData
-from .slippage import BarExecution
-from .targets import PositionTargets, WeightTargets
-from .taxes import TAX_POLICY
+from doribt.accounting.costs import Costs
+from doribt.accounting.taxes import TAX_POLICY
+from doribt.market.data import MarketData
+from doribt.runtime.context import Context
+from doribt.runtime.slippage import BarExecution
+from doribt.runtime.targets import PositionTargets, WeightTargets
+from doribt.serialization import digest as digest
+from doribt.serialization import encode as encode
+from doribt.serialization import parameters_copy as parameters_copy
 
 MODEL = "daily-fixed-shares-next-open-v1"
-
-
-def _encode(value: object) -> object:
-    if isinstance(value, date):
-        return value.isoformat()
-    if isinstance(value, Decimal):
-        return str(value)
-    raise TypeError(f"unsupported serialized value: {type(value).__name__}")
-
-
-def encode(value: object) -> str:
-    return json.dumps(value, default=_encode, ensure_ascii=False, sort_keys=True, allow_nan=False)
-
-
-def digest(value: object) -> str:
-    return hashlib.sha256(encode(value).encode("utf-8")).hexdigest()
-
-
-def _json_parameter(value: object) -> None:
-    if isinstance(value, dict):
-        for key, item in value.items():
-            if not isinstance(key, str):
-                raise ValueError("parameter object keys must be strings")
-            _json_parameter(item)
-    elif isinstance(value, list):
-        for item in value:
-            _json_parameter(item)
-    elif value is not None and not isinstance(value, (str, int, float, bool)):
-        raise ValueError("parameters must contain only JSON objects, lists and scalars")
-
-
-def parameters_copy(parameters: Mapping[str, object] | None) -> dict[str, Any]:
-    values = dict(parameters or {})
-    _json_parameter(values)
-    # Round trip validates finite numbers and snapshots nested mutable values.
-    copied: dict[str, Any] = json.loads(encode(values))
-    return copied
 
 
 def bind_strategy(

@@ -2,6 +2,8 @@
 
 正式 `BacktestResult` 表示一次共享现金账户运行。证券列顺序为 `result.symbols`，行顺序为 `result.sessions`；不会把参数组合放进证券列。金额账本与分析浮点数分别使用，指标不反向修改账本。
 
+0.2 开发版新增 `report()` 日频报告和 `ctx.record`／`analyze`／`with_outputs` 研究扩展，详见[研究契约](research-contract.md)。`report()` 从初始资金开始计算每天收益（包含首日影响），默认 252 个交易日年化；下面的 `stats()` 仍保留输入周期语义。新版 [research.py](../examples/research.py) 演示声明参数、可配置费用、自定义输出与日频导出。
+
 ## 日常用法
 
 ```python
@@ -80,6 +82,8 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 | `taxes.csv` / `tax_payments.csv` / `tax_lots.csv` | 税款确认、扣收和期末剩余税务批次 |
 | `ledger.json` | 以上离散账本记录的有类型版本，保留空值与嵌套调整信息 |
 | `stats.json` | 指标以及本次指定的年化周期和无风险利率 |
+| `research.json` | 自定义指标、完整时点对齐的曲线、同构表格及其单位／说明；独立 namespace |
+| `report.json` | `daily=True` 时的日频统计、每日账户、月收益、卖出价格盈亏、已平仓轮次、未平仓成本和定义；stats.json 同时采用日频口径 |
 | `run.json` | 实际运行假设、初始资金、参数、模型、来源、规则、权益和依赖版本 |
 | `benchmark.json` | 指定基准时保存全部基准输入及来源 |
 | `equity.png` | 请求绘图时保存的净值／回撤图 |
@@ -104,4 +108,4 @@ CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保�
 `run_info.fingerprint` 标识执行记录；同一结果使用不同分析假设导出时，执行指纹保持相同，`stats.json`、基准和文件清单哈希随分析输入变化。可选绘图库版本不算执行依赖，其环境由研究项目的锁文件保留。
 # 分钟结果增量
 
-0.2 开发版 `result.sessions` 为完整 bar 结束时点；账户／持仓 CSV 相应逐 bar 输出，并增加 frozen_cash_units／frozen_quantity。`Fill.timestamp` 标识该成交最早可知的时点，同一 order_id 可有多行。订单金额／费用为累计值。`Benchmark` 同样须与分钟时点严格对齐；统计不自动重采样，不能直接把分钟曲线按 252 个周期年化。
+0.2 开发版 `result.sessions` 为完整 bar 结束时点；账户／持仓 CSV 相应逐 bar 输出，并增加 frozen_cash_units／frozen_quantity。`Fill.timestamp` 标识该成交最早可知的时点，同一 order_id 可有多行。订单金额／费用为累计值。原始 stats／plot 的 `Benchmark` 同样须与分钟时点严格对齐；原始统计不自动重采样，不能直接把分钟曲线按 252 个周期年化。新 report／export(daily=True) 按日末采样，并接受完整 bar 或精确交易日对齐的基准，前述旧约束不适用于新的日频入口。

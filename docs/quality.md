@@ -63,3 +63,5 @@ CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；�
 分钟新增门禁包括独立 Decimal 成交／账户重建、佣金累计、冻结／释放、T+1 与日内权益边界、缺分钟／时区错位失败、时间因果与导出。基础与 Numba wheel 安装检查都实际执行分钟多次成交。`benchmarks/` 同样纳入 400 行、复杂度、格式及 strict mypy；vectorbt 是隔离比较环境依赖，不进入 DoriBT 运行依赖。比较脚本中的浮点核对仅为 vectorbt 运算舍入容差，DoriBT 与 Decimal 仍逐单位精确相等。
 
 预计算分段执行须与逐 bar 路径核对所有结果数组及意图／订单／成交／权益／税务记录，不只核对最终收益；两种 wheel 实际运行 PositionTargets。来源缓存须保持规范 JSON，并在替换行情、费用或依赖版本后反映新事实。性能样本中的分钟／日线成交量差异可作为来源元数据保留，不因此截断效率测试区间；两种引擎必须读取同一份分钟输入。
+
+参数与研究输出的定向入口为 test_research_parameters／test_research_outputs／test_research_report：费用必须真实改变成交资金并按订单累计最低值，参数错误必须在首次回调前失败，自定义输出不得覆盖已有 namespace 或在失败时留下半份导出。日频报告必须纳入首日费用、按日末采样分钟结果、明确基准对齐；交易盈亏以手算移动成本及独立 Decimal 公司行动账本验证。两种隔离 wheel 实际运行 RunConfig、声明参数、record、自定义指标和 daily 导出，验证源码分目录后依赖及公开导入完整。

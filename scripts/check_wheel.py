@@ -69,7 +69,7 @@ historical = china_rules({'A': 'sse_star'}, start='2025-01-02', end='2025-01-06'
 assert historical.periods[0].rule.sell_minimum == 200
 assert historical.periods[0].rule.order_maximum == 100000
 assert formal.run_info.to_dict()['data']['fingerprint'] == data.fingerprint
-from doribt.clock import MinuteClock
+from doribt.market.clock import MinuteClock
 clock = MinuteClock.build(data.sessions[:1], '5min')
 minutes = MarketData.from_minutes(
     [dict(timestamp=point, phase='continuous', symbol='A', status='trading',
@@ -90,6 +90,22 @@ scheduled = Backtest(minutes, execution=BarExecution(slippage=FixedTicks(1))).ru
 np.testing.assert_array_equal(scheduled.cash_units, minute_result.cash_units)
 assert scheduled.run_info.to_dict()['execution_path'] == 'scheduled_segments'
 assert len(scheduled.fills) == 4
+config = doribt.RunConfig.from_dict({'commission': 0, 'minimum_commission': 1, 'backend': backend})
+schema = doribt.ParameterSet({
+    'quantity': doribt.Parameter(type='int', default=100, minimum=100, step=100)})
+def research_strategy(ctx, *, quantity):
+    ctx.record(equity=ctx.account.equity)
+    if ctx.bar_index == 0:
+        ctx.order('A', quantity, valid_for='day')
+research = Backtest(minutes, config=config).run(research_strategy, parameter_schema=schema)
+assert research.orders[0].commission == 1
+assert len(research.outputs['strategy'].series['equity'].values) == 48
+research = research.analyze('custom', lambda r: doribt.ResearchOutput(
+    metrics={'score': doribt.Metric(1)}))
+assert research.report().stats['return_periods'] == 1
+research.export(Path.cwd() / 'daily-research', daily=True)
+daily_report = json.loads((Path.cwd() / 'daily-research' / 'report.json').read_text())
+assert daily_report['stats']['total_pnl'] == -1
 output = formal.export(Path.cwd() / 'report', periods_per_year=252, plot=backend == 'numba')
 manifest = json.loads((output / 'manifest.json').read_text(encoding='utf-8'))
 assert manifest['schema'] == 'doribt.export/1'

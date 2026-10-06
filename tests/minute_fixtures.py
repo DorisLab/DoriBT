@@ -1,7 +1,7 @@
 from datetime import date
 
 from doribt import Instrument, MarketData, RuleBook, RulePeriod, TradingRule
-from doribt.clock import MinuteClock
+from doribt.market.clock import MinuteClock
 
 
 def minute_data(

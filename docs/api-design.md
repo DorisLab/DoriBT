@@ -1,5 +1,7 @@
 # API 的使用路径与职责
 
+0.2 开发版的[研究接口](research-contract.md)增加 RunConfig（含可配置佣金比例和最低佣金）、ParameterSet、研究输出和日频报告。RunConfig 入口统一采用 BarExecution；下面保留旧直接参数入口的兼容语义。源代码按 market／accounting／runtime／kernels／reporting／research 分目录，公开对象继续从顶层 doribt 导入。
+
 0.2 开发版增量见[分钟执行](minute-execution.md)：复用 Backtest／Context／MarketData，增加 BarExecution 与一单多次成交；从实验包迁移的示例已统一。下面保留 0.1.0 正式入口的基线说明。
 
 预计算固定股数现可使用 `PositionTargets(sessions=data.timeline, quantities={symbol: values})`；与 WeightTargets 一样保持时间对齐和同一结果接口。分钟场景自动采用[事件分段执行](scheduled-execution.md)，回调路径继续保留。

@@ -15,7 +15,7 @@ from doribt import (
     VolumeImpact,
     WeightTargets,
 )
-from doribt.segments import value_span
+from doribt.kernels.segments import value_span
 from doribt.validation import MAX_MONEY
 
 

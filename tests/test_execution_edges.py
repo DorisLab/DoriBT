@@ -6,8 +6,8 @@ import pytest
 from engine_fixtures import data_for
 
 from doribt import Backtest, Costs, WeightTargets
-from doribt.execution import fee
-from doribt.orders import Reason
+from doribt.accounting.orders import Reason
+from doribt.kernels.execution import fee
 
 
 def test_fee_ties_and_large_notional_stay_exact():

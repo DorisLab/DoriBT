@@ -13,7 +13,7 @@ from doribt import (
     PositionTargets,
     china_rules,
 )
-from doribt.clock import MinuteClock
+from doribt.market.clock import MinuteClock
 
 
 def sample() -> MarketData:

@@ -6,7 +6,37 @@ from pathlib import Path
 
 from strategies import synthetic_market
 
-from doribt import Backtest, Benchmark, Context
+from doribt import (
+    Backtest,
+    Benchmark,
+    Context,
+    Metric,
+    Parameter,
+    ParameterSet,
+    ResearchOutput,
+    RunConfig,
+    Table,
+)
+
+PARAMETERS = ParameterSet(
+    {
+        "fast": Parameter(
+            type="int", default=5, minimum=2, maximum=50, step=1, label="短均线", unit="bars"
+        ),
+        "slow": Parameter(
+            type="int", default=20, minimum=5, maximum=200, step=1, label="长均线", unit="bars"
+        ),
+        "allocation": Parameter(
+            type="float",
+            default=0.95,
+            minimum=0,
+            maximum=1,
+            step=0.05,
+            label="目标仓位",
+            unit="ratio",
+        ),
+    }
+)
 
 
 def moving_average(ctx: Context, *, fast: int, slow: int, allocation: float) -> None:
@@ -16,13 +46,39 @@ def moving_average(ctx: Context, *, fast: int, slow: int, allocation: float) -> 
     if len(closes) < slow:
         return
     weight = allocation if closes[-fast:].mean() > closes.mean() else 0
+    ctx.record(fast=float(closes[-fast:].mean()), slow=float(closes.mean()), target_weight=weight)
     ctx.target_weights({"ALPHA": weight})
 
 
 def run(output: Path, backend: str, plot: bool) -> None:
     data = synthetic_market()
-    result = Backtest(data, initial_cash=100_000).run(
-        moving_average, parameters={"fast": 5, "slow": 20, "allocation": 0.95}, backend=backend
+    # Same JSON-compatible values a client form can send; zero minimum is also valid.
+    config = RunConfig.from_dict(
+        {"initial_cash": 100_000, "commission": 0.0002, "minimum_commission": 1, "backend": backend}
+    )
+    result = Backtest(data, config=config).run(
+        moving_average, parameter_schema=PARAMETERS, parameters={"fast": 5}
+    )
+    result = result.analyze(
+        "diagnostics",
+        lambda r: ResearchOutput(
+            metrics={
+                "fees_per_fill": Metric(
+                    sum(fill.fees for fill in r.fills) / len(r.fills) if r.fills else None,
+                    unit="CNY",
+                    description="Average transaction fees per fill",
+                )
+            },
+            tables={
+                "parameters": Table(
+                    columns=["name", "value"],
+                    rows=[
+                        {"name": key, "value": value}
+                        for key, value in r.run_info.to_dict()["parameters"].items()
+                    ],
+                )
+            },
+        ),
     )
     benchmark = Benchmark(
         sessions=data.sessions,
@@ -31,7 +87,7 @@ def run(output: Path, backend: str, plot: bool) -> None:
         source=data.source,
     )
     # 252 is an explicit illustration, not inferred from the fictional weekday calendar.
-    summary = result.stats(benchmark=benchmark, periods_per_year=252, risk_free_rate=0)
+    summary = result.report(benchmark=benchmark).stats
     print("SYNTHETIC: artificial prices/calendar; explicit 252-period annualization.")
     for name in (
         "total_return",
@@ -39,9 +95,11 @@ def run(output: Path, backend: str, plot: bool) -> None:
         "annual_volatility",
         "sharpe",
         "excess_total_return",
+        "win_rate",
+        "turnover",
     ):
         print(name, summary[name])
-    result.export(output, benchmark=benchmark, periods_per_year=252, risk_free_rate=0, plot=plot)
+    result.export(output, benchmark=benchmark, daily=True, plot=plot)
     print("Parameters:", result.run_info.to_dict()["parameters"])
     print("Report:", output)
 

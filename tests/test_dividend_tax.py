@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from doribt.taxes import TaxBook, anniversary, dividend_rate, validate_tax_period
+from doribt.accounting.taxes import TaxBook, anniversary, dividend_rate, validate_tax_period
 
 
 @pytest.mark.parametrize(

@@ -123,7 +123,7 @@ def test_existing_destination_is_never_replaced(tmp_path, kind):
 def test_failed_write_cleans_staging_and_preserves_other_exports(tmp_path, monkeypatch):
     previous = simple().export(tmp_path / "success")
     original = (previous / "manifest.json").read_bytes()
-    module = importlib.import_module("doribt.export")
+    module = importlib.import_module("doribt.reporting.export")
 
     def fail(result, folder):
         (folder / "partial").write_text("incomplete")
@@ -140,7 +140,7 @@ def test_failed_write_cleans_staging_and_preserves_other_exports(tmp_path, monke
 def test_competing_destination_created_just_before_publish_is_preserved(
     tmp_path, monkeypatch, kind
 ):
-    module = importlib.import_module("doribt.export")
+    module = importlib.import_module("doribt.reporting.export")
     real_publish = module.publish
 
     def competitor(source, destination):
@@ -166,7 +166,7 @@ def test_competing_destination_created_just_before_publish_is_preserved(
 
 
 def test_corruption_after_manifest_is_rejected_before_publication(tmp_path, monkeypatch):
-    module = importlib.import_module("doribt.export")
+    module = importlib.import_module("doribt.reporting.export")
     real_manifest = module._manifest
 
     def corrupt(result, folder):

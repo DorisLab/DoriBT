@@ -7,7 +7,7 @@ import pytest
 from market_fixtures import INSTRUMENTS, SESSIONS, inactive, market, records, rules
 
 from doribt import Instrument, MarketData, TradingStatus
-from doribt.bars import Bar
+from doribt.market.bars import Bar
 from doribt.validation import day, integer
 
 

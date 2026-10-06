@@ -81,3 +81,6 @@ def test_entitlement_and_tax_ledger(backend, lots, price, dividend, bonus, taxab
     assert result.equity[-1] == float(capital - tax)
     assert sum(p.amount_units for p in result.tax_payments) == int(tax * 10000)
     assert not result.tax_lots
+    # Derived moving-cost PnL plus income/tax must agree with the independent
+    # Decimal lifecycle, including generated cash/bonus distributions.
+    assert result.report().stats["total_pnl"] == pytest.approx(float(-tax), abs=0.00001)
