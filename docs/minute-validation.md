@@ -35,4 +35,4 @@ uv run --no-sync python scripts/minute_case.py PRIVATE_SNAPSHOT --backend numba 
 
 人工分钟用例另外覆盖共享量限、同一订单最低佣金累加、资金与股数冻结／撤销、日终到期、午休、次交易日 T+1、日内分红税一次计提、送转一次入账与解锁、价格和限价阻断、目标替换、未来数据隔离、五分钟输入及导出读回。真实 ETF 无公司行动，不能代替上述事件验证。
 
-性能比较协议见 [benchmarks/minute](../benchmarks/minute/README.md)。vectorbt 另实现有限模型，先逐参数对账，再统计耗时；适配器不调用 DoriBT 的撮合、费用或账户函数。
+性能比较协议见 [benchmarks/minute](../benchmarks/minute/README.md)，实测结果见[分钟性能比较](minute-performance.md)。vectorbt 另实现有限模型，先逐参数对账，再统计耗时；适配器不调用 DoriBT 的撮合、费用或账户函数。

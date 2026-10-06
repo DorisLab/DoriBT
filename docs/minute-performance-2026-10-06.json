@@ -1,0 +1,138 @@
+{
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cpu": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+  "cores": 8,
+  "threads": 16,
+  "ram_bytes": 66095271936,
+  "results": [
+    {
+      "engine": "python",
+      "bars": 24960,
+      "batch": 10,
+      "prepared_seconds": 1.3814272000454366,
+      "first_run_seconds": 1.1567866999539547,
+      "warm_seconds": [
+        0.5929057999746874,
+        0.6210822000284679,
+        0.6248464000527747
+      ],
+      "warm_median_seconds": 0.6210822000284679,
+      "batch_seconds": [
+        6.196180099970661,
+        6.107433099998161,
+        6.178769699996337
+      ],
+      "batch_median_seconds": 6.178769699996337,
+      "ledger_sha256": "482d32155964ede3edbaa6ae251d754fc8b3cf3b7ed585b66534c984be24417a",
+      "batch_ledger_sha256": [
+        "482d32155964ede3edbaa6ae251d754fc8b3cf3b7ed585b66534c984be24417a",
+        "72be855c53e19f16e6de1e43ed54df0968ba8793a047dc2418b223685e0c1cb6",
+        "a1c94ebd7662ae4d2e30f3c8d53eaa8aa05f2f8d62d935d19f65bd94fb3b2993",
+        "6d112360219ef49fecedd9850896f9f2137d320d76a8612aa0163cf08d5e3851",
+        "ae162b81ba21b110f519d09e31d4f358893360adbb47876877c23cea39abdd9b",
+        "0afb3e0ea86c8253f447dfd6d1fa54fc42f492c0abe28e28a46b4e282876facb",
+        "afb76d68f2adb70ce2dfdb725ceb3944165b6bad22444e80e2808345a11e8553",
+        "3c129f25eea350c7277874d49d6846f2a20be076c6c66370a54870e48e63c9e3",
+        "8f2510ea2109b931b77168fd619a91856d5e8468c8a2c645098412f15fbef99d",
+        "332451110822fd42a62f1f757891fb286601403db4acd3b80b009408459fba66"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": null,
+      "worker_wall_seconds": 30.38668160000816,
+      "worker_peak_rss_mib": 112.828125
+    },
+    {
+      "engine": "numba",
+      "bars": 24960,
+      "batch": 10,
+      "prepared_seconds": 1.374337800021749,
+      "first_run_seconds": 3.675255800015293,
+      "warm_seconds": [
+        0.5769207000266761,
+        0.5784631999558769,
+        0.6063015999970958
+      ],
+      "warm_median_seconds": 0.5784631999558769,
+      "batch_seconds": [
+        6.038893199991435,
+        5.958319999976084,
+        5.975082900025882
+      ],
+      "batch_median_seconds": 5.975082900025882,
+      "ledger_sha256": "482d32155964ede3edbaa6ae251d754fc8b3cf3b7ed585b66534c984be24417a",
+      "batch_ledger_sha256": [
+        "482d32155964ede3edbaa6ae251d754fc8b3cf3b7ed585b66534c984be24417a",
+        "72be855c53e19f16e6de1e43ed54df0968ba8793a047dc2418b223685e0c1cb6",
+        "a1c94ebd7662ae4d2e30f3c8d53eaa8aa05f2f8d62d935d19f65bd94fb3b2993",
+        "6d112360219ef49fecedd9850896f9f2137d320d76a8612aa0163cf08d5e3851",
+        "ae162b81ba21b110f519d09e31d4f358893360adbb47876877c23cea39abdd9b",
+        "0afb3e0ea86c8253f447dfd6d1fa54fc42f492c0abe28e28a46b4e282876facb",
+        "afb76d68f2adb70ce2dfdb725ceb3944165b6bad22444e80e2808345a11e8553",
+        "3c129f25eea350c7277874d49d6846f2a20be076c6c66370a54870e48e63c9e3",
+        "8f2510ea2109b931b77168fd619a91856d5e8468c8a2c645098412f15fbef99d",
+        "332451110822fd42a62f1f757891fb286601403db4acd3b80b009408459fba66"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": null,
+      "worker_wall_seconds": 32.257963499985635,
+      "worker_peak_rss_mib": 217.90234375
+    },
+    {
+      "engine": "vectorbt",
+      "bars": 24960,
+      "batch": 10,
+      "prepared_seconds": 1.3676199999754317,
+      "first_run_seconds": 11.167634600016754,
+      "warm_seconds": [
+        0.015364699997007847,
+        0.02042690000962466,
+        0.014860199997201562
+      ],
+      "warm_median_seconds": 0.015364699997007847,
+      "batch_seconds": [
+        0.12857360002817586,
+        0.12897439999505877,
+        0.1313040999812074
+      ],
+      "batch_median_seconds": 0.12897439999505877,
+      "ledger_sha256": "482d32155964ede3edbaa6ae251d754fc8b3cf3b7ed585b66534c984be24417a",
+      "batch_ledger_sha256": [
+        "482d32155964ede3edbaa6ae251d754fc8b3cf3b7ed585b66534c984be24417a",
+        "72be855c53e19f16e6de1e43ed54df0968ba8793a047dc2418b223685e0c1cb6",
+        "a1c94ebd7662ae4d2e30f3c8d53eaa8aa05f2f8d62d935d19f65bd94fb3b2993",
+        "6d112360219ef49fecedd9850896f9f2137d320d76a8612aa0163cf08d5e3851",
+        "ae162b81ba21b110f519d09e31d4f358893360adbb47876877c23cea39abdd9b",
+        "0afb3e0ea86c8253f447dfd6d1fa54fc42f492c0abe28e28a46b4e282876facb",
+        "afb76d68f2adb70ce2dfdb725ceb3944165b6bad22444e80e2808345a11e8553",
+        "3c129f25eea350c7277874d49d6846f2a20be076c6c66370a54870e48e63c9e3",
+        "8f2510ea2109b931b77168fd619a91856d5e8468c8a2c645098412f15fbef99d",
+        "332451110822fd42a62f1f757891fb286601403db4acd3b80b009408459fba66"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": "0.28.5",
+      "worker_wall_seconds": 20.312195599952247,
+      "worker_peak_rss_mib": 557.45703125
+    }
+  ],
+  "input_sha256": {
+    "market.csv": "bb2bd4ba6b51fec7ad148fa01722c2b12f6b41ee45dec09c69c98eda74b5078f",
+    "calendar.csv": "9156d90a4d1a0d51c854c74d2392b203c51b89fa8350a6b801055ab12470982b"
+  },
+  "source_sha256": {
+    "run.py": "bc2418fbe64c6286ff92b48fc02ebe1478cc1eb7cbf92ef7f3fc509c11a3f57d",
+    "vectorbt_adapter.py": "d56dc31ee46b6574f714c4331096955e1bf22e3f99fa72d1470cca705fcebda0",
+    "worker.py": "34fe4b0ab8f23d48e70ec8214334683e34cf4b0081936604f64049d6b5cc322f"
+  },
+  "engine_commit": "145944f",
+  "cpu_name": "AMD Ryzen 7 9800X3D",
+  "measurement": "isolated from repository quality checks"
+}
