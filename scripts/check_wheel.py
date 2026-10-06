@@ -21,7 +21,7 @@ import numpy as np
 import doribt
 from doribt import (
     CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
-    PriceAdjustment, china_rules, Backtest, BarExecution, FixedTicks
+    PriceAdjustment, china_rules, Backtest, BarExecution, FixedTicks, PositionTargets
 )
 assert importlib.util.find_spec('doribt.experimental') is None
 
@@ -84,6 +84,12 @@ assert len(minute_result.orders) == 1 and len(minute_result.fills) == 4
 assert minute_result.orders[0].filled == 200
 assert minute_result.orders[0].commission == 5
 assert minute_result.fills[0].timestamp == clock.timestamps[1]
+minute_targets = PositionTargets(sessions=minutes.timeline, quantities={'A': [200]*48})
+scheduled = Backtest(minutes, execution=BarExecution(slippage=FixedTicks(1))).run(
+    minute_targets, backend=backend)
+np.testing.assert_array_equal(scheduled.cash_units, minute_result.cash_units)
+assert scheduled.run_info.to_dict()['execution_path'] == 'scheduled_segments'
+assert len(scheduled.fills) == 4
 output = formal.export(Path.cwd() / 'report', periods_per_year=252, plot=backend == 'numba')
 manifest = json.loads((output / 'manifest.json').read_text(encoding='utf-8'))
 assert manifest['schema'] == 'doribt.export/1'

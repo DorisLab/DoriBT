@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from functools import cached_property
 from types import MappingProxyType
 
 import numpy as np
@@ -27,6 +28,23 @@ class PreparedData:
     data: MarketData
     compiled: CompiledData
     history: Mapping[str, NDArray[np.float64]]
+
+    @cached_property
+    def provenance_json(self) -> str:
+        from .provenance import data_info, encode
+
+        return encode(data_info(self.data))
+
+    @cached_property
+    def intrabar(self) -> IntArray:
+        """Low/high/auction flags, needed only by scheduled bar execution."""
+        shape = (*self.compiled.closes.shape, 3)
+        return _freeze(
+            np.array(
+                [(bar.low, bar.high, int(bar.phase == "auction")) for bar in self.data.bars],
+                dtype=np.int64,
+            ).reshape(shape)
+        )
 
 
 def prepare(data: MarketData) -> PreparedData:

@@ -2,6 +2,8 @@
 
 ## 0.2.0.dev0 — 未发布
 
+- 新增时间对齐的 PositionTargets 固定股数入口；分钟 PositionTargets／WeightTargets 按事件分段执行，Numba 扫描稳定区间并批量估值，保持正式订单／权益账本和完整结果。来源快照缓存不可变输入，费用／参数／依赖／源码每次重新记录。
+
 - 移除安装包中的 `experimental` 原型；均线示例统一使用正式 API，历史原型仍可从 v0.1.0 获取。
 - `MarketData.from_minutes` 支持 +08:00 的 1／5 分钟完整交易日网格和显式竞价阶段；T+N、权益与日终税务按交易日处理。
 - `BarExecution` 支持参与率、FixedTicks／FixedBps／VolumeImpact、DAY／next_bar 委托、限价保护、撤单、冻结与一单多次成交；累计最低佣金与单笔成交记录可对账。

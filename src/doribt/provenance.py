@@ -10,13 +10,13 @@ from datetime import date
 from decimal import Decimal
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .context import Context
 from .costs import Costs
 from .data import MarketData
 from .slippage import BarExecution
-from .targets import WeightTargets
+from .targets import PositionTargets, WeightTargets
 from .taxes import TAX_POLICY
 
 MODEL = "daily-fixed-shares-next-open-v1"
@@ -76,7 +76,11 @@ def bind_strategy(
 
 
 def _strategy_info(strategy: Callable[..., None]) -> dict[str, object]:
-    if isinstance(strategy, WeightTargets):
+    inputs: dict[str, object]
+    if type(strategy) is PositionTargets:
+        inputs = {"sessions": list(strategy.sessions), "quantities": dict(strategy.quantities)}
+        return {"kind": "position_targets", "input_sha256": digest(inputs), "inputs": inputs}
+    if type(strategy) is WeightTargets:
         inputs = {
             "sessions": list(strategy.sessions),
             "weights": dict(strategy.weights),
@@ -123,6 +127,34 @@ class RunInfo:
         return hashlib.sha256(self.json.encode("utf-8")).hexdigest()
 
 
+def data_info(data: MarketData) -> dict[str, object]:
+    rules, actions = [asdict(p) for p in data.rules.periods], [asdict(a) for a in data.actions]
+    return {
+        "fingerprint": data.fingerprint,
+        "source": data.source,
+        "instruments": [asdict(i) for i in data.instruments],
+        "sessions": list(data.sessions),
+        "frequency": data.clock.frequency if data.clock else "1d",
+        "timestamps": list(data.timeline) if data.clock else None,
+        "rules": rules,
+        "actions": actions,
+        "rules_sha256": digest(rules),
+        "actions_sha256": digest(actions),
+        "adjustments": [asdict(item) for item in data.adjustments],
+    }
+
+
+def encode_run(payload: dict[str, object], fragments: dict[str, str]) -> str:
+    """Join canonical immutable JSON fragments without re-encoding every timestamp.
+
+    Only data/target snapshots are cached; code hashes, parameters and dependency
+    versions are still captured for each run. The result remains ordinary canonical
+    JSON, byte-identical to encode() on the complete object.
+    """
+    entries = {key: encode(value) for key, value in payload.items()} | fragments
+    return "{" + ", ".join(encode(key) + ": " + entries[key] for key in sorted(entries)) + "}"
+
+
 def run_info(
     data: MarketData,
     initial_cash: int,
@@ -131,6 +163,8 @@ def run_info(
     parameters: dict[str, Any],
     backend: str,
     execution: BarExecution | None = None,
+    *,
+    data_json: str | None = None,
 ) -> RunInfo:
     root = Path(__file__).parent
     code = {
@@ -139,8 +173,12 @@ def run_info(
         ).hexdigest()
         for path in sorted(root.rglob("*.py"))
     }
-    rules, actions = [asdict(p) for p in data.rules.periods], [asdict(a) for a in data.actions]
-    payload = {
+    strategy_json = (
+        cast(PositionTargets | WeightTargets, strategy)._provenance_json
+        if type(strategy) in (PositionTargets, WeightTargets)
+        else encode(_strategy_info(strategy))
+    )
+    payload: dict[str, object] = {
         "schema": "doribt.run/1",
         "model": MODEL if execution is None else "bar-partial-next-open-v1",
         "execution": None
@@ -153,6 +191,9 @@ def run_info(
             "fill_known": "bar_end",
         },
         "backend": backend,
+        "execution_path": "scheduled_segments"
+        if execution is not None and type(strategy) in (PositionTargets, WeightTargets)
+        else "bar_callbacks",
         "initial_cash_units": initial_cash,
         "costs": dict(
             zip(
@@ -162,21 +203,7 @@ def run_info(
             )
         ),
         "tax_policy": TAX_POLICY,
-        "strategy": _strategy_info(strategy),
         "parameters": parameters,
-        "data": {
-            "fingerprint": data.fingerprint,
-            "source": data.source,
-            "instruments": [asdict(i) for i in data.instruments],
-            "sessions": list(data.sessions),
-            "frequency": data.clock.frequency if data.clock else "1d",
-            "timestamps": list(data.timeline) if data.clock else None,
-            "rules": rules,
-            "actions": actions,
-            "rules_sha256": digest(rules),
-            "actions_sha256": digest(actions),
-            "adjustments": [asdict(item) for item in data.adjustments],
-        },
         "versions": _versions(backend),
         "engine_sha256": digest(code),
         "assumptions": {
@@ -196,4 +223,12 @@ def run_info(
             else "explicit_next_bar_or_day",
         },
     }
-    return RunInfo(encode(payload))
+    return RunInfo(
+        encode_run(
+            payload,
+            {
+                "data": data_json if data_json is not None else encode(data_info(data)),
+                "strategy": strategy_json,
+            },
+        )
+    )

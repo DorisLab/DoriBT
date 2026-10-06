@@ -17,4 +17,6 @@ PRIVATE_SNAPSHOT 含标准 market.csv 和 calendar.csv，字段见 scripts/minut
 
 时间区分数据准备、第一次执行（含新缓存 JIT）、预热后重复运行、参数批量。DoriBT 复用同一 Backtest 的已编译行情并串行调用；vectorbt 一次传入 N 列独立资金账户。都包含生成完整现金／持仓／权益曲线与成交表；不包含文件导出、信号计算、Decimal 对账。DoriBT 同时构建订单／意图／来源等更丰富结果，vectorbt 仅保留适配器运行状态和成交表，此额外工作未剥离。
 
+当前驱动器依次比较 `python`／`numba` 原逐 bar 回调、`python-scheduled`／`numba-scheduled` 的 PositionTargets 路径，以及 `vectorbt`。目标对象构造与输入验证属于准备阶段，来源记录和返回结果仍计入执行耗时。回调与预计算路径使用完全相同的目标数组，均只在目标变化时重新声明；不能用每 bar 重下目标的回调作为故意放慢的对照。五条路径共用当前版本的行情与来源缓存。
+
 每种引擎新起进程并使用独立空 Numba 缓存。RSS 每 5ms 采样进程树，范围包含共同数据载入、依赖导入、预热、保留的参数组输出和账本核对，不能称为撮合内核自身内存。worker_wall 包含全部验证及导入，不能当成单次冷启动；first_run 不含 import 和输入解析。原始 JSON 保存所有样本、输入／适配器哈希、版本及账本摘要。速度排名仅适用于这个有限协议，不代表 vectorbt 原生提供了完整 A 股生命周期。

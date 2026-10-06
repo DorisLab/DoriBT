@@ -39,6 +39,7 @@ def main() -> None:
     run(*tests)
     run(sys.executable, "examples/sma.py", "--backend", args.backend)
     run(sys.executable, "examples/minute.py", "--backend", args.backend)
+    run(sys.executable, "examples/minute.py", "--backend", args.backend, "--precomputed")
     run(sys.executable, "examples/market_data.py")
     run(sys.executable, "examples/strategies.py", "--backend", args.backend)
     run(sys.executable, "examples/dividends.py", "--backend", args.backend)

@@ -1,0 +1,250 @@
+{
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cpu": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+  "cores": 8,
+  "threads": 16,
+  "ram_bytes": 66095271936,
+  "results": [
+    {
+      "engine": "python",
+      "bars": 46320,
+      "batch": 10,
+      "prepared_seconds": 2.588874700013548,
+      "first_run_seconds": 2.097667000023648,
+      "warm_seconds": [
+        0.9766676999861374,
+        0.9706995000015013,
+        0.9664765999768861
+      ],
+      "warm_median_seconds": 0.9706995000015013,
+      "batch_seconds": [
+        9.492137899971567,
+        9.5053413999849,
+        9.587564299989026
+      ],
+      "batch_median_seconds": 9.5053413999849,
+      "ledger_sha256": "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+      "batch_ledger_sha256": [
+        "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+        "82c0735fe2fe2cd23336345706cdea19a23bdd4955cc356fdda3bb2ee870c4f3",
+        "fb753a8c1c2c72a8901a5f83d239acabde7e769fd6fbe23c7b8c873e7b824d01",
+        "704c87553d97f3f4ed143ff038374139ea95e02b340993ad8db1cb4f747a92a1",
+        "8bade6787ec7a7471cfc066d032661b92e8c6a59edb0d152daa7e7693032ebdd",
+        "664601f9c6b8822a298b2755fe9456a7b07c599fc083a7938be931312bc95958",
+        "db876a4fffaf3cc0604509b79efbd8c6d630d34960aba00b37a09fb852bf8e1d",
+        "f4762652cb26e6911284e6be742a556cb097c965d2015a4a462446ef861b6faf",
+        "6af34eb5ee311fc635f528c7ed6c27a6954d4adcb4bfc104946f29b2727365d5",
+        "d14fea1c81b2f6b73bef2abc7b94ff8421aa888273edb0876fcea95e815c1ddc"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": null,
+      "worker_wall_seconds": 47.811063900007866,
+      "worker_peak_rss_mib": 181.8984375
+    },
+    {
+      "engine": "numba",
+      "bars": 46320,
+      "batch": 10,
+      "prepared_seconds": 2.5552213999908417,
+      "first_run_seconds": 4.383631700009573,
+      "warm_seconds": [
+        0.9184777000336908,
+        0.9101894999621436,
+        0.9277834999957122
+      ],
+      "warm_median_seconds": 0.9184777000336908,
+      "batch_seconds": [
+        9.185800199978985,
+        10.667077000020072,
+        11.941516600025352
+      ],
+      "batch_median_seconds": 10.667077000020072,
+      "ledger_sha256": "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+      "batch_ledger_sha256": [
+        "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+        "82c0735fe2fe2cd23336345706cdea19a23bdd4955cc356fdda3bb2ee870c4f3",
+        "fb753a8c1c2c72a8901a5f83d239acabde7e769fd6fbe23c7b8c873e7b824d01",
+        "704c87553d97f3f4ed143ff038374139ea95e02b340993ad8db1cb4f747a92a1",
+        "8bade6787ec7a7471cfc066d032661b92e8c6a59edb0d152daa7e7693032ebdd",
+        "664601f9c6b8822a298b2755fe9456a7b07c599fc083a7938be931312bc95958",
+        "db876a4fffaf3cc0604509b79efbd8c6d630d34960aba00b37a09fb852bf8e1d",
+        "f4762652cb26e6911284e6be742a556cb097c965d2015a4a462446ef861b6faf",
+        "6af34eb5ee311fc635f528c7ed6c27a6954d4adcb4bfc104946f29b2727365d5",
+        "d14fea1c81b2f6b73bef2abc7b94ff8421aa888273edb0876fcea95e815c1ddc"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": null,
+      "worker_wall_seconds": 53.21219639998162,
+      "worker_peak_rss_mib": 276.75390625
+    },
+    {
+      "engine": "python-scheduled",
+      "bars": 46320,
+      "batch": 10,
+      "prepared_seconds": 4.154643199988641,
+      "first_run_seconds": 1.6071373000158928,
+      "warm_seconds": [
+        0.09382980002555996,
+        0.09572659997502342,
+        0.09341189998667687
+      ],
+      "warm_median_seconds": 0.09382980002555996,
+      "batch_seconds": [
+        0.9340166000183672,
+        0.9481078999815509,
+        0.9393827000167221
+      ],
+      "batch_median_seconds": 0.9393827000167221,
+      "ledger_sha256": "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+      "batch_ledger_sha256": [
+        "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+        "82c0735fe2fe2cd23336345706cdea19a23bdd4955cc356fdda3bb2ee870c4f3",
+        "fb753a8c1c2c72a8901a5f83d239acabde7e769fd6fbe23c7b8c873e7b824d01",
+        "704c87553d97f3f4ed143ff038374139ea95e02b340993ad8db1cb4f747a92a1",
+        "8bade6787ec7a7471cfc066d032661b92e8c6a59edb0d152daa7e7693032ebdd",
+        "664601f9c6b8822a298b2755fe9456a7b07c599fc083a7938be931312bc95958",
+        "db876a4fffaf3cc0604509b79efbd8c6d630d34960aba00b37a09fb852bf8e1d",
+        "f4762652cb26e6911284e6be742a556cb097c965d2015a4a462446ef861b6faf",
+        "6af34eb5ee311fc635f528c7ed6c27a6954d4adcb4bfc104946f29b2727365d5",
+        "d14fea1c81b2f6b73bef2abc7b94ff8421aa888273edb0876fcea95e815c1ddc"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": null,
+      "worker_wall_seconds": 13.372724500019103,
+      "worker_peak_rss_mib": 208.65234375
+    },
+    {
+      "engine": "numba-scheduled",
+      "bars": 46320,
+      "batch": 10,
+      "prepared_seconds": 3.758396300021559,
+      "first_run_seconds": 5.482738200051244,
+      "warm_seconds": [
+        0.0644554000464268,
+        0.06099490000633523,
+        0.06113149999873713
+      ],
+      "warm_median_seconds": 0.06113149999873713,
+      "batch_seconds": [
+        0.7352217999869026,
+        0.6396142999874428,
+        0.6276651999796741
+      ],
+      "batch_median_seconds": 0.6396142999874428,
+      "ledger_sha256": "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+      "batch_ledger_sha256": [
+        "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+        "82c0735fe2fe2cd23336345706cdea19a23bdd4955cc356fdda3bb2ee870c4f3",
+        "fb753a8c1c2c72a8901a5f83d239acabde7e769fd6fbe23c7b8c873e7b824d01",
+        "704c87553d97f3f4ed143ff038374139ea95e02b340993ad8db1cb4f747a92a1",
+        "8bade6787ec7a7471cfc066d032661b92e8c6a59edb0d152daa7e7693032ebdd",
+        "664601f9c6b8822a298b2755fe9456a7b07c599fc083a7938be931312bc95958",
+        "db876a4fffaf3cc0604509b79efbd8c6d630d34960aba00b37a09fb852bf8e1d",
+        "f4762652cb26e6911284e6be742a556cb097c965d2015a4a462446ef861b6faf",
+        "6af34eb5ee311fc635f528c7ed6c27a6954d4adcb4bfc104946f29b2727365d5",
+        "d14fea1c81b2f6b73bef2abc7b94ff8421aa888273edb0876fcea95e815c1ddc"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": null,
+      "worker_wall_seconds": 15.909471500024665,
+      "worker_peak_rss_mib": 327.08984375
+    },
+    {
+      "engine": "vectorbt",
+      "bars": 46320,
+      "batch": 10,
+      "prepared_seconds": 2.6935204000328667,
+      "first_run_seconds": 12.402130399947055,
+      "warm_seconds": [
+        0.026921099983155727,
+        0.027976699988357723,
+        0.027494700043462217
+      ],
+      "warm_median_seconds": 0.027494700043462217,
+      "batch_seconds": [
+        0.2587626000167802,
+        0.25523900002008304,
+        0.25400670000817627
+      ],
+      "batch_median_seconds": 0.25523900002008304,
+      "ledger_sha256": "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+      "batch_ledger_sha256": [
+        "0535022eeebb74cb2399955082f30d1610bda87b584f26005bc4c5f141946fc3",
+        "82c0735fe2fe2cd23336345706cdea19a23bdd4955cc356fdda3bb2ee870c4f3",
+        "fb753a8c1c2c72a8901a5f83d239acabde7e769fd6fbe23c7b8c873e7b824d01",
+        "704c87553d97f3f4ed143ff038374139ea95e02b340993ad8db1cb4f747a92a1",
+        "8bade6787ec7a7471cfc066d032661b92e8c6a59edb0d152daa7e7693032ebdd",
+        "664601f9c6b8822a298b2755fe9456a7b07c599fc083a7938be931312bc95958",
+        "db876a4fffaf3cc0604509b79efbd8c6d630d34960aba00b37a09fb852bf8e1d",
+        "f4762652cb26e6911284e6be742a556cb097c965d2015a4a462446ef861b6faf",
+        "6af34eb5ee311fc635f528c7ed6c27a6954d4adcb4bfc104946f29b2727365d5",
+        "d14fea1c81b2f6b73bef2abc7b94ff8421aa888273edb0876fcea95e815c1ddc"
+      ],
+      "versions": {
+        "numpy": "2.5.3",
+        "numba": "0.68.0"
+      },
+      "vectorbt_version": "0.28.5",
+      "worker_wall_seconds": 25.608350499998778,
+      "worker_peak_rss_mib": 572.8359375
+    }
+  ],
+  "input_sha256": {
+    "market.csv": "82aaad4910cfdfb5716db8ac410842b4395c6201c39308feacc6ca39c6cb6b69",
+    "calendar.csv": "ca97e7a74ac4b5e8561eac3fb2bc212124f181116422a782cb04146bc2dd8932"
+  },
+  "source_sha256": {
+    "benchmarks/minute/run.py": "a08a65c1f956d301115c99201db9a312b8365e0127480d2789e4101cd322ac77",
+    "benchmarks/minute/vectorbt_adapter.py": "d56dc31ee46b6574f714c4331096955e1bf22e3f99fa72d1470cca705fcebda0",
+    "benchmarks/minute/worker.py": "7ec60cb2fe2b998efdb3d24a57cd8e4a2143d2ad994ee67773d54d96a9a57529",
+    "scripts/minute_case.py": "c23709b6798231d9322bbf822443e22c5b79a1d6377f9746786e133336518e37",
+    "scripts/minute_reference.py": "0f5b4ac269b154810a018e0339e11e5d311fdb21e4348cb848f471df6864a606",
+    "src/doribt/__init__.py": "9f4cea3cbb2eb82cf881afcc7ab95bd834027882b5480662876efcb59ae12d13",
+    "src/doribt/account.py": "173ccd55780f7d66112fe139f8c25f3e23a3764c3f9a2eb7b9aed7ae5342bd9f",
+    "src/doribt/actions.py": "c7a28c868380821a9ac40747b598c379ad1f49a13396fa102a729114246718ba",
+    "src/doribt/adjustments.py": "709c8e6c3e8cebeb6ec1511e8bdb1a1ba43a467b227517cf85db52e7d4f2bca1",
+    "src/doribt/analysis.py": "d5d953ce7e8055b7593a2fdc3cc27a8b4f16da4a829eb2bf62f827d8c82f2acd",
+    "src/doribt/bar_runtime.py": "6e3935bf9b91ec984d98e201dd155683efe864f765389e078c187abfec27fc55",
+    "src/doribt/bar_targets.py": "0e9947f4fb0420e30447dbbd0a2e5006977529b16b7a91064b71bed2a9ab863e",
+    "src/doribt/bars.py": "699871be3e471d69590054550469117f2d353cd7d88225f5e9754e9394cfeae2",
+    "src/doribt/benchmark.py": "2a84d9e6177da16a4d71b9079bc26b287d16e14f18be3c5d3cf637b10f33712b",
+    "src/doribt/broker.py": "f53e46b1071becf63771eb0990b7b80a1845cf862fd55aed77311abdbb162c14",
+    "src/doribt/china.py": "d6ee6b8fabb30c6a600aed24b62cbbce308e6393c7bb8c62dd63677f26da3ac5",
+    "src/doribt/clock.py": "f0d8ba274bf7644340abfe81a9eeb5310277ab8f969a9f904f7a4749bc95beb0",
+    "src/doribt/compiled.py": "9088b6e95cb0d974fa7e5f088f47095b7f4f91fdc62dd428b341dba9c8ab195f",
+    "src/doribt/context.py": "d591fc63e31bd4afb40d6a1491a618da670e6ef75602b41ce03093406c1f577d",
+    "src/doribt/costs.py": "c60962f987bbe4fa2702ce6f12da283b593a5dc5978da612e101abfd1c4d3f2f",
+    "src/doribt/data.py": "7c62b45ee3064d6090e2f49d1faf3d85ab5fe0fc0dc5f09d5036fd1c055dbcbe",
+    "src/doribt/engine.py": "7ad7a8e24d0da400f8159989df3bfa0f36aa7ab0a1a45a34e5b97236789c2ddb",
+    "src/doribt/execution.py": "c6a8d4036cce14eb2bfb86e573032b080f2282a90c079a7ab60dfb2e2ae6befa",
+    "src/doribt/export.py": "57cc8ca8eb7084fc2324b07bec311955b2de0729fc42184c58df9eb21d4f3908",
+    "src/doribt/instruments.py": "e229a5bb8b76cf1ac69fa134f05cf63c81a0999610bbf10dcc13dfdd953ef53d",
+    "src/doribt/intents.py": "009daa070ba09b29fb2f79295b5da6efd4b02cf7bb1ba54d2266aff90cc2316c",
+    "src/doribt/matching.py": "0c123e802fcfcb82bb63b552457778e256f9a664c6d28112b5671978e03c8e86",
+    "src/doribt/orders.py": "09fd77541f1cc8dbdab528f888bc360af02b7a4b691079cd65a7988c2a383db3",
+    "src/doribt/plotting.py": "b5c18cb97608d2a53ec4f8aa501f51bc1e629ed589798f2e84e8236ee61c116e",
+    "src/doribt/provenance.py": "dc0c52cff0918085a79fb7dc072008de2f0afc9badc71ecdfbc5fa230e219903",
+    "src/doribt/publish.py": "a44d59c8c1a4d05690b0d2f78e4dce20929a410292787cc547e463772f56bd5c",
+    "src/doribt/result.py": "43bf86ee8e7cd9ec6ea171c1ed344e0c302fa7d920b0d332ae7c245644dbc19b",
+    "src/doribt/rights.py": "9d0055ce6bb8b8a6d3ea541b5e1cda3b77f2fcda612e04b9355bbe881a52cf37",
+    "src/doribt/rules.py": "5fc96b19a25b5e88ca88528a6ca94029070cd57d454fd6dfbcb6b66a89dd1722",
+    "src/doribt/scheduled.py": "d003ea6fe42062e0f4560312129ff21563731725ee464a49206bac220a9a2ed2",
+    "src/doribt/segments.py": "a2f4b7d02a6193854a79ea9110a767066bc91014283f6a7b5ba7e4b919f765a8",
+    "src/doribt/slippage.py": "d6e205ebf70092bf6b76f611fce437067f11a85cb92d2069e59280b3de5662e5",
+    "src/doribt/targets.py": "c7890fa331408031668e5270e249c404e7fc8e75c2dcdb34ac47990e79855894",
+    "src/doribt/taxes.py": "2f6fef0a18f51f6541168404d10ae5344cbfd082f0956dc3db07ec0d22649e86",
+    "src/doribt/validation.py": "19e19e10901620ed77a2fec2a6c35fcecb67b02186880e9da3c91a6662bc8e6f"
+  }
+}

@@ -3,7 +3,16 @@
 import argparse
 from datetime import date
 
-from doribt import Backtest, BarExecution, Context, FixedTicks, Instrument, MarketData, china_rules
+from doribt import (
+    Backtest,
+    BarExecution,
+    Context,
+    FixedTicks,
+    Instrument,
+    MarketData,
+    PositionTargets,
+    china_rules,
+)
 from doribt.clock import MinuteClock
 
 
@@ -45,10 +54,17 @@ def strategy(ctx: Context) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("python", "numba"), default="python")
+    parser.add_argument("--precomputed", action="store_true", help="Use timestamped fixed targets")
     args = parser.parse_args()
-    result = Backtest(
-        sample(), execution=BarExecution(participation=0.1, slippage=FixedTicks(1))
-    ).run(strategy, backend=args.backend)
+    data = sample()
+    targets = PositionTargets(
+        sessions=data.timeline,
+        quantities={"DEMO": [1000] * 240 + [0] * 240},
+    )
+    result = Backtest(data, execution=BarExecution(participation=0.1, slippage=FixedTicks(1))).run(
+        targets if args.precomputed else strategy, backend=args.backend
+    )
+    print("Execution:", result.run_info.to_dict()["execution_path"])
     print("SYNTHETIC minute data. Fills are known only at each bar's end.")
     for order in result.orders:
         print(order.order_id, order.quantity, order.filled, order.status, order.fees)

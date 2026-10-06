@@ -15,7 +15,7 @@ from .result import BacktestResult
 from .rights import CorporateEvent, EntitlementRecord, UnsupportedCorporateAction
 from .rules import RuleBook, RulePeriod, TradingRule
 from .slippage import BarExecution, FixedBps, FixedTicks, VolumeImpact
-from .targets import WeightTargets
+from .targets import PositionTargets, WeightTargets
 from .taxes import TaxLotRecord, TaxPayment, TaxRecord
 
 __all__ = [
@@ -30,6 +30,7 @@ __all__ = [
     "Context",
     "Costs",
     "WeightTargets",
+    "PositionTargets",
     "CorporateAction",
     "PriceAdjustment",
     "china_rules",

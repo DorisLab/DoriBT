@@ -13,7 +13,7 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
-from doribt import Backtest, BarExecution, FixedTicks, MarketData
+from doribt import Backtest, BarExecution, Context, FixedTicks, MarketData, PositionTargets
 
 case = importlib.import_module("scripts.minute_case")
 load: Callable[[Path], MarketData] = case.load
@@ -51,6 +51,8 @@ def verify(data: MarketData, target: NDArray[np.int64], result: dict[str, Any]) 
     for name in ("cash", "holdings", "equity"):
         actual = result[name][:, 0]
         units = actual if name == "holdings" else actual * 10000
+        if "units" in result and not np.array_equal(result["units"][name], expected[name]):
+            raise ValueError(f"{name} differs from Decimal in integer units")
         if not np.allclose(units, expected[name], atol=0.0001, rtol=0):
             index = int(np.flatnonzero(np.abs(units - expected[name]) > 0.0001)[0])
             raise ValueError(
@@ -63,13 +65,16 @@ def verify(data: MarketData, target: NDArray[np.int64], result: dict[str, Any]) 
     return hashlib.sha256(json.dumps(expected, sort_keys=True).encode()).hexdigest()
 
 
-def own(test: Backtest, target: NDArray[np.int64], backend: str) -> dict[str, Any]:
+def own(test: Backtest, strategy: Callable[[Context], None], backend: str) -> dict[str, Any]:
     times = {point: index for index, point in enumerate(test.data.timeline)}
-    result = test.run(case.FixedTargets(test.data.symbols[0], target), backend=backend)
+    result = test.run(strategy, backend=backend)
     return dict(
         cash=result.cash[:, None],
         equity=result.equity[:, None],
         holdings=result.holdings,
+        units=dict(
+            cash=result.cash_units, equity=result.equity_units, holdings=result.holdings[:, 0]
+        ),
         fills=[
             [times[f.timestamp or f.session], f.quantity, f.price_units, f.commission_units]
             for f in result.fills
@@ -98,7 +103,17 @@ def vbt_column(result: dict[str, Any], column: int) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("folder", type=Path)
-    parser.add_argument("--engine", choices=("python", "numba", "vectorbt"), required=True)
+    parser.add_argument(
+        "--engine",
+        choices=(
+            "python",
+            "numba",
+            "python-scheduled",
+            "numba-scheduled",
+            "vectorbt",
+        ),
+        required=True,
+    )
     parser.add_argument("--batch", type=int, default=10)
     parser.add_argument("--repeats", type=int, default=3)
     args = parser.parse_args()
@@ -108,6 +123,12 @@ def main() -> None:
     data = load(args.folder)
     targets = [signals(data, fast=30 + index * 10) for index in range(args.batch)]
     matrix, prices = np.column_stack(targets), market_array(data)
+    strategies: list[Callable[[Context], None]] = [
+        PositionTargets(sessions=data.timeline, quantities={data.symbols[0]: target})
+        if args.engine.endswith("scheduled")
+        else case.FixedTargets(data.symbols[0], target)
+        for target in targets
+    ]
     prepared = perf_counter() - start
     test = Backtest(data, execution=BarExecution(participation=0.001, slippage=FixedTicks(1)))
     if args.engine == "vectorbt":
@@ -122,10 +143,10 @@ def main() -> None:
     else:
 
         def run_single() -> dict[str, Any]:
-            return own(test, targets[0], args.engine)
+            return own(test, strategies[0], args.engine.split("-")[0])
 
         def run_batch() -> list[dict[str, Any]]:
-            return [own(test, target, args.engine) for target in targets]
+            return [own(test, strategy, args.engine.split("-")[0]) for strategy in strategies]
 
     start = perf_counter()
     result = run_single()

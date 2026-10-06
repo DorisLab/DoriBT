@@ -6,6 +6,8 @@ Python backtesting for A-share research, with an optional Numba execution backen
 
 当前开发版 `0.2.0.dev0` 新增 1／5 分钟行情、跨 bar 部分成交、现金／股数冻结，以及固定 tick、基点和成交量冲击滑点。完整示例运行 `uv run python examples/minute.py`；时间、订单与数据要求见[分钟执行](docs/minute-execution.md)。已发布的 0.1.0 仍是日线版本，开发版尚未发布。
 
+分钟预计算策略支持 `PositionTargets` 股数目标与 `WeightTargets` 权重目标，自动按目标变化、成交和交易日边界分段执行，保留完整账户与订单输出。运行 `uv run python examples/minute.py --precomputed` 体验；[执行说明](docs/scheduled-execution.md)与[性能比较](docs/minute-performance-optimized.md)列明适用场景。
+
 DoriBT 关注交易规则、账户状态、可解释的成交记录与可复现研究。0.1.0 提供数据、策略、执行、账户和结果分析的日线研究流程，范围与逐项证据见[首版验收](docs/release-0.1.0.md)。
 
 本版本提供多标的共享账户、收盘策略／目标权重、次日开盘执行、分红送转和普通个人股息税，以及 2020–2025 沪深普通股票／境内股票 ETF 的基础规则预设。结果可以计算收益／风险与基准指标、绘图并导出可对账文件和运行来源。2020–2025 ETF 已完成[真实行情案例对账](docs/market-validation.md)和[完整引擎性能测量](docs/performance.md)。原型已从开发版安装包移除，历史实现保留在 v0.1.0。
@@ -49,7 +51,7 @@ uv sync --extra numba
 uv run --extra numba python examples/strategies.py --backend numba
 ```
 
-首次 Numba 调用需要编译，后续调用和缓存行为取决于环境；当前完整基线中它没有明显提速，默认使用 Python。版本记录见 [CHANGELOG](CHANGELOG.md)，发布产物见 [GitHub Releases](https://github.com/DorisLab/DoriBT/releases)。项目尚未发布 PyPI 安装包，以上命令从源码安装。
+首次 Numba 调用需要编译，后续调用和缓存行为取决于环境。普通逐 bar 回调中它没有明显提速；分钟预计算路径另有分段扫描加速，具体数据见上述性能比较。默认仍使用 Python。版本记录见 [CHANGELOG](CHANGELOG.md)，发布产物见 [GitHub Releases](https://github.com/DorisLab/DoriBT/releases)。项目尚未发布 PyPI 安装包，以上命令从源码安装。
 
 使用发布的 wheel 时，先从 Release 下载并按附带的 `SHA256SUMS` 核对，再在 Python 3.13 虚拟环境中安装；下载目录下例如：
 

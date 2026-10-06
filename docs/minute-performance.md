@@ -1,5 +1,7 @@
 # 分钟场景：DoriBT 与 vectorbt 的首轮比较
 
+历史基线：后续已扩大样本并实现预计算分段执行，见[优化后的比较](minute-performance-optimized.md)。本文保留原测量，不将新实现与旧区间耗时混为同口径结果。
+
 日期：2026-10-06。引擎提交 `145944f`，DoriBT 0.2.0.dev0、vectorbt 0.28.5、NumPy 2.5.3、Numba 0.68.0、Python 3.13.12；Windows 11、Ryzen 7 9800X3D（8 核／16 线程）。[原始汇总 JSON](minute-performance-2026-10-06.json)保留样本、版本、输入和适配器哈希。
 
 ## 结论

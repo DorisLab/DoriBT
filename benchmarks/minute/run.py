@@ -76,7 +76,7 @@ def main() -> None:
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     results: list[dict[str, Any]] = []
-    for engine in ("python", "numba", "vectorbt"):
+    for engine in ("python", "numba", "python-scheduled", "numba-scheduled", "vectorbt"):
         result = measure(
             args.python.resolve(), args.folder.resolve(), output, engine, args.batch, args.repeats
         )
@@ -103,8 +103,15 @@ def main() -> None:
             for name in ("market.csv", "calendar.csv")
         },
         source_sha256={
-            p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in Path(__file__).parent.glob("*.py")
+            str(p.relative_to(ROOT)).replace("\\", "/"): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(
+                [
+                    *Path(__file__).parent.glob("*.py"),
+                    *ROOT.glob("src/doribt/*.py"),
+                    ROOT / "scripts/minute_case.py",
+                    ROOT / "scripts/minute_reference.py",
+                ]
+            )
         },
     )
     (output / "report.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")

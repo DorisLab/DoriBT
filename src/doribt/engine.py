@@ -1,6 +1,7 @@
 """Daily lifecycle orchestrator. Strategy callbacks never run inside JIT."""
 
 from collections.abc import Callable, Mapping
+from typing import cast
 
 import numpy as np
 
@@ -16,7 +17,7 @@ from .provenance import RunInfo, bind_strategy, parameters_copy, run_info
 from .result import BacktestResult
 from .rights import RightsBook
 from .slippage import BarExecution
-from .targets import WeightTargets
+from .targets import PositionTargets, WeightTargets
 from .validation import Number, amount
 
 
@@ -56,7 +57,7 @@ class Backtest:
         parameters: Mapping[str, object] | None = None,
         backend: str = "python",
     ) -> BacktestResult:
-        if isinstance(strategy, WeightTargets):
+        if isinstance(strategy, (PositionTargets, WeightTargets)):
             strategy.validate(self.data)
         values = parameters_copy(parameters)
         callback = bind_strategy(strategy, values)
@@ -69,10 +70,28 @@ class Backtest:
             run = _Run(self._prepared, self._initial_cash, self.costs, backend)
         else:
             from .bar_runtime import BarRun
+            from .scheduled import ScheduledRun
 
-            run = BarRun(self._prepared, self._initial_cash, self.costs, backend, execution)
+            if type(strategy) in (PositionTargets, WeightTargets):
+                run = ScheduledRun(
+                    self._prepared,
+                    self._initial_cash,
+                    self.costs,
+                    backend,
+                    execution,
+                    cast(PositionTargets | WeightTargets, strategy),
+                )
+            else:
+                run = BarRun(self._prepared, self._initial_cash, self.costs, backend, execution)
         info = run_info(
-            self.data, self._initial_cash, self.costs, strategy, values, backend, execution
+            self.data,
+            self._initial_cash,
+            self.costs,
+            strategy,
+            values,
+            backend,
+            execution,
+            data_json=self._prepared.provenance_json,
         )
         return run.execute(callback, info)
 
@@ -100,17 +119,24 @@ class _Run:
             np.zeros(days, dtype=np.int64),
         )
 
-    def execute(self, strategy: Callable[[Context], None], info: RunInfo) -> BacktestResult:
-        for index, session in enumerate(self.data.timeline):
+    def _drive(self, strategy: Callable[[Context], None]) -> None:
+        for index in range(len(self.data.timeline)):
             self._open(index)
             self._close(index)
-            context = self._context(index)
-            try:
-                strategy(context)
-            except Exception as error:
-                raise RuntimeError(f"strategy failed at close on {session}: {error}") from error
-            finally:
-                context._active = False
+            self._invoke(strategy, index)
+
+    def _invoke(self, strategy: Callable[[Context], None], index: int) -> None:
+        context = self._context(index)
+        try:
+            strategy(context)
+        except Exception as error:
+            session = self.data.timeline[index]
+            raise RuntimeError(f"strategy failed at close on {session}: {error}") from error
+        finally:
+            context._active = False
+
+    def execute(self, strategy: Callable[[Context], None], info: RunInfo) -> BacktestResult:
+        self._drive(strategy)
         self._finish()
         for array in (
             self.equity,
