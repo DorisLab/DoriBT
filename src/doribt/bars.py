@@ -2,8 +2,9 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 
+from .clock import timestamp
 from .instruments import TradingStatus
 from .rules import TradingRule
 from .validation import MAX_PRICE, DateLike, day, integer
@@ -23,9 +24,18 @@ class Bar:
     volume: int
     upper_limit: int | None
     lower_limit: int | None
+    timestamp: datetime | None = None
+    phase: str = "continuous"
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "session", day(self.session))
+        if self.timestamp is not None:
+            point = timestamp(self.timestamp)
+            if point.date() != self.session:
+                raise ValueError("timestamp and trading session disagree")
+            object.__setattr__(self, "timestamp", point)
+        if self.phase not in {"continuous", "auction"}:
+            raise ValueError("phase must be continuous or auction")
         if not self.symbol or self.symbol.strip() != self.symbol:
             raise ValueError("bar symbol must be non-empty without surrounding whitespace")
         if not isinstance(self.status, TradingStatus):

@@ -1,6 +1,6 @@
 """Public close callback with a time-limited history and immutable account view."""
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import date
 from types import MappingProxyType
@@ -27,7 +27,7 @@ class AccountView:
 
     @property
     def available_cash(self) -> float:
-        return max(0.0, self.cash - self.tax_payable)
+        return max(0.0, self.cash - self.tax_payable - self.frozen_cash)
 
 
 class Context:
@@ -41,14 +41,34 @@ class Context:
         book: IntentBook,
         equity_units: int,
     ) -> None:
-        self.session: date = data.sessions[index]
+        self.session: date = data.sessions[data.day_index(index)]
+        self.now: date = data.timeline[index]
         self.symbols = data.symbols
         self.account = account
-        self.orders = orders
-        self.intents: tuple[IntentRecord, ...] = tuple(item.record() for item in book.history)
+        self._orders = orders
+        self._intents: tuple[IntentRecord, ...] | None = None
+        self._order_reader: Callable[[], tuple[Order, ...]] | None = None
+        self._submit: Callable[[str, int, str, Number | None], int] | None = None
+        self._cancel_order: Callable[[int], None] | None = None
         self._data, self._index, self._history = data, index, history
         self._book, self._equity = book, equity_units
         self._active = True
+
+    @property
+    def orders(self) -> tuple[Order, ...]:
+        if self._order_reader is not None:
+            if not self._active:
+                raise RuntimeError("read order snapshots during the callback")
+            return self._order_reader()
+        return self._orders
+
+    @property
+    def intents(self) -> tuple[IntentRecord, ...]:
+        if self._intents is None:
+            if not self._active:
+                raise RuntimeError("read intent snapshots during the callback")
+            self._intents = tuple(item.record() for item in self._book.history)
+        return self._intents
 
     @property
     def bar_index(self) -> int:
@@ -73,13 +93,29 @@ class Context:
         values.setflags(write=False)
         return values
 
-    def order(self, symbol: str, quantity: int) -> int:
+    def order(
+        self,
+        symbol: str,
+        quantity: int,
+        *,
+        valid_for: str = "next_bar",
+        limit_price: Number | None = None,
+    ) -> int:
         """Signed fixed shares, attempted at the next open only."""
         self._ready(symbol)
         quantity = integer(quantity, 1, "quantity", -1_000_000_000, 1_000_000_000)
         if not quantity:
             raise ValueError("order quantity cannot be zero")
+        if self._submit is not None:
+            return self._submit(symbol, quantity, valid_for, limit_price)
+        if valid_for != "next_bar" or limit_price is not None:
+            raise ValueError("order lifetime and limit price require BarExecution")
         return self._book.place(self.session, symbol, "order", quantity)
+
+    def cancel_order(self, order_id: int) -> None:
+        if not self._active or self._cancel_order is None:
+            raise RuntimeError("cancel_order requires an active BarExecution callback")
+        self._cancel_order(order_id)
 
     def target_positions(self, quantities: Mapping[str, int]) -> tuple[int, ...]:
         """Persistent target shares for the supplied securities; omitted ones are unchanged."""

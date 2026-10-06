@@ -43,7 +43,7 @@ def _freeze(values: IntArray) -> IntArray:
 
 
 def compile_data(data: MarketData) -> CompiledData:
-    shape = (len(data.sessions), len(data.symbols))
+    shape = (len(data.timeline), len(data.symbols))
     market = np.zeros((*shape, 14), dtype=np.int64)
     closes = np.zeros(shape, dtype=np.int64)
     settlement = np.zeros(shape, dtype=np.int64)

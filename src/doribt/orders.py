@@ -1,7 +1,7 @@
 """Immutable public order history. All money fields are integer 1/10,000 yuan."""
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from enum import StrEnum
 
 
@@ -17,6 +17,9 @@ class Reason(StrEnum):
     INSUFFICIENT_SELLABLE = "insufficient_sellable"
     INSUFFICIENT_POSITION = "insufficient_position"
     PRICE_OUT_OF_RANGE = "price_out_of_range"
+    PARTICIPATION_LIMIT = "participation_limit"
+    LIMIT_PRICE = "limit_price"
+    AUCTION = "auction"
 
 
 REASONS = tuple(Reason)
@@ -35,6 +38,14 @@ class Order:
     stamp_duty_units: int
     transfer_fee_units: int
     reason: Reason
+    created_at: date | None = None
+    updated_at: date | None = None
+    state: str = ""
+    notional_units: int = 0
+    valid_for: str = "next_bar"
+    limit_units: int = 0
+    frozen_cash_units: int = 0
+    frozen_quantity: int = 0
 
     @property
     def commission(self) -> float:
@@ -50,6 +61,9 @@ class Order:
 
     @property
     def events(self) -> tuple[str, ...]:
+        if self.state:
+            middle = ("partially_filled",) if self.filled and self.remaining else ()
+            return ("created", "accepted", *middle, self.state)
         if self.reason == Reason.INVALID_QUANTITY:
             return ("created", "rejected")
         if self.filled == self.quantity:
@@ -72,6 +86,8 @@ class Order:
 
     @property
     def price(self) -> float | None:
+        if self.state and self.filled:
+            return self.notional_units / abs(self.filled) / 10_000
         return self.price_units / 10_000 if self.filled else None
 
 
@@ -87,6 +103,7 @@ class Fill:
     commission_units: int
     stamp_duty_units: int
     transfer_fee_units: int
+    timestamp: datetime | None = None
 
     @property
     def commission(self) -> float:

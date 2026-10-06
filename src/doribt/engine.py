@@ -15,6 +15,7 @@ from .orders import REASONS, Order
 from .provenance import RunInfo, bind_strategy, parameters_copy, run_info
 from .result import BacktestResult
 from .rights import RightsBook
+from .slippage import BarExecution
 from .targets import WeightTargets
 from .validation import Number, amount
 
@@ -27,13 +28,21 @@ class Backtest:
     """
 
     def __init__(
-        self, data: MarketData, *, initial_cash: Number = 100_000, costs: Costs | None = None
+        self,
+        data: MarketData,
+        *,
+        initial_cash: Number = 100_000,
+        costs: Costs | None = None,
+        execution: BarExecution | None = None,
     ) -> None:
         self.data = data
         self._initial_cash = amount(initial_cash, "initial_cash")
         if not self._initial_cash:
             raise ValueError("initial_cash must be positive")
         self.costs = costs or Costs()
+        self.execution = execution
+        if (self.execution is not None or data.clock) and self.costs.slippage_ticks:
+            raise ValueError("use BarExecution.slippage instead of Costs.slippage_ticks")
         self._prepared: PreparedData | None = None
 
     @property
@@ -51,10 +60,20 @@ class Backtest:
             strategy.validate(self.data)
         values = parameters_copy(parameters)
         callback = bind_strategy(strategy, values)
+        execution = self.execution or (BarExecution() if self.data.clock else None)
+        if execution is not None and self.costs.slippage_ticks:
+            raise ValueError("use BarExecution.slippage instead of Costs.slippage_ticks")
         if self._prepared is None or self._prepared.data is not self.data:
             self._prepared = prepare(self.data)
-        run = _Run(self._prepared, self._initial_cash, self.costs, backend)
-        info = run_info(self.data, self._initial_cash, self.costs, strategy, values, backend)
+        if execution is None:
+            run = _Run(self._prepared, self._initial_cash, self.costs, backend)
+        else:
+            from .bar_runtime import BarRun
+
+            run = BarRun(self._prepared, self._initial_cash, self.costs, backend, execution)
+        info = run_info(
+            self.data, self._initial_cash, self.costs, strategy, values, backend, execution
+        )
         return run.execute(callback, info)
 
 
@@ -71,7 +90,7 @@ class _Run:
         self.rights = RightsBook(data)
         self.orders: list[Order] = []
         self.history = prepared.history
-        days, columns = len(data.sessions), len(data.symbols)
+        days, columns = len(data.timeline), len(data.symbols)
         self.equity, self.cash = np.zeros(days, dtype=np.int64), np.zeros(days, dtype=np.int64)
         self.holdings = np.zeros((days, columns), dtype=np.int64)
         self.sellable = np.zeros((days, columns), dtype=np.int64)
@@ -82,44 +101,17 @@ class _Run:
         )
 
     def execute(self, strategy: Callable[[Context], None], info: RunInfo) -> BacktestResult:
-        for index, session in enumerate(self.data.sessions):
+        for index, session in enumerate(self.data.timeline):
             self._open(index)
             self._close(index)
-            positions = [
-                Position(
-                    symbol,
-                    int(self.holdings[index, column]),
-                    int(self.sellable[index, column]),
-                    int(self.holdings[index, column] + self.pending_shares[index, column])
-                    * int(self.compiled.closes[index, column])
-                    / 10_000,
-                    int(self.pending_shares[index, column]),
-                )
-                for column, symbol in enumerate(self.data.symbols)
-            ]
-            view = account_view(
-                self.account.cash,
-                int(self.equity[index]),
-                positions,
-                int(self.receivable[index]),
-                int(self.tax_payable[index]),
-            )
-            context = Context(
-                self.data,
-                index,
-                self.history,
-                view,
-                tuple(self.orders),
-                self.book,
-                int(self.equity[index]),
-            )
+            context = self._context(index)
             try:
                 strategy(context)
             except Exception as error:
                 raise RuntimeError(f"strategy failed at close on {session}: {error}") from error
             finally:
                 context._active = False
-        self.book.finish(self.data.sessions[-1])
+        self._finish()
         for array in (
             self.equity,
             self.cash,
@@ -132,7 +124,7 @@ class _Run:
         ):
             array.setflags(write=False)
         return BacktestResult(
-            self.data.sessions,
+            self.data.timeline,
             self.data.symbols,
             self.initial_cash / 10_000,
             self.equity,
@@ -154,6 +146,39 @@ class _Run:
             self.compiled.closes,
             info,
         )
+
+    def _context(self, index: int) -> Context:
+        positions = [
+            Position(
+                symbol,
+                int(self.holdings[index, column]),
+                int(self.sellable[index, column]),
+                int(self.holdings[index, column] + self.pending_shares[index, column])
+                * int(self.compiled.closes[index, column])
+                / 10_000,
+                int(self.pending_shares[index, column]),
+            )
+            for column, symbol in enumerate(self.data.symbols)
+        ]
+        view = account_view(
+            self.account.cash,
+            int(self.equity[index]),
+            positions,
+            int(self.receivable[index]),
+            int(self.tax_payable[index]),
+        )
+        return Context(
+            self.data,
+            index,
+            self.history,
+            view,
+            tuple(self.orders),
+            self.book,
+            int(self.equity[index]),
+        )
+
+    def _finish(self) -> None:
+        self.book.finish(self.data.sessions[-1])
 
     def _open(self, index: int) -> None:
         self.rights.start(index, self.account, self.book)

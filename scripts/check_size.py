@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def oversized_files(root: Path, maximum: int) -> list[tuple[Path, int]]:
     paths = (
         path
-        for folder in ("src", "tests", "examples", "scripts")
+        for folder in ("src", "tests", "examples", "scripts", "benchmarks")
         for path in (root / folder).rglob("*.py")
     )
     measured = ((path, len(path.read_text(encoding="utf-8").splitlines())) for path in paths)

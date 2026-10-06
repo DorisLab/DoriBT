@@ -14,11 +14,16 @@ from .provenance import RunInfo
 from .result import BacktestResult
 from .rights import CorporateEvent, EntitlementRecord, UnsupportedCorporateAction
 from .rules import RuleBook, RulePeriod, TradingRule
+from .slippage import BarExecution, FixedBps, FixedTicks, VolumeImpact
 from .targets import WeightTargets
 from .taxes import TaxLotRecord, TaxPayment, TaxRecord
 
 __all__ = [
     "Backtest",
+    "BarExecution",
+    "FixedBps",
+    "FixedTicks",
+    "VolumeImpact",
     "BacktestResult",
     "Benchmark",
     "RunInfo",
@@ -46,4 +51,4 @@ __all__ = [
     "Reason",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0.dev0"

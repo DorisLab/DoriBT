@@ -8,7 +8,7 @@ from typing import cast
 import numpy as np
 from numpy.typing import ArrayLike
 
-from .bars import calendar_days
+from .clock import time_points
 from .context import Context
 from .data import MarketData
 from .validation import DateLike, ratio
@@ -21,7 +21,7 @@ class WeightTargets:
     rebalance: bool = False
 
     def __post_init__(self) -> None:
-        dates = calendar_days(list(self.sessions))
+        dates = time_points(self.sessions)
         object.__setattr__(self, "sessions", dates)
         normalized: dict[str, tuple[float, ...]] = {}
         totals = np.zeros(len(dates), dtype=np.int64)
@@ -39,7 +39,7 @@ class WeightTargets:
         object.__setattr__(self, "weights", MappingProxyType(normalized))
 
     def validate(self, data: MarketData) -> None:
-        if tuple(self.sessions) != data.sessions:
+        if tuple(self.sessions) != data.timeline:
             raise ValueError("target sessions must exactly match market sessions")
         if set(self.weights) - set(data.symbols):
             raise ValueError("targets contain unknown securities")

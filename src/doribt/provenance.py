@@ -15,6 +15,7 @@ from typing import Any
 from .context import Context
 from .costs import Costs
 from .data import MarketData
+from .slippage import BarExecution
 from .targets import WeightTargets
 from .taxes import TAX_POLICY
 
@@ -129,6 +130,7 @@ def run_info(
     strategy: Callable[..., None],
     parameters: dict[str, Any],
     backend: str,
+    execution: BarExecution | None = None,
 ) -> RunInfo:
     root = Path(__file__).parent
     code = {
@@ -140,7 +142,16 @@ def run_info(
     rules, actions = [asdict(p) for p in data.rules.periods], [asdict(a) for a in data.actions]
     payload = {
         "schema": "doribt.run/1",
-        "model": MODEL,
+        "model": MODEL if execution is None else "bar-partial-next-open-v1",
+        "execution": None
+        if execution is None
+        else {
+            "participation_ppm": int(execution.compile()[0]),
+            "slippage": type(execution.slippage).__name__,
+            "parameters": asdict(execution.slippage),
+            "quantity_unit": "shares",
+            "fill_known": "bar_end",
+        },
         "backend": backend,
         "initial_cash_units": initial_cash,
         "costs": dict(
@@ -158,6 +169,8 @@ def run_info(
             "source": data.source,
             "instruments": [asdict(i) for i in data.instruments],
             "sessions": list(data.sessions),
+            "frequency": data.clock.frequency if data.clock else "1d",
+            "timestamps": list(data.timeline) if data.clock else None,
             "rules": rules,
             "actions": actions,
             "rules_sha256": digest(rules),
@@ -168,13 +181,19 @@ def run_info(
         "engine_sha256": digest(code),
         "assumptions": {
             "decision": "close",
-            "execution": "next_supplied_open",
+            "execution": "next_supplied_open"
+            if execution is None
+            else "next_bar_open_reference_confirmed_at_bar_end",
             "quantity": "fixed_at_decision",
-            "allocation": "sells_then_symbol_order",
+            "allocation": "sells_then_symbol_order"
+            if execution is None
+            else "sells_then_submission_order",
             "prices": "raw",
             "external_cash_flows": False,
             "final_liquidation": False,
-            "order_lifetime": "one_open_attempt",
+            "order_lifetime": "one_open_attempt"
+            if execution is None
+            else "explicit_next_bar_or_day",
         },
     }
     return RunInfo(encode(payload))

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .bars import calendar_days
+from .clock import time_points
 from .validation import DateLike
 
 
@@ -24,7 +24,7 @@ class Benchmark:
     source: str
 
     def __post_init__(self) -> None:
-        sessions = calendar_days(list(self.sessions))
+        sessions = time_points(self.sessions)
         prices = np.asarray(self.prices, dtype=np.float64)
         if prices.shape != (len(sessions),):
             raise ValueError("benchmark prices must match sessions")

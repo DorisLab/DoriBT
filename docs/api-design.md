@@ -1,5 +1,7 @@
 # API 的使用路径与职责
 
+0.2 开发版增量见[分钟执行](minute-execution.md)：复用 Backtest／Context／MarketData，增加 BarExecution 与一单多次成交；从实验包迁移的示例已统一。下面保留 0.1.0 正式入口的基线说明。
+
 本文描述 0.1.0 的正式数据入口、共享账户、收盘函数策略、预计算目标、分红送转、指标／图表及标准导出。真实 ETF 对账和完整引擎性能证据见[首版验收](release-0.1.0.md)。后续 API 可以演进，行为变化须进入版本记录。
 
 正式入口为 `Backtest(MarketData, initial_cash=..., costs=Costs(...)).run(strategy, parameters=..., backend=...)`。策略可以是普通收盘函数，或 `WeightTargets`。`parameters` 是实际传给回调的关键字参数，同时以初始快照记入结果；不是仅供展示的附加标签。无参数函数仍可以直接传入。数据提供层构建一次完整对象，策略不重复拼装规则，见[数据契约](data-contract.md)与[执行模型](execution-model.md)。公司行动作为 `MarketData.actions` 的事实输入，策略无需手工派息、拆股或扣税；结果保留应收、待入账股份、权益事件和税务批次，见[权益模型](corporate-actions.md)。不支持的行动影响账户时抛出 `UnsupportedCorporateAction`。

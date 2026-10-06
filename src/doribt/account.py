@@ -26,6 +26,11 @@ class Position:
     sellable: int
     value: float
     pending_quantity: int = 0
+    frozen_quantity: int = 0
+
+    @property
+    def available_quantity(self) -> int:
+        return max(0, self.sellable - self.frozen_quantity)
 
 
 class Account:

@@ -1,5 +1,13 @@
 # 版本记录
 
+## 0.2.0.dev0 — 未发布
+
+- 移除安装包中的 `experimental` 原型；均线示例统一使用正式 API，历史原型仍可从 v0.1.0 获取。
+- `MarketData.from_minutes` 支持 +08:00 的 1／5 分钟完整交易日网格和显式竞价阶段；T+N、权益与日终税务按交易日处理。
+- `BarExecution` 支持参与率、FixedTicks／FixedBps／VolumeImpact、DAY／next_bar 委托、限价保护、撤单、冻结与一单多次成交；累计最低佣金与单笔成交记录可对账。
+- `ctx.now`、分钟对齐的 WeightTargets／Benchmark、分钟 CSV／JSON 导出；上下文订单／意图按查询生成快照，避免每个 bar 复制全部历史。
+- 原日线默认执行保持兼容。显式 BarExecution 或分钟数据不能同时使用非零 Costs.slippage_ticks。分钟结果不默认使用 252 年化，未覆盖逐笔盘口和集合竞价撮合。
+
 ## 0.1.0 — 2026-10-06
 
 首个基础引擎版本，提供人民币做多现金账户的日线研究流程。

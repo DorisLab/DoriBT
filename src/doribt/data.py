@@ -4,7 +4,7 @@ import csv
 import hashlib
 import json
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import date
 from functools import cached_property
 from pathlib import Path
@@ -15,6 +15,7 @@ from numpy.typing import NDArray
 from .actions import CorporateAction
 from .adjustments import PriceAdjustment, adjust, view_end
 from .bars import Bar, calendar_days, parse_bar, validate_bar
+from .clock import MinuteClock, timestamp
 from .instruments import Instrument, TradingStatus
 from .rules import RuleBook
 from .validation import DateLike, day
@@ -35,6 +36,7 @@ class MarketData:
     source: str
     actions: tuple[CorporateAction, ...] = ()
     adjustments: tuple[PriceAdjustment, ...] = ()
+    clock: MinuteClock | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "sessions", calendar_days(list(self.sessions)))
@@ -49,19 +51,29 @@ class MarketData:
         symbols = self.symbols
         if not symbols or len(set(symbols)) != len(symbols):
             raise ValueError("instruments must have unique, non-empty symbols")
-        valid_days, valid_symbols = set(self.sessions), set(symbols)
+        if self.clock is not None and self.clock != MinuteClock.build(
+            self.sessions, self.clock.frequency
+        ):
+            raise ValueError("minute clock must match the complete supplied trading calendar")
+        valid_days, valid_symbols = set(self.timeline), set(symbols)
         seen: set[tuple[date, str]] = set()
         for bar in self.bars:
-            key = (bar.session, bar.symbol)
-            if bar.session not in valid_days or bar.symbol not in valid_symbols or key in seen:
+            point = bar.timestamp if self.clock else bar.session
+            if bool(bar.timestamp) != bool(self.clock):
+                raise ValueError("daily and minute bars cannot be mixed")
+            key = (point, bar.symbol)
+            if point not in valid_days or bar.symbol not in valid_symbols or key in seen:
                 raise ValueError(f"unexpected or duplicate bar: {key}")
-            seen.add(key)
+            assert point is not None
+            seen.add((point, bar.symbol))
             if bar.status in (TradingStatus.TRADING, TradingStatus.SUSPENDED):
                 validate_bar(bar, self.rules.at(bar.symbol, bar.session).rule)
         self._check_missing(seen)
         order = {symbol: index for index, symbol in enumerate(symbols)}
         object.__setattr__(
-            self, "bars", tuple(sorted(self.bars, key=lambda b: (b.session, order[b.symbol])))
+            self,
+            "bars",
+            tuple(sorted(self.bars, key=lambda b: (b.timestamp or b.session, order[b.symbol]))),
         )
         self._check_lifecycle()
         self._check_actions()
@@ -76,12 +88,12 @@ class MarketData:
                 raise ValueError(f"rule instrument kind conflicts with {period.symbol}")
 
     def _check_missing(self, seen: set[tuple[date, str]]) -> None:
-        missing = len(self.sessions) * len(self.instruments) - len(seen)
+        missing = len(self.timeline) * len(self.instruments) - len(seen)
         if not missing:
             return
         first = next(
             (session, symbol)
-            for session in self.sessions
+            for session in self.timeline
             for symbol in self.symbols
             if (session, symbol) not in seen
         )
@@ -137,6 +149,49 @@ class MarketData:
     @cached_property
     def symbols(self) -> tuple[str, ...]:
         return tuple(instrument.symbol for instrument in self.instruments)
+
+    @cached_property
+    def timeline(self) -> tuple[date, ...]:
+        return self.clock.timestamps if self.clock else self.sessions
+
+    def day_index(self, bar_index: int) -> int:
+        return self.clock.day_indices[bar_index] if self.clock else bar_index
+
+    @classmethod
+    def from_minutes(
+        cls,
+        records: Iterable[Mapping[str, object]],
+        *,
+        calendar: Sequence[DateLike],
+        instruments: Sequence[Instrument],
+        rules: RuleBook,
+        source: str,
+        frequency: str = "1min",
+        actions: Sequence[CorporateAction] = (),
+        adjustments: Sequence[PriceAdjustment] = (),
+    ) -> "MarketData":
+        sessions = calendar_days(list(calendar))
+        clock = MinuteClock.build(sessions, frequency)
+        bars = []
+        for record in records:
+            if "timestamp" not in record or "phase" not in record:
+                raise ValueError("minute rows require timestamp and phase")
+            point = timestamp(record["timestamp"])
+            row = dict(record)
+            if "session" in row and day(str(row["session"])) != point.date():
+                raise ValueError("timestamp and trading session disagree")
+            row["session"] = point.date()
+            bars.append(replace(parse_bar(row), timestamp=point, phase=str(row["phase"])))
+        return cls(
+            sessions,
+            tuple(instruments),
+            tuple(bars),
+            rules,
+            source,
+            tuple(actions),
+            tuple(adjustments),
+            clock,
+        )
 
     @classmethod
     def from_records(
@@ -208,6 +263,7 @@ class MarketData:
             "source": self.source,
             "actions": [asdict(action) for action in self.actions],
             "adjustments": [asdict(item) for item in self.adjustments],
+            "clock": asdict(self.clock) if self.clock else None,
         }
         encoded = json.dumps(payload, default=str, sort_keys=True, separators=(",", ":")).encode()
         return hashlib.sha256(encoded).hexdigest()

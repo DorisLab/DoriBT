@@ -21,7 +21,7 @@ import numpy as np
 import doribt
 from doribt import (
     CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
-    PriceAdjustment, china_rules
+    PriceAdjustment, china_rules, Backtest, BarExecution, FixedTicks
 )
 assert importlib.util.find_spec('doribt.experimental') is None
 
@@ -69,6 +69,21 @@ historical = china_rules({'A': 'sse_star'}, start='2025-01-02', end='2025-01-06'
 assert historical.periods[0].rule.sell_minimum == 200
 assert historical.periods[0].rule.order_maximum == 100000
 assert formal.run_info.to_dict()['data']['fingerprint'] == data.fingerprint
+from doribt.clock import MinuteClock
+clock = MinuteClock.build(data.sessions[:1], '5min')
+minutes = MarketData.from_minutes(
+    [dict(timestamp=point, phase='continuous', symbol='A', status='trading',
+          open=10, high=11, low=9, close=10, volume=1000, upper_limit=12, lower_limit=8)
+     for point in clock.timestamps],
+    calendar=data.sessions[:1], frequency='5min', instruments=data.instruments,
+    rules=data.rules, source='wheel minute fixture')
+minute_result = Backtest(minutes, execution=BarExecution(slippage=FixedTicks(1))).run(
+    lambda ctx: ctx.order('A', 200, valid_for='day') if ctx.bar_index == 0 else None,
+    backend=backend)
+assert len(minute_result.orders) == 1 and len(minute_result.fills) == 4
+assert minute_result.orders[0].filled == 200
+assert minute_result.orders[0].commission == 5
+assert minute_result.fills[0].timestamp == clock.timestamps[1]
 output = formal.export(Path.cwd() / 'report', periods_per_year=252, plot=backend == 'numba')
 manifest = json.loads((output / 'manifest.json').read_text(encoding='utf-8'))
 assert manifest['schema'] == 'doribt.export/1'

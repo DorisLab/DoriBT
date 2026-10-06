@@ -45,6 +45,23 @@ class BacktestResult:
     close_units: IntArray
     run_info: RunInfo
     tax_policy: str = TAX_POLICY
+    executions: tuple[Fill, ...] | None = None
+    reserved_cash_units: IntArray | None = None
+    reserved_shares: IntArray | None = None
+
+    @cached_property
+    def frozen_cash_units(self) -> IntArray:
+        return (
+            np.zeros_like(self.cash_units)
+            if self.reserved_cash_units is None
+            else self.reserved_cash_units
+        )
+
+    @cached_property
+    def frozen_shares(self) -> IntArray:
+        return (
+            np.zeros_like(self.holdings) if self.reserved_shares is None else self.reserved_shares
+        )
 
     @property
     def equity(self) -> NDArray[np.float64]:
@@ -64,6 +81,8 @@ class BacktestResult:
 
     @cached_property
     def fills(self) -> tuple[Fill, ...]:
+        if self.executions is not None:
+            return self.executions
         executed = (order for order in self.orders if order.filled)
         return tuple(Fill.from_order(index, order) for index, order in enumerate(executed, start=1))
 

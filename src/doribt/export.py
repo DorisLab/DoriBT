@@ -56,7 +56,13 @@ def _account(result: "BacktestResult", folder: Path) -> None:
             "session": session.isoformat(),
             "cash_units": int(result.cash_units[i]),
             "equity_units": int(result.equity_units[i]),
-            "available_cash_units": max(int(result.cash_units[i] - result.tax_payable_units[i]), 0),
+            "available_cash_units": max(
+                int(
+                    result.cash_units[i] - result.tax_payable_units[i] - result.frozen_cash_units[i]
+                ),
+                0,
+            ),
+            "frozen_cash_units": int(result.frozen_cash_units[i]),
             "dividend_receivable_units": int(result.dividend_receivable_units[i]),
             "tax_payable_units": int(result.tax_payable_units[i]),
             "nav": float(nav[i]),
@@ -72,6 +78,7 @@ def _account(result: "BacktestResult", folder: Path) -> None:
             "symbol": symbol,
             "quantity": int(result.holdings[i, j]),
             "sellable": int(result.sellable[i, j]),
+            "frozen_quantity": int(result.frozen_shares[i, j]),
             "pending_quantity": int(result.pending_shares[i, j]),
             "close_units": int(result.close_units[i, j]),
             "value_units": int(result.holdings[i, j] + result.pending_shares[i, j])

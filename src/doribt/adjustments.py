@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from numpy.typing import NDArray
 
+from .clock import timestamp
 from .validation import DateLike, Number, day
 
 if TYPE_CHECKING:
@@ -48,10 +49,10 @@ def view_end(data: "MarketData", adjustment: str, as_of: DateLike | None) -> int
     if as_of is None:
         if adjustment == "asof":
             raise ValueError("asof-adjusted prices require an explicit as_of session")
-        return len(data.sessions)
-    when = day(as_of)
+        return len(data.timeline)
+    when = timestamp(as_of) if data.clock else day(as_of)
     try:
-        return data.sessions.index(when) + 1
+        return data.timeline.index(when) + 1
     except ValueError as error:
         raise ValueError("as_of must be a supplied trading session") from error
 
@@ -65,7 +66,8 @@ def adjust(
     symbols: tuple[str, ...],
 ) -> None:
     """Adjust a writable slice in place; only events crossing its time window matter."""
-    first, last = data.sessions[start], data.sessions[end - 1]
+    first = data.sessions[data.day_index(start)]
+    last = data.sessions[data.day_index(end - 1)]
     factors = {item.action_id: item for item in data.adjustments}
     for action in sorted(data.actions, key=lambda item: day(item.ex_date)):
         ex_date = day(action.ex_date)
@@ -75,7 +77,9 @@ def adjust(
         if factor is None or day(factor.known_on) > last:
             raise ValueError(f"price adjustment unavailable as of {last}: {action.action_id}")
         column = symbols.index(action.symbol)
-        offset = data.sessions.index(ex_date) - start
+        day_index = data.sessions.index(ex_date)
+        first_bar = data.clock.day_indices.index(day_index) if data.clock else day_index
+        offset = first_bar - start
         prior = values[:offset, column]
         valid = np.isfinite(prior)
         with np.errstate(over="ignore", under="ignore", invalid="ignore"):

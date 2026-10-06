@@ -42,7 +42,7 @@ CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；�
 
 ## 迭代与新增能力
 
-日常迭代先跑受影响用例，例如 `uv run --no-sync pytest tests/test_research.py -m 'not numba'`；代码稳定后再跑完整入口。基础任务会明确排除标为 `numba` 的用例，对应 Numba CI 任务必须执行这些用例，不使用 `importorskip` 隐藏依赖问题。
+日常迭代先跑受影响用例，例如 `uv run --no-sync python -m pytest tests/test_minute_execution.py -m 'not numba'`；代码稳定后再跑完整入口。基础任务会明确排除标为 `numba` 的用例，对应 Numba CI 任务必须执行这些用例，不使用 `importorskip` 隐藏依赖问题。
 
 后续能力需要的最小验证包括：
 
@@ -59,3 +59,5 @@ CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合；�
 `scripts/benchmark.py` 在两个独立进程、全新 Numba 缓存中运行单标的、参数网格和共享资金组合；逐项核对输出摘要后才发布报告。`psutil` 仅为开发依赖，采样包含 Windows 虚拟环境启动器的子进程。CI 运行小规模功能检查，不以速度排名决定通过；完整测量方法与结果见[性能基线](performance.md)。
 
 失败不能通过删断言、提高账本误差容忍度或增加广泛忽略来解决。必要例外须说明原因、受影响范围、替代证据和复查期限；当前没有依赖漏洞或告警豁免。
+
+分钟新增门禁包括独立 Decimal 成交／账户重建、佣金累计、冻结／释放、T+1 与日内权益边界、缺分钟／时区错位失败、时间因果与导出。基础与 Numba wheel 安装检查都实际执行分钟多次成交。`benchmarks/` 同样纳入 400 行、复杂度、格式及 strict mypy；vectorbt 是隔离比较环境依赖，不进入 DoriBT 运行依赖。比较脚本中的浮点核对仅为 vectorbt 运算舍入容差，DoriBT 与 Decimal 仍逐单位精确相等。
