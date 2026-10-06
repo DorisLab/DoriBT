@@ -12,6 +12,7 @@ from numpy.typing import ArrayLike
 from doribt.market.clock import time_points
 from doribt.market.data import MarketData
 from doribt.runtime.context import Context
+from doribt.runtime.sizing import validate_sizing
 from doribt.validation import DateLike, integer, ratio
 
 
@@ -67,6 +68,7 @@ class WeightTargets:
     sessions: Sequence[DateLike]
     weights: Mapping[str, ArrayLike]
     rebalance: bool = False
+    sizing: str = "close"
 
     def __post_init__(self) -> None:
         dates = time_points(self.sessions)
@@ -84,6 +86,7 @@ class WeightTargets:
             raise ValueError("long-only target weights must sum to at most one")
         if not isinstance(self.rebalance, bool):
             raise ValueError("rebalance must be boolean")
+        validate_sizing(self.sizing)
         object.__setattr__(self, "weights", MappingProxyType(normalized))
 
     def validate(self, data: MarketData) -> None:
@@ -104,4 +107,4 @@ class WeightTargets:
             symbol: cast(tuple[float, ...], values)[index]
             for symbol, values in self.weights.items()
         }
-        context.target_weights(weights, rebalance=self.rebalance)
+        context.target_weights(weights, rebalance=self.rebalance, sizing=self.sizing)

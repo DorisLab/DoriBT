@@ -89,6 +89,7 @@ def run_examples(python: str, backend: str) -> None:
                     "historical_rules",
                     "minute",
                     "slippage",
+                    "target_sizing",
                 )
             ],
             ["examples/minute.py", "--backend", backend, "--precomputed"],

@@ -16,7 +16,7 @@ result = Backtest(data, config=RunConfig(backend="numba")).run(targets)
 
 `PositionTargets` 首个时点声明所列证券的目标，此后仅在某证券数值变化时替换该证券的意图；未列证券保持不变。相同数值不会每分钟取消重下，不会反复调仓，也不会覆盖公司行动已对未完成意图作出的股数调整。需要主动重新声明同一目标或依据成交改变决策时，使用普通 Context 回调。目标股数是非负整数，输入会复制并冻结；时间与行情必须完全对齐。预计算不会替使用者消除因子中的未来信息。
 
-`WeightTargets` 在 BarExecution 下也使用分段路径；`rebalance=False` 仍保留固定股数目标，`rebalance=True` 仍逐 bar 重新分配，因此通常不能跳过区间。任意回调和预计算类的自定义子类仍逐 bar 调用，不能因为对象继承了目标类就省略用户逻辑。
+`WeightTargets` 在 BarExecution 下也使用分段路径；`sizing="close"` 默认按决策收盘定量，`sizing="execution"` 在下一 bar 开盘定量一次。`rebalance=False` 保留确定后的股数目标，`rebalance=True` 逐 bar 发出重新定量的意图，因此通常不能跳过区间。模式、权重、日期和重算选项都进入来源指纹。任意回调和预计算类的自定义子类仍逐 bar 调用，不能因为对象继承了目标类就省略用户逻辑。
 
 ## 为什么按事件分段
 

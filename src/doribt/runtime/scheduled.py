@@ -94,7 +94,9 @@ class ScheduledRun(BarRun):
             return start
         active = tuple(self.broker.active.values())
         columns = np.array([item.column for item in active], dtype=np.int64)
-        states = np.array([item.values for item in active], dtype=np.int64).reshape(-1, 6)
+        states = np.array(
+            [self.broker.match_state(item) for item in active], dtype=np.int64
+        ).reshape(-1, 6)
         end = self.scan(
             start,
             stop,

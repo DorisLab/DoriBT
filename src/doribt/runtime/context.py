@@ -14,6 +14,7 @@ from doribt.market.adjustments import adjust
 from doribt.market.data import MarketData
 from doribt.research.outputs import Recorder
 from doribt.runtime.intents import IntentBook
+from doribt.runtime.sizing import validate_sizing, weight_quantity
 from doribt.validation import Number, integer, ratio
 
 
@@ -49,7 +50,7 @@ class Context:
         self._orders = orders
         self._intents: tuple[IntentRecord, ...] | None = None
         self._order_reader: Callable[[], tuple[Order, ...]] | None = None
-        self._submit: Callable[[str, int, str, Number | None], int] | None = None
+        self._submit: Callable[[str, int, str, Number | None, Number | None], int] | None = None
         self._cancel_order: Callable[[int], None] | None = None
         self._data, self._index, self._history = data, index, history
         self._book, self._equity = book, equity_units
@@ -108,16 +109,17 @@ class Context:
         *,
         valid_for: str = "next_bar",
         limit_price: Number | None = None,
+        max_spend: Number | None = None,
     ) -> int:
-        """Signed fixed shares, attempted at the next open only."""
+        """固定股数委托；max_spend 是买单含费用的累计支出上限（元）。"""
         self._ready(symbol)
         quantity = integer(quantity, 1, "quantity", -1_000_000_000, 1_000_000_000)
         if not quantity:
             raise ValueError("order quantity cannot be zero")
         if self._submit is not None:
-            return self._submit(symbol, quantity, valid_for, limit_price)
-        if valid_for != "next_bar" or limit_price is not None:
-            raise ValueError("order lifetime and limit price require BarExecution")
+            return self._submit(symbol, quantity, valid_for, limit_price, max_spend)
+        if valid_for != "next_bar" or limit_price is not None or max_spend is not None:
+            raise ValueError("order lifetime, limit price and max_spend require BarExecution")
         return self._book.place(self.session, symbol, "order", quantity)
 
     def cancel_order(self, order_id: int) -> None:
@@ -136,28 +138,41 @@ class Context:
         )
 
     def target_weights(
-        self, weights: Mapping[str, Number], *, rebalance: bool = False
+        self, weights: Mapping[str, Number], *, rebalance: bool = False, sizing: str = "close"
     ) -> tuple[int, ...]:
-        """Set portfolio weights; unchanged weights keep their original fixed-share targets.
+        """按收盘或下一 bar 开盘定量一次；相同权重和模式保留原股数。
 
-        Omitted securities target zero. Set rebalance=True for a new allocation even
-        when the requested weights are unchanged. Fees may reduce actual fills.
+        sizing='execution' 使用成交前的开盘权益和原始开盘价，不扣预计费用。
+        rebalance=True 重新定量，省略证券为零；费用及交易约束可能减少成交。
         """
         if not isinstance(rebalance, bool):
             raise ValueError("rebalance must be boolean")
-        for symbol in weights:
+        validate_sizing(sizing)
+        if sizing == "execution" and self._submit is None:
+            raise ValueError("execution sizing requires BarExecution")
+        for symbol in self.symbols + tuple(weights):
             self._ready(symbol)
         values = tuple(ratio(weights.get(symbol, 0), "weight") for symbol in self.symbols)
         if sum(values) > 1_000_000:
             raise ValueError("long-only target weights must sum to at most one")
-        if not rebalance and values == self._book.last_weights:
+        if not rebalance and (sizing, values) == self._book.last_weights:
             return ()
         quantities = {
-            symbol: self._weight_quantity(symbol, weight)
+            symbol: self._weight_quantity(symbol, weight) if sizing == "close" else 0
             for symbol, weight in zip(self.symbols, values, strict=True)
         }
-        ids = self.target_positions(quantities)
-        self._book.last_weights = values
+        ids = tuple(
+            self._book.place_weight(
+                self.session,
+                symbol,
+                weight,
+                sizing,
+                quantities[symbol],
+                self.now if sizing == "close" else None,
+            )
+            for symbol, weight in zip(self.symbols, values, strict=True)
+        )
+        self._book.last_weights = (sizing, values)
         return ids
 
     def cancel(self, intent_id: int) -> None:
@@ -166,30 +181,14 @@ class Context:
         self._book.cancel(self.session, intent_id)
 
     def _weight_quantity(self, symbol: str, weight: int) -> int:
-        if not weight:
-            return 0
         column = self.symbols.index(symbol)
         bar = self._data.bars[self._index * len(self.symbols) + column]
-        if bar.close <= 0:
-            raise ValueError(f"cannot size a target without a current valuation: {symbol}")
+        if not weight:
+            return 0
         rule = self._data.rules.at(symbol, self.session).rule
-        desired = self._equity * weight // 1_000_000 // bar.close
         position = self.account.positions[symbol]
         current = position.quantity + position.pending_quantity
-        if desired > current:
-            extra = desired - current
-            extra = (
-                0
-                if extra < rule.buy_minimum
-                else (
-                    rule.buy_minimum + (extra - rule.buy_minimum) // rule.buy_step * rule.buy_step
-                )
-            )
-            return current + extra
-        reduction = (current - desired) // rule.sell_step * rule.sell_step
-        if reduction < rule.sell_minimum:
-            reduction = 0
-        return current - reduction
+        return weight_quantity(self._equity, weight, bar.close, current, rule)
 
     def _symbol(self, symbol: str) -> None:
         if symbol not in self.symbols:

@@ -8,7 +8,7 @@
 
 ## 同一个 80% 仓位为什么没有每天调仓
 
-相同权重保持原股数目标。需要按最新权益重新分配时，调用 `ctx.target_weights(..., rebalance=True)`。
+相同权重与定量模式保持原股数目标。需要重新分配时，调用 `ctx.target_weights(..., rebalance=True)`；默认按当前收盘定量，也可以指定 `sizing="execution"`，按下一 bar 开盘估值定量。整手、费用和成交条件仍可能使实际权重偏离目标，见[策略教程](guide/strategies.md)。
 
 ## 佣金和交易软件的结果不一样
 

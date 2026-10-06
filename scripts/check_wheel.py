@@ -19,6 +19,7 @@ from importlib.metadata import distribution
 from pathlib import Path
 import numpy as np
 import doribt
+from dataclasses import replace
 from doribt import (
     CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
     PriceAdjustment, china_rules, Backtest, BarExecution, FixedTicks, PositionTargets
@@ -102,6 +103,21 @@ for policy, expected in [('strict', []), ('cap', [10]), ('cost', [10.02])]:
         assert boundary.fills[0].reference_price == 10
         assert boundary.fills[0].slippage_cost == (2 if policy == 'cost' else 0)
 config = doribt.RunConfig.from_dict({'commission': 0, 'minimum_commission': 1, 'backend': backend})
+gap = replace(data, actions=(), adjustments=(), bars=tuple(
+    replace(bar, open=102000, high=102000, low=102000, close=102000) if i else bar
+    for i, bar in enumerate(data.bars)))
+gap_config = doribt.RunConfig(initial_cash=10000, costs=doribt.Costs(
+    commission=0, minimum_commission=0), execution=BarExecution(participation=1), backend=backend)
+funded = Backtest(gap, config=gap_config).run(
+    lambda ctx: ctx.target_positions({'A': 500}) if ctx.bar_index == 0 else None)
+assert funded.holdings[-1, 0] == 500 and funded.cash[-1] == 4900
+capped = Backtest(gap, config=gap_config).run(
+    lambda ctx: ctx.order('A', 500, max_spend=5000) if ctx.bar_index == 0 else None)
+assert capped.orders[0].filled == 490 and capped.orders[0].reason == 'spending_limit'
+weighted = Backtest(gap, config=gap_config).run(WeightTargets(
+    sessions=gap.timeline, weights={'A': [.5]*3}, sizing='execution'))
+assert weighted.holdings[-1, 0] == 400 and weighted.intents[0].sizing == 'execution'
+assert weighted.intents[0].sized_at == gap.timeline[1]
 schema = doribt.ParameterSet({
     'quantity': doribt.Parameter(type='int', default=100, minimum=100, step=100)})
 def research_strategy(ctx, *, quantity):

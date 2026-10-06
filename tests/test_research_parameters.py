@@ -31,7 +31,7 @@ def test_declared_defaults_and_overrides_drive_real_orders_and_snapshot(backend)
     assert info["parameter_schema"]["properties"]["quantity"]["unit"] == "shares"
     assert info["config"]["minimum_commission"] == 1
     assert info["backend"] == backend
-    assert info["model"] == "bar-partial-next-open-v1"
+    assert info["model"] == "bar-partial-next-open-v2"
 
 
 @pytest.mark.parametrize("value", [True, 100.0, 99, 501, 150, None, float("nan")])
