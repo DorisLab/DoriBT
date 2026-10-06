@@ -26,7 +26,7 @@ python -m pip install doribt
 python -c "import doribt; print(doribt.__version__)"
 ```
 
-若需要复现本手册的发行版本，可安装 `doribt==0.2.0`。
+若需要复现本手册的发行版本，可安装 `doribt==0.3.0`。
 
 ## 可选功能
 
