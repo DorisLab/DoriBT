@@ -28,6 +28,12 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 基础结果仍可直接读 `equity`、`cash`、`holdings`、`sellable`、`orders`、`fills`、`intents` 和权益／税务记录。`*_units` 为整数万分之一元，`equity` 等便利属性为元。`close_units` 保留每个证券的记账估值价，`pending_shares` 为尚未入账但已计入经济权益的股份；不能只用已入账持仓解释全部净值。
 
+## 目标与资金记录
+
+`IntentRecord` 和 `intents.csv`／`ledger.json` 保存 `sizing`（quantity／close／execution）、`weight_ppm`（权重乘 1000000）与 `sized_at`。股数目标没有权重，`weight_ppm` 和 `sized_at` 为 null；权重目标的 `quantity` 是确定并经公司行动调整后的股数。尚未开盘定量的意图 `quantity`、`sized_at` 均为 null，不能当成清仓。`sized_at` 标识定量所用的 bar；分钟输入以区间结束时间标识该 bar，execution 模式实际用该 bar 的开盘价。
+
+`Order.max_spend_units` 保存显式买单总支出上限；null 表示未设置。冻结额是资源预留，可以用额外空闲现金补足，不能把 `frozen_cash_units` 当作硬上限。`reason="spending_limit"` 表示明确上限比可用现金更紧；`insufficient_cash` 表示现金约束。`run.json` 的 execution 同时保存 `cash_policy` 和 `spending_limit`，具体行为见[执行契约](execution-model.md)。
+
 ## 成交价格与滑点成本
 
 使用 `BarExecution` 的成交记录同时保留 `reference_price_units`（原始开盘价）与 `price_units`（滑点及边界处理后的模拟结算价）。便利属性 `reference_price`／`price` 的单位为元；`slippage_cost_units = quantity × (price_units - reference_price_units)`，`slippage_cost` 为对应元值，买入加价和卖出减价均形成正成本。它已进入成交金额与收益，不包含在 `fees`，不能再扣一次。
@@ -109,7 +115,7 @@ CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保�
 
 - 数据完整指纹、来源、证券顺序、日历、带有效期的规则、公司行动及带可知日期的研究复权因子；规则／行动另有 SHA-256。
 - 初始资金及实际编译使用的佣金 ppm、最低佣金记账单位、滑点 ticks、税务政策版本。
-- 收盘决定／下一输入开盘执行、固定股数、卖出后按声明证券顺序买入、原始价、不强制清仓等假设。
+- 收盘决策／下一输入开盘执行、意图定量模式、资金预留及明确支出上限、成交排序、原始价、不强制清仓等假设。
 - 回调模块／名称与可读取时的源代码哈希；预计算权重则保留完整日期和数值及哈希；显式参数的初始快照。
 - Python、操作系统、DoriBT、NumPy，使用 Numba 时另记 Numba／llvmlite 版本；安装包内 Python 引擎文件的整体内容指纹。
 

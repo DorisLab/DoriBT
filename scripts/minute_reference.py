@@ -19,7 +19,6 @@ D = Decimal
 @dataclass
 class Child:
     left: int
-    budget: Decimal
     value: Decimal = D(0)
     paid: Decimal = D(0)
 
@@ -40,7 +39,7 @@ def reference(data: MarketData, targets: NDArray[np.int64]) -> dict[str, Any]:
         if first:
             available = quantity
         if index and target != quantity and child is None:
-            child = _child(data, index, target - quantity)
+            child = _child(target - quantity)
         if child is not None:
             signed, price, commission = _execute(bar, child, cash, available)
             if signed:
@@ -60,14 +59,12 @@ def reference(data: MarketData, targets: NDArray[np.int64]) -> dict[str, Any]:
     return dict(cash=cash_rows, holdings=holdings, equity=equity, fills=fills)
 
 
-def _child(data: MarketData, index: int, difference: int) -> Child | None:
-    previous = data.bars[index - 1]
+def _child(difference: int) -> Child | None:
     quantity = difference // 100 * 100 if difference > 0 else difference
     if not quantity:
         return None
-    # Published workload: domestic equity ETF tick .001, DAY orders, fixed 1-tick slip.
-    value = D(quantity) * (D(previous.close) / 10000 + D(".001"))
-    return Child(quantity, value + _charge(value) if quantity > 0 else D(0))
+    # 单证券股数目标使用可用现金，未设置单笔金额上限。
+    return Child(quantity)
 
 
 def _execute(bar: Any, child: Child, cash: Decimal, available: int) -> tuple[int, Decimal, Decimal]:
@@ -86,13 +83,11 @@ def _execute(bar: Any, child: Child, cash: Decimal, available: int) -> tuple[int
     while size:
         value = D(size) * price
         commission = _charge(child.value + value) - child.paid
-        if not buying or value + commission <= min(cash, child.budget):
+        if not buying or value + commission <= cash:
             child.value += value
             child.paid += commission
             signed = size if buying else -size
             child.left -= signed
-            if buying:
-                child.budget -= value + commission
             return signed, price, commission
         size -= 1
     return 0, price, D(0)

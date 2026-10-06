@@ -41,7 +41,7 @@ class PendingOrder:
     submitted: int
     activation_day: int
     values: IntArray
-    budget_cap: int = 0
+    spend_left: int = MAX_MONEY
 
 
 def submission_reason(quantity: int, position: int, rule: IntArray) -> Reason:
@@ -89,16 +89,21 @@ class Broker:
         quantity: int,
         valid_for: str = "next_bar",
         limit_price: Number | None = None,
+        max_spend: Number | None = None,
         *,
         intent_id: int = 0,
+        sizing_index: int | None = None,
     ) -> int:
         if valid_for not in {"next_bar", "day"}:
             raise ValueError("valid_for must be next_bar or day")
         column, index = self.data.symbols.index(symbol), self.index
-        rule = self.compiled.market[index, column]
+        rule = self.compiled.market[index if sizing_index is None else sizing_index, column]
         limit = 0 if limit_price is None else amount(limit_price, "limit_price")
         if limit_price is not None and (limit <= 0 or not rule[TICK] or limit % rule[TICK]):
             raise ValueError("limit_price must be positive and on tick")
+        ceiling = None if max_spend is None else amount(max_spend, "max_spend")
+        if ceiling is not None and (ceiling <= 0 or quantity < 0):
+            raise ValueError("max_spend must be positive and only applies to buy orders")
         position = int(self.account.quantities()[column])
         reason = submission_reason(quantity, position, rule)
         state = "accepted" if reason == Reason.NONE else "rejected"
@@ -122,17 +127,25 @@ class Broker:
                 state,
                 valid_for=valid_for,
                 limit_units=limit,
+                max_spend_units=ceiling,
             )
         )
         if state == "accepted":
             next_index = min(index + 1, len(self.data.timeline) - 1)
             values = np.array([quantity, 0, 0, 0, 0, limit], dtype=np.int64)
-            item = PendingOrder(order_id, column, index, self.data.day_index(next_index), values)
+            item = PendingOrder(
+                order_id,
+                column,
+                index,
+                self.data.day_index(next_index),
+                values,
+                MAX_MONEY if ceiling is None else ceiling,
+            )
             self.active[order_id] = item
-            self._reserve(item)
+            self._reserve(item, sizing_index)
         return order_id
 
-    def _reserve(self, item: PendingOrder) -> None:
+    def _reserve(self, item: PendingOrder, sizing_index: int | None = None) -> None:
         values, index, column = item.values, self.index, item.column
         if values[LEFT] < 0:
             available = int(self.account.quantities(self.data.day_index(index))[column])
@@ -140,17 +153,32 @@ class Broker:
                 -int(values[LEFT]), max(0, available - self.frozen_shares(column))
             )
         else:
-            rule = self.compiled.market[index, column].copy()
-            rule[OPEN] = self.compiled.closes[index, column]
-            price = int(values[LIMIT]) or slip_price(rule, self.config, int(values[LEFT]), 0, True)
+            rule = self.compiled.market[
+                index if sizing_index is None else sizing_index, column
+            ].copy()
+            price = int(rule[OPEN])
+            if sizing_index is None:
+                rule[OPEN] = self.compiled.closes[index, column]
+                price = int(values[LIMIT]) or slip_price(
+                    rule, self.config, int(values[LEFT]), 0, True
+                )
             if price <= 0 or values[LEFT] > MAX_MONEY // price:
                 raise OverflowError("order reservation exceeds supported bounds")
             notional = int(values[LEFT]) * price
             fees = charges(notional, int(self.costs[0]), int(self.costs[1]), 0, int(rule[9]))
             available = max(0, self.account.cash - self.tax - self.frozen_cash)
-            item.budget_cap = notional + sum(fees)
-            values[BUDGET] = min(available, item.budget_cap)
+            values[BUDGET] = min(available, notional + sum(fees), item.spend_left)
         self._snapshot(item)
+
+    def match_state(self, item: PendingOrder) -> IntArray:
+        """预留估值保护其他挂单；可支出金额还包括当前未占用现金。"""
+        state = item.values.copy()
+        if state[LEFT] > 0:
+            state[BUDGET] = min(self.available_cash(item), item.spend_left)
+        return state
+
+    def available_cash(self, item: PendingOrder) -> int:
+        return max(0, self.account.cash - self.tax - self.frozen_cash + int(item.values[BUDGET]))
 
     def cancel(self, order_id: int) -> None:
         if order_id not in self.active:
@@ -190,16 +218,12 @@ class Broker:
             # Newly settled shares may fund an order submitted at yesterday's final close.
             item.values[RESERVED] = 0
             self._reserve(item)
-        else:
-            own = int(item.values[BUDGET])
-            available = max(0, self.account.cash - self.tax - self.frozen_cash + own)
-            item.values[BUDGET] = min(available, item.budget_cap)
         row = np.zeros(6, dtype=np.int64)
         if bar.phase == "auction":
             row[5] = 13
         else:
             row = self.kernel(
-                item.values,
+                self.match_state(item),
                 self.compiled.market[index, column],
                 self.costs,
                 self.config,
@@ -209,6 +233,8 @@ class Broker:
             )
         if row[5] == 8 and -item.values[LEFT] > self.account.quantities()[column]:
             row[5] = 9
+        if row[5] == 7 and item.spend_left < self.available_cash(item):
+            row[5] = 14
         self._apply(item, row)
         used[column] += abs(int(row[0]))
         if not item.values[LEFT]:
@@ -282,8 +308,8 @@ class Broker:
         values[PAID] += commission
         if quantity > 0:
             cost = quantity * price + commission + stamp + transfer
-            values[BUDGET] -= cost
-            item.budget_cap -= cost
+            values[BUDGET] = max(0, int(values[BUDGET]) - cost)
+            item.spend_left -= cost
         else:
             values[RESERVED] += quantity
 

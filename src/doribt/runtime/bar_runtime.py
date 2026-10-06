@@ -8,6 +8,7 @@ import numpy as np
 
 from doribt.accounting.costs import Costs
 from doribt.kernels.compiled import PreparedData
+from doribt.kernels.execution import OPEN
 from doribt.provenance import RunInfo
 from doribt.reporting.result import BacktestResult
 from doribt.runtime.bar_targets import BarIntentBook
@@ -51,6 +52,14 @@ class BarRun(_Run):
             pending = dict(
                 zip(self.data.symbols, map(int, self.rights.pending_shares()), strict=True)
             )
+            if any(not intent.sized for intent in self.book.pending.values()):
+                equity = self.account.value(
+                    self.compiled.market[index, :, OPEN],
+                    self.rights.pending_shares(),
+                    self.rights.receivable,
+                    self.rights.tax.payable,
+                )
+                self.targets.resolve_weights(index, pending, equity)
             self.targets.sync(index, pending)
         self.broker.advance(index)
 
@@ -99,7 +108,7 @@ class BarRun(_Run):
     def _finish(self) -> None:
         quantities = self.account.quantities() + self.rights.pending_shares()
         for symbol, intent in tuple(self.book.pending.items()):
-            if intent.quantity == quantities[self.data.symbols.index(symbol)]:
+            if intent.sized and intent.quantity == quantities[self.data.symbols.index(symbol)]:
                 intent.finish(self.data.sessions[-1], "fulfilled")
                 del self.book.pending[symbol]
         self.broker.finish_all()

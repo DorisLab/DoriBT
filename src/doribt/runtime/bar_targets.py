@@ -2,9 +2,10 @@
 
 from datetime import date
 
-from doribt.kernels.execution import BUY_STEP, MINIMUM, ORDER_MAXIMUM, SELL_STEP
+from doribt.kernels.execution import BUY_STEP, MINIMUM, OPEN, ORDER_MAXIMUM, SELL_STEP, TICK
 from doribt.runtime.broker import Broker
 from doribt.runtime.intents import IntentBook
+from doribt.runtime.sizing import weight_quantity
 
 
 class BarIntentBook(IntentBook):
@@ -26,6 +27,30 @@ class BarIntentBook(IntentBook):
     def cancel(self, session: date, intent_id: int) -> None:
         super().cancel(session, intent_id)
         self._cancel_child(intent_id)
+
+    def resolve_weights(self, index: int, pending_shares: dict[str, int], equity: int) -> None:
+        """同一开盘、成交前统一定量；后续部分成交沿用已确定的股数。"""
+        broker, data = self.broker, self.broker.data
+        positions = broker.account.quantities()
+        session = data.sessions[data.day_index(index)]
+        for symbol, intent in self.pending.items():
+            if intent.sized:
+                continue
+            column = data.symbols.index(symbol)
+            weight = intent.weight_ppm
+            assert weight is not None
+            intent.quantity = (
+                0
+                if not weight
+                else weight_quantity(
+                    equity,
+                    weight,
+                    int(broker.compiled.market[index, column, OPEN]),
+                    int(positions[column]) + pending_shares[symbol],
+                    data.rules.at(symbol, session).rule,
+                )
+            )
+            intent.sized_at = data.timeline[index]
 
     def sync(self, index: int, pending_shares: dict[str, int]) -> None:
         broker, data = self.broker, self.broker.data
@@ -53,7 +78,10 @@ class BarIntentBook(IntentBook):
                 and order.session == broker.data.sessions[broker.data.day_index(index)]
             ):
                 return
-        rule = broker.compiled.market[index - 1, column]
+        execution_sizing = self.pending[broker.data.symbols[column]].sizing == "execution"
+        rule = broker.compiled.market[index if execution_sizing else index - 1, column]
+        if not rule[TICK]:
+            return  # 未上市／退市没有有效申报规则，保留意图，不生成子单。
         maximum = int(rule[ORDER_MAXIMUM])
         if maximum and abs(difference) > maximum:
             if difference < 0:
@@ -68,5 +96,9 @@ class BarIntentBook(IntentBook):
                 return
             difference = minimum + (difference - minimum) // step * step
         self.children[intent_id] = broker.submit(
-            broker.data.symbols[column], difference, "day", intent_id=intent_id
+            broker.data.symbols[column],
+            difference,
+            "day",
+            intent_id=intent_id,
+            sizing_index=index if execution_sizing else None,
         )

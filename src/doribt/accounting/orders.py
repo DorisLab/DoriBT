@@ -20,6 +20,7 @@ class Reason(StrEnum):
     PARTICIPATION_LIMIT = "participation_limit"
     LIMIT_PRICE = "limit_price"
     AUCTION = "auction"
+    SPENDING_LIMIT = "spending_limit"
 
 
 REASONS = tuple(Reason)
@@ -46,6 +47,7 @@ class Order:
     limit_units: int = 0
     frozen_cash_units: int = 0
     frozen_quantity: int = 0
+    max_spend_units: int | None = None
 
     @property
     def commission(self) -> float:
@@ -175,8 +177,11 @@ class IntentRecord:
     created: date
     symbol: str
     kind: str
-    quantity: int
+    quantity: int | None
     status: str
     closed: date | None
     reason: str
     adjustments: tuple[TargetAdjustment, ...] = ()
+    weight_ppm: int | None = None
+    sizing: str = "quantity"
+    sized_at: date | None = None

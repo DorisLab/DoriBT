@@ -49,6 +49,7 @@ def _strategy_info(strategy: Callable[..., None]) -> dict[str, object]:
             "sessions": list(strategy.sessions),
             "weights": dict(strategy.weights),
             "rebalance": strategy.rebalance,
+            "sizing": strategy.sizing,
         }
         return {"kind": "weight_targets", "input_sha256": digest(inputs), "inputs": inputs}
     identity = strategy if inspect.isfunction(strategy) else type(strategy)
@@ -144,7 +145,7 @@ def run_info(
     )
     payload: dict[str, object] = {
         "schema": "doribt.run/1",
-        "model": MODEL if execution is None else "bar-partial-next-open-v1",
+        "model": MODEL if execution is None else "bar-partial-next-open-v2",
         "execution": None
         if execution is None
         else {
@@ -155,6 +156,8 @@ def run_info(
             "reference_price": "bar_open",
             "quantity_unit": "shares",
             "fill_known": "bar_end",
+            "cash_policy": "reservation_plus_unreserved_cash",
+            "spending_limit": "explicit_max_spend_including_fees",
         },
         "backend": backend,
         "execution_path": "scheduled_segments"
@@ -177,7 +180,7 @@ def run_info(
             "execution": "next_supplied_open"
             if execution is None
             else "next_bar_open_reference_confirmed_at_bar_end",
-            "quantity": "fixed_at_decision",
+            "quantity": "fixed_at_decision" if execution is None else "per_intent_sizing",
             "allocation": "sells_then_symbol_order"
             if execution is None
             else "sells_then_submission_order",

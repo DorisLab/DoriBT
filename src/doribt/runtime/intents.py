@@ -17,6 +17,13 @@ class Intent:
     closed: date | None = None
     reason: str = ""
     adjustments: list[TargetAdjustment] = field(default_factory=list)
+    weight_ppm: int | None = None
+    sizing: str = "quantity"
+    sized_at: date | None = None
+
+    @property
+    def sized(self) -> bool:
+        return self.sizing != "execution" or self.sized_at is not None
 
     def finish(self, session: date, status: str, reason: str = "") -> None:
         self.closed, self.status, self.reason = session, status, reason
@@ -27,11 +34,14 @@ class Intent:
             self.created,
             self.symbol,
             self.kind,
-            self.quantity,
+            self.quantity if self.sized else None,
             self.status,
             self.closed,
             self.reason,
             tuple(self.adjustments),
+            self.weight_ppm,
+            self.sizing,
+            self.sized_at,
         )
 
 
@@ -39,7 +49,7 @@ class IntentBook:
     def __init__(self) -> None:
         self.history: list[Intent] = []
         self.pending: dict[str, Intent] = {}
-        self.last_weights: tuple[int, ...] | None = None
+        self.last_weights: tuple[str, tuple[int, ...]] | None = None
 
     def place(self, session: date, symbol: str, kind: str, quantity: int) -> int:
         if old := self.pending.pop(symbol, None):
@@ -49,6 +59,20 @@ class IntentBook:
         self.pending[symbol] = intent
         self.last_weights = None
         return intent.intent_id
+
+    def place_weight(
+        self,
+        session: date,
+        symbol: str,
+        weight: int,
+        sizing: str,
+        quantity: int,
+        sized_at: date | None,
+    ) -> int:
+        intent_id = self.place(session, symbol, "target", quantity)
+        intent = self.pending[symbol]
+        intent.weight_ppm, intent.sizing, intent.sized_at = weight, sizing, sized_at
+        return intent_id
 
     def cancel(self, session: date, intent_id: int) -> None:
         for symbol, intent in self.pending.items():
@@ -66,7 +90,7 @@ class IntentBook:
 
     def adjust(self, symbol: str, action_id: str, session: date, bonus_ppm: int) -> None:
         intent = self.pending.get(symbol)
-        if intent is None or intent.kind != "target" or not bonus_ppm:
+        if intent is None or intent.kind != "target" or not bonus_ppm or not intent.sized:
             return
         previous = intent.quantity
         intent.quantity = previous * (1_000_000 + bonus_ppm) // 1_000_000
