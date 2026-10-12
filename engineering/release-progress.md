@@ -137,3 +137,27 @@ Windows 本地完整门禁：基础 432 项、含 Numba 629 项，76 个文件 s
 严格文档构建、24 页内部链接/锚点/资源、新 API 搜索词干及两后端仓库外教程通过。
 文档搜索检查初次因英文词干预期错误失败，修正为 Sphinx 自身词干算法后通过。
 尚未把本地门禁记作 Linux/远程 CI 或正式发布；下一步按已授权流程合入、发行和公开验证。
+
+2026-10-12 0.5.0 发布完成：PR #24 合入 f00776c0711ab9f0500353f9791ac1e9ae1b6bc9，
+annotated 标签 v0.5.0 固定该提交。[发行运行 38260182753](https://github.com/DorisLab/DoriBT/actions/runs/38260182753)
+的 Windows/Linux × Python/Numba、依赖审计、凭据扫描、发行构建和 PyPI 上传全部成功。
+同一次标签推送还出现排队副本 38260184335，已取消以避免重复上传；保留完整成功运行。
+功能提交作者/提交者、专用 SSH、标签与 GitHub API/Release 发布账号核对为 DorisLab。
+
+PyPI 0.5.0 的 wheel/sdist、GitHub Release 三个公开资产均已无登录下载，与发行构建和
+SHA256SUMS 逐字节一致。wheel SHA-256 为
+06f45afae7c50613a3d5d77850df0d036101d01033db219d18b2b434396d3781，sdist 为
+71e345638226998e9ec2b3f0c860e016ed244db0d4c6e7ea569704f91f8630ea。
+从官方 PyPI 新建基础和 numba/plot 两个独立 Python 3.13 环境；安装源码逐文件与公开
+wheel 相等，实际导入位于各自 site-packages。基础/Numba 的 1/5 分钟八种人工做 T
+场景全部通过，公开 numba/plot 环境的全部仓库外教程也通过；实际依赖为 NumPy 2.5.4、
+Numba 0.68.0、Matplotlib 3.11.2，没有借用开发环境的固定依赖冒充公开安装验证。
+
+[GitHub Release v0.5.0](https://github.com/DorisLab/DoriBT/releases/tag/v0.5.0) 为正式版本，
+由 DorisLab 发布。[Pages 运行 38260974953](https://github.com/DorisLab/DoriBT/actions/runs/38260974953)
+的 Linux 严格文档/教程构建和部署成功。浏览器实际核对首页 0.5.0、历史预设范围、
+分钟做 T 的四种结果表及公开 API 签名；RuleOverride 搜索返回 7 个相关页面及类锚点。
+复制按钮显示“复制成功”，IAB 剪贴板读取返回空值，本次没有验证剪贴板内容字节。
+线上 intraday_t.py 下载与源码 SHA-256/字节相同，使用公开安装的 Numba 环境实际运行
+5 分钟示例，结果与手册一致。发行、文档和公开使用路径完成；更早制度与特殊执行范围
+继续按本版手册明确的边界维护。
