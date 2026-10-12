@@ -6,7 +6,7 @@ from datetime import date
 from doribt.accounting.orders import IntentRecord, TargetAdjustment
 
 
-@dataclass
+@dataclass(slots=True)
 class Intent:
     intent_id: int
     created: date

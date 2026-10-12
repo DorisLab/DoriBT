@@ -1,6 +1,7 @@
 """Precomputed targets skip stable intervals, retaining the formal broker and rights books."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
+from typing import cast
 
 import numpy as np
 
@@ -25,6 +26,7 @@ class ScheduledRun(BarRun):
         targets: PositionTargets | WeightTargets,
     ) -> None:
         super().__init__(prepared, initial_cash, costs, backend, execution)
+        self.precomputed_targets = targets
         self.scan = scanner(backend)
         self.intrabar = prepared.intrabar
         self.decisions = np.zeros(len(self.data.timeline), dtype=np.bool_)
@@ -59,9 +61,28 @@ class ScheduledRun(BarRun):
             self._open(index)
             self._close(index)
             if self.decisions[index]:
-                self._invoke(strategy, index)
+                self._invoke_targets(strategy, index)
             changed = self.decisions[index] or previous_fills != len(self.broker.fills)
             index = index + 1 if changed else self._skip(index)
+
+    def _invoke_targets(self, strategy: Callable[[Context], None], index: int) -> None:
+        targets = self.precomputed_targets
+        if type(targets) is not PositionTargets:
+            self._invoke(strategy, index)
+            return
+        try:
+            self._place_positions(targets, index)
+        except Exception as error:
+            session = self.data.timeline[index]
+            raise RuntimeError(f"strategy failed at close on {session}: {error}") from error
+
+    def _place_positions(self, targets: PositionTargets, index: int) -> None:
+        # 精确内置类型已在构造和 run 入口验证；只提交发生变化的目标。
+        session = self.data.sessions[self.data.day_index(index)]
+        quantities = cast(Mapping[str, tuple[int, ...]], targets.quantities)
+        for symbol, series in quantities.items():
+            if index == 0 or series[index] != series[index - 1]:
+                self.book.place(session, symbol, "target", int(series[index]))
 
     def _can_scan(self, index: int) -> bool:
         """Do not skip a bar that must fulfill an intent or issue a child order."""
@@ -77,7 +98,7 @@ class ScheduledRun(BarRun):
                 continue  # Rules cannot change inside a trading date.
             if child is None:
                 return False
-            order = self.broker.orders[child - 1]
+            order = self.broker._orders[child - 1]
             if (
                 order.status == "filled"
                 or order.session != self.data.sessions[self.data.day_index(index)]

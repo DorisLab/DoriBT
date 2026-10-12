@@ -2,7 +2,15 @@
 
 from datetime import date
 
-from doribt.kernels.execution import BUY_STEP, MINIMUM, OPEN, ORDER_MAXIMUM, SELL_STEP, TICK
+from doribt.kernels.execution import (
+    BUY_STEP,
+    MINIMUM,
+    OPEN,
+    ORDER_MAXIMUM,
+    SELL_STEP,
+    TICK,
+    IntArray,
+)
 from doribt.runtime.broker import Broker
 from doribt.runtime.intents import IntentBook
 from doribt.runtime.sizing import weight_quantity
@@ -28,7 +36,7 @@ class BarIntentBook(IntentBook):
         super().cancel(session, intent_id)
         self._cancel_child(intent_id)
 
-    def resolve_weights(self, index: int, pending_shares: dict[str, int], equity: int) -> None:
+    def resolve_weights(self, index: int, pending_shares: IntArray, equity: int) -> None:
         """同一开盘、成交前统一定量；后续部分成交沿用已确定的股数。"""
         broker, data = self.broker, self.broker.data
         positions = broker.account.quantities()
@@ -36,7 +44,7 @@ class BarIntentBook(IntentBook):
         for symbol, intent in self.pending.items():
             if intent.sized:
                 continue
-            column = data.symbols.index(symbol)
+            column = broker._columns[symbol]
             weight = intent.weight_ppm
             assert weight is not None
             intent.quantity = (
@@ -46,19 +54,19 @@ class BarIntentBook(IntentBook):
                     equity,
                     weight,
                     int(broker.compiled.market[index, column, OPEN]),
-                    int(positions[column]) + pending_shares[symbol],
+                    int(positions[column]) + int(pending_shares[column]),
                     data.rules.at(symbol, session).rule,
                 )
             )
             intent.sized_at = data.timeline[index]
 
-    def sync(self, index: int, pending_shares: dict[str, int]) -> None:
+    def sync(self, index: int, pending_shares: IntArray) -> None:
         broker, data = self.broker, self.broker.data
         broker.index = index - 1
         positions = broker.account.quantities()
         for symbol, intent in tuple(self.pending.items()):
-            column = data.symbols.index(symbol)
-            difference = intent.quantity - int(positions[column]) - pending_shares[symbol]
+            column = broker._columns[symbol]
+            difference = intent.quantity - int(positions[column]) - int(pending_shares[column])
             if not difference:
                 self._cancel_child(intent.intent_id)
                 intent.finish(data.sessions[data.day_index(index)], "fulfilled")
@@ -72,7 +80,7 @@ class BarIntentBook(IntentBook):
         previous = self.children.get(intent_id)
         # A rejected/day-expired child is retried on the next trading day, not every minute.
         if previous is not None:
-            order = broker.orders[previous - 1]
+            order = broker._orders[previous - 1]
             if (
                 order.status != "filled"
                 and order.session == broker.data.sessions[broker.data.day_index(index)]

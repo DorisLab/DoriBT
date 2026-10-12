@@ -64,6 +64,7 @@ class RightsBook:
         self.tax = TaxBook(self.kinds)
         self.entitlements: dict[str, Entitlement] = {}
         self.events: list[CorporateEvent] = []
+        self._empty_shares = np.zeros(len(data.symbols), dtype=np.int64)
         self._record: dict[date, list[CorporateAction]] = {}
         self._ex: dict[date, list[CorporateAction]] = {}
         for action in data.actions:
@@ -87,10 +88,17 @@ class RightsBook:
 
     def close(self, index: int, account: Account) -> None:
         session = self.data.sessions[index]
-        quantities = dict(zip(self.data.symbols, map(int, account.quantities()), strict=True))
-        self.tax.reconcile(session, quantities)
+        quantities = account.quantities()
+        # 仍按证券顺序对日末净变化记税务批次；日内往返不能生成额外批次。
+        changed = {
+            symbol: int(quantities[column])
+            for column, symbol in enumerate(self.data.symbols)
+            if symbol in account.changed_symbols
+        }
+        self.tax.reconcile(session, changed)
+        account.changed_symbols.clear()
         for action in self._record.get(session, []):
-            quantity = quantities[action.symbol]
+            quantity = int(quantities[account._columns[action.symbol]])
             if quantity:
                 self._capture(action, quantity, session)
 
@@ -177,7 +185,7 @@ class RightsBook:
         if action.share_listing_date is None:
             raise RuntimeError("validated bonus shares require a listing date")
         available = bisect_left(self.data.sessions, day(action.share_listing_date))
-        account.lots.append(
+        account.add_lot(
             Lot(
                 action.symbol,
                 entitlement.bonus_quantity,
@@ -207,6 +215,8 @@ class RightsBook:
         return total
 
     def pending_shares(self) -> IntArray:
+        if not self.entitlements:
+            return self._empty_shares.copy()
         pending = dict.fromkeys(self.data.symbols, 0)
         for entitlement in self.entitlements.values():
             if entitlement.accrued and not entitlement.shares_credited:

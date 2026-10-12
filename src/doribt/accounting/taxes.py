@@ -37,7 +37,7 @@ def validate_tax_period(session: date) -> None:
         raise ValueError("dividend tax date is outside the verified individual tax policy")
 
 
-@dataclass
+@dataclass(slots=True)
 class TaxLot:
     lot_id: int
     symbol: str
@@ -88,17 +88,19 @@ class TaxBook:
         self.assessments: list[Assessment] = []
         self.payments: list[TaxPayment] = []
         self._next_id = 1
+        self._registered: dict[str, int] = {}
 
     def reconcile(self, session: date, holdings: Mapping[str, int]) -> None:
         """Reconcile registered end-of-day shares, never individual trade fragments."""
         for symbol, current in holdings.items():
-            previous = sum(lot.quantity for lot in self.lots if lot.symbol == symbol)
+            previous = self._registered.get(symbol, 0)
             change = current - previous
             if change > 0:
                 self.lots.append(TaxLot(self._next_id, symbol, session, change))
                 self._next_id += 1
             elif change < 0:
                 self._dispose(symbol, -change, session)
+            self._registered[symbol] = current
 
     def attach(self, symbol: str, action_id: str, income_micros: int, session: date) -> None:
         if self.kinds[symbol] == "etf":
@@ -118,7 +120,9 @@ class TaxBook:
             consumed = min(lot.quantity, quantity)
             if lot.income_micros:
                 validate_tax_period(session)
-            rate = dividend_rate(lot.acquired, session)
+            if session < lot.acquired:
+                raise ValueError("tax disposal cannot precede acquisition")
+            rate = dividend_rate(lot.acquired, session) if lot.income_micros else 0
             for action_id, income in lot.income_micros.items():
                 products[action_id] = products.get(action_id, 0) + consumed * income * rate
             lot.quantity -= consumed

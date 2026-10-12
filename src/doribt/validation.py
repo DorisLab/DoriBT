@@ -28,6 +28,12 @@ def day(value: DateLike) -> date:
 
 
 def integer(value: object, scale: int, label: str, minimum: int, maximum: int) -> int:
+    # Python 整数的乘法本身精确且不溢出；bool／浮点／Decimal 仍走严格解析。
+    if type(value) is int:
+        exact_int = value * scale
+        if not minimum <= exact_int <= maximum:
+            raise ValueError(f"{label}: outside supported bounds")
+        return exact_int
     try:
         parsed = Decimal(str(value))
         with localcontext() as context:

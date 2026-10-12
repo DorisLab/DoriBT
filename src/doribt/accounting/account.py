@@ -7,10 +7,10 @@ import numpy as np
 
 from doribt.accounting.orders import Order
 from doribt.kernels.execution import IntArray
-from doribt.validation import MAX_MONEY
+from doribt.kernels.valuation import Valuer, account_value
 
 
-@dataclass
+@dataclass(slots=True)
 class Lot:
     symbol: str
     quantity: int
@@ -38,34 +38,61 @@ class Account:
         self.cash = initial_cash
         self.symbols = symbols
         self.lots: list[Lot] = []
+        self._columns = {symbol: column for column, symbol in enumerate(symbols)}
+        self._totals = np.zeros(len(symbols), dtype=np.int64)
+        self._sellable: dict[int, IntArray] = {}
+        self._overflow = False
+        self._last_available = -1
+        self.value_kernel: Valuer = account_value
+        self.changed_symbols: set[str] = set()
+
+    def add_lot(self, lot: Lot) -> None:
+        self.lots.append(lot)
+        self.changed_symbols.add(lot.symbol)
+        self._totals[self._columns[lot.symbol]] += lot.quantity
+        self._overflow = self._overflow or self._totals[self._columns[lot.symbol]] > 1_000_000_000
+        self._last_available = max(self._last_available, lot.available_session)
+        self._sellable.clear()
 
     def quantities(self, index: int | None = None) -> IntArray:
-        totals = dict.fromkeys(self.symbols, 0)
-        for lot in self.lots:
-            if index is None or lot.available_session <= index:
-                totals[lot.symbol] += lot.quantity
-        if any(quantity > 1_000_000_000 for quantity in totals.values()):
+        if index is None or index >= self._last_available:
+            totals = self._totals
+        else:
+            if index not in self._sellable:
+                settled = np.zeros(len(self.symbols), dtype=np.int64)
+                for lot in self.lots:
+                    if lot.available_session <= index:
+                        settled[self._columns[lot.symbol]] += lot.quantity
+                self._sellable = {index: settled}
+            totals = self._sellable[index]
+        if self._overflow and np.any(totals > 1_000_000_000):
             raise OverflowError("registered share quantity exceeds supported bounds")
-        return np.array(list(totals.values()), dtype=np.int64)
+        return totals.copy()
 
     def apply(self, order: Order, index: int, settlement: int) -> None:
-        if order.filled > 0:
-            self.lots.append(
-                Lot(
-                    order.symbol, order.filled, order.session, index + settlement, order.price_units
-                )
-            )
-        elif order.filled < 0:
-            self._sell(order.symbol, -order.filled, index)
+        self.apply_fill(
+            order.symbol, order.filled, order.session, order.price_units, index, settlement
+        )
+
+    def apply_fill(
+        self, symbol: str, quantity: int, session: date, price: int, index: int, settlement: int
+    ) -> None:
+        if quantity > 0:
+            self.add_lot(Lot(symbol, quantity, session, index + settlement, price))
+        elif quantity < 0:
+            self._sell(symbol, -quantity, index)
 
     def _sell(self, symbol: str, quantity: int, index: int) -> None:
+        self.changed_symbols.add(symbol)
         for lot in self.lots:
             if lot.symbol != symbol or lot.available_session > index:
                 continue
             consumed = min(quantity, lot.quantity)
             lot.quantity -= consumed
+            self._totals[self._columns[symbol]] -= consumed
             quantity -= consumed
         self.lots = [lot for lot in self.lots if lot.quantity]
+        self._sellable.clear()
         if quantity:
             raise RuntimeError("execution sold more than settled lots")
 
@@ -80,12 +107,4 @@ class Account:
         quantities = self.quantities()
         if pending_shares is not None:
             quantities = quantities + pending_shares
-        if np.any(quantities > 1_000_000_000):
-            raise OverflowError("economic share quantity exceeds supported bounds")
-        for quantity, price in zip(quantities, closes, strict=True):
-            if quantity and price <= 0:
-                raise ValueError("held security has no active valuation; unsupported delisting")
-            equity += int(quantity) * int(price)
-        if not 0 <= equity <= MAX_MONEY:
-            raise OverflowError("account equity exceeds supported bounds")
-        return equity
+        return self.value_kernel(closes, quantities, equity)

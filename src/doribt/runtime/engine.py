@@ -12,6 +12,7 @@ from doribt.accounting.orders import REASONS, Order
 from doribt.accounting.rights import RightsBook
 from doribt.kernels.compiled import PreparedData, prepare
 from doribt.kernels.execution import BUY_STEP, MINIMUM, ORDER_MAXIMUM, SELL_STEP, IntArray, executor
+from doribt.kernels.valuation import valuer
 from doribt.market.data import MarketData
 from doribt.provenance import RunInfo, bind_strategy, parameters_copy, run_info
 from doribt.reporting.result import BacktestResult
@@ -153,6 +154,7 @@ class _Run:
         self.compiled, self.costs = prepared.compiled, costs.compile()
         self.kernel = executor(backend)
         self.account = Account(initial_cash, data.symbols)
+        self.account.value_kernel = valuer(backend)
         self.book = IntentBook()
         self.rights = RightsBook(data)
         self.orders: list[Order] = []

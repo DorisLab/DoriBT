@@ -1,6 +1,6 @@
 """Order lifetime, reservations and immutable fill records around the numeric matcher."""
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from datetime import datetime
 
 import numpy as np
@@ -18,8 +18,8 @@ from doribt.kernels.execution import (
     SELL_STEP,
     TICK,
     IntArray,
-    charges,
 )
+from doribt.kernels.reservation import reservation
 from doribt.market.data import MarketData
 from doribt.runtime.matching import (
     BUDGET,
@@ -29,12 +29,12 @@ from doribt.runtime.matching import (
     PAID,
     RESERVED,
     Matcher,
-    slip_price,
 )
+from doribt.runtime.order_state import OrderState
 from doribt.validation import MAX_MONEY, Number, amount
 
 
-@dataclass
+@dataclass(slots=True)
 class PendingOrder:
     order_id: int
     column: int
@@ -42,6 +42,7 @@ class PendingOrder:
     activation_day: int
     values: IntArray
     spend_left: int = MAX_MONEY
+    buying: bool = True
 
 
 def submission_reason(quantity: int, position: int, rule: IntArray) -> Reason:
@@ -65,23 +66,44 @@ class Broker:
         costs: IntArray,
         config: IntArray,
         kernel: Matcher,
+        backend: str = "python",
     ) -> None:
         self.data, self.compiled, self.account = data, compiled, account
         self.costs, self.config, self.kernel = costs, config, kernel
-        self.orders: list[Order] = []
+        self.reserve_cost = reservation(backend)
+        self._orders: list[OrderState] = []
+        self._snapshots: list[Order] = []
+        self._dirty_orders: set[int] = set()
         self.fills: list[Fill] = []
         self.active: dict[int, PendingOrder] = {}
         self.index = 0
         self.tax = 0
+        self._frozen_cash = 0
+        self._frozen_shares = [0] * len(data.symbols)
+        self._columns = {symbol: column for column, symbol in enumerate(data.symbols)}
+
+    @property
+    def orders(self) -> list[Order]:
+        for index in sorted(self._dirty_orders):
+            snapshot = self._orders[index].snapshot()
+            if index == len(self._snapshots):
+                self._snapshots.append(snapshot)
+            else:
+                self._snapshots[index] = snapshot
+        self._dirty_orders.clear()
+        return self._snapshots
 
     @property
     def frozen_cash(self) -> int:
-        return sum(int(item.values[BUDGET]) for item in self.active.values())
+        return self._frozen_cash
 
     def frozen_shares(self, column: int) -> int:
-        return sum(
-            int(item.values[RESERVED]) for item in self.active.values() if item.column == column
-        )
+        return self._frozen_shares[column]
+
+    def _reservations(self, item: PendingOrder, cash: int, shares: int) -> None:
+        self._frozen_cash += cash - int(item.values[BUDGET])
+        self._frozen_shares[item.column] += shares - int(item.values[RESERVED])
+        item.values[BUDGET], item.values[RESERVED] = cash, shares
 
     def submit(
         self,
@@ -96,7 +118,7 @@ class Broker:
     ) -> int:
         if valid_for not in {"next_bar", "day"}:
             raise ValueError("valid_for must be next_bar or day")
-        column, index = self.data.symbols.index(symbol), self.index
+        column, index = self._columns[symbol], self.index
         rule = self.compiled.market[index if sizing_index is None else sizing_index, column]
         limit = 0 if limit_price is None else amount(limit_price, "limit_price")
         if limit_price is not None and (limit <= 0 or not rule[TICK] or limit % rule[TICK]):
@@ -107,10 +129,10 @@ class Broker:
         position = int(self.account.quantities()[column])
         reason = submission_reason(quantity, position, rule)
         state = "accepted" if reason == Reason.NONE else "rejected"
-        order_id = len(self.orders) + 1
+        order_id = len(self._orders) + 1
         now, session = self.data.timeline[index], self.data.sessions[self.data.day_index(index)]
-        self.orders.append(
-            Order(
+        self._orders.append(
+            OrderState(
                 order_id,
                 intent_id,
                 session,
@@ -130,6 +152,7 @@ class Broker:
                 max_spend_units=ceiling,
             )
         )
+        self._dirty_orders.add(order_id - 1)
         if state == "accepted":
             next_index = min(index + 1, len(self.data.timeline) - 1)
             values = np.array([quantity, 0, 0, 0, 0, limit], dtype=np.int64)
@@ -140,6 +163,7 @@ class Broker:
                 self.data.day_index(next_index),
                 values,
                 MAX_MONEY if ceiling is None else ceiling,
+                quantity > 0,
             )
             self.active[order_id] = item
             self._reserve(item, sizing_index)
@@ -147,34 +171,30 @@ class Broker:
 
     def _reserve(self, item: PendingOrder, sizing_index: int | None = None) -> None:
         values, index, column = item.values, self.index, item.column
-        if values[LEFT] < 0:
+        if not item.buying:
             available = int(self.account.quantities(self.data.day_index(index))[column])
-            values[RESERVED] = min(
-                -int(values[LEFT]), max(0, available - self.frozen_shares(column))
-            )
+            reserved = min(-int(values[LEFT]), max(0, available - self.frozen_shares(column)))
+            self._reservations(item, int(values[BUDGET]), reserved)
         else:
-            rule = self.compiled.market[
-                index if sizing_index is None else sizing_index, column
-            ].copy()
-            price = int(rule[OPEN])
-            if sizing_index is None:
-                rule[OPEN] = self.compiled.closes[index, column]
-                price = int(values[LIMIT]) or slip_price(
-                    rule, self.config, int(values[LEFT]), 0, True
-                )
-            if price <= 0 or values[LEFT] > MAX_MONEY // price:
-                raise OverflowError("order reservation exceeds supported bounds")
-            notional = int(values[LEFT]) * price
-            fees = charges(notional, int(self.costs[0]), int(self.costs[1]), 0, int(rule[9]))
+            cost = self.reserve_cost(
+                self.compiled.market[index if sizing_index is None else sizing_index, column],
+                self.config,
+                self.costs,
+                int(values[LEFT]),
+                int(values[LIMIT]),
+                int(self.compiled.closes[index, column]),
+                sizing_index is not None,
+            )
             available = max(0, self.account.cash - self.tax - self.frozen_cash)
-            values[BUDGET] = min(available, notional + sum(fees), item.spend_left)
+            self._reservations(item, min(available, cost, item.spend_left), int(values[RESERVED]))
         self._snapshot(item)
 
     def match_state(self, item: PendingOrder) -> IntArray:
         """预留估值保护其他挂单；可支出金额还包括当前未占用现金。"""
+        if not item.buying:
+            return item.values
         state = item.values.copy()
-        if state[LEFT] > 0:
-            state[BUDGET] = min(self.available_cash(item), item.spend_left)
+        state[BUDGET] = min(self.available_cash(item), item.spend_left)
         return state
 
     def available_cash(self, item: PendingOrder) -> int:
@@ -187,40 +207,36 @@ class Broker:
 
     def finish(self, order_id: int, state: str) -> None:
         item = self.active.pop(order_id)
-        item.values[BUDGET] = item.values[RESERVED] = 0
+        self._reservations(item, 0, 0)
         self._snapshot(item, state)
 
     def _snapshot(self, item: PendingOrder, state: str | None = None) -> None:
-        order = self.orders[item.order_id - 1]
-        self.orders[item.order_id - 1] = replace(
-            order,
-            updated_at=self.data.timeline[self.index],
-            state=state or order.state,
-            frozen_cash_units=int(item.values[BUDGET]),
-            frozen_quantity=int(item.values[RESERVED]),
-        )
+        order = self._orders[item.order_id - 1]
+        order.updated_at = self.data.timeline[self.index]
+        order.state = state or order.state
+        order.frozen_cash_units = int(item.values[BUDGET])
+        order.frozen_quantity = int(item.values[RESERVED])
+        self._dirty_orders.add(item.order_id - 1)
 
     def advance(self, index: int) -> None:
         self.index = index
         used = np.zeros(len(self.data.symbols), dtype=np.int64)
-        queue = sorted(
-            self.active.values(), key=lambda item: (item.values[LEFT] > 0, item.order_id)
-        )
+        # dict 保留递增订单号的插入顺序；稳定排序只需卖出优先标记。
+        queue = sorted(self.active.values(), key=lambda item: item.buying)
         for item in queue:
             if item.submitted < index:
                 self._attempt(item, used)
 
     def _attempt(self, item: PendingOrder, used: IntArray) -> None:
         index, column = self.index, item.column
-        order = self.orders[item.order_id - 1]
+        order = self._orders[item.order_id - 1]
         bar = self.data.bars[index * len(self.data.symbols) + column]
-        if item.values[LEFT] < 0:
+        if not item.buying:
             # Newly settled shares may fund an order submitted at yesterday's final close.
-            item.values[RESERVED] = 0
+            self._reservations(item, int(item.values[BUDGET]), 0)
             self._reserve(item)
-        row = np.zeros(6, dtype=np.int64)
         if bar.phase == "auction":
-            row[5] = 13
+            row = np.array([0, 0, 0, 0, 0, 13], dtype=np.int64)
         else:
             row = self.kernel(
                 self.match_state(item),
@@ -244,7 +260,7 @@ class Broker:
 
     def _apply(self, item: PendingOrder, row: IntArray) -> None:
         quantity, price, commission, stamp, transfer, reason = map(int, row)
-        order = self.orders[item.order_id - 1]
+        order = self._orders[item.order_id - 1]
         cost = quantity * price + commission + stamp + transfer
         # A sale can raise cash toward unpaid tax even when it cannot clear all tax at once.
         # Existing buy reservations still cannot fund the sale's fees.
@@ -257,19 +273,15 @@ class Broker:
             if not 0 <= self.account.cash <= MAX_MONEY:
                 raise OverflowError("cash exceeds supported bounds")
         state = "partially_filled" if order.filled + quantity else "accepted"
-        self.orders[item.order_id - 1] = replace(
-            order,
-            session=self.data.sessions[self.data.day_index(self.index)],
-            filled=order.filled + quantity,
-            price_units=price if quantity else order.price_units,
-            notional_units=int(item.values[NOTIONAL]),
-            commission_units=int(item.values[PAID]),
-            stamp_duty_units=order.stamp_duty_units + stamp,
-            transfer_fee_units=order.transfer_fee_units + transfer,
-            reason=REASONS[reason],
-            state=state,
-        )
-        self._snapshot(item)
+        order.session = self.data.sessions[self.data.day_index(self.index)]
+        order.filled += quantity
+        order.price_units = price if quantity else order.price_units
+        order.notional_units = int(item.values[NOTIONAL])
+        order.commission_units = int(item.values[PAID])
+        order.stamp_duty_units += stamp
+        order.transfer_fee_units += transfer
+        order.reason = REASONS[reason]
+        self._snapshot(item, state)
 
     def _fill(
         self,
@@ -280,7 +292,7 @@ class Broker:
         stamp: int,
         transfer: int,
     ) -> None:
-        order = self.orders[item.order_id - 1]
+        order = self._orders[item.order_id - 1]
         session = self.data.sessions[self.data.day_index(self.index)]
         point = self.data.timeline[self.index]
         self.fills.append(
@@ -299,19 +311,20 @@ class Broker:
                 reference_price_units=int(self.compiled.market[self.index, item.column, OPEN]),
             )
         )
-        event = replace(order, session=session, filled=quantity, price_units=price)
         settlement = int(self.compiled.settlement[self.index, item.column])
-        self.account.apply(event, self.data.day_index(self.index), settlement)
+        self.account.apply_fill(
+            order.symbol, quantity, session, price, self.data.day_index(self.index), settlement
+        )
         values = item.values
         values[LEFT] -= quantity
         values[NOTIONAL] += abs(quantity) * price
         values[PAID] += commission
         if quantity > 0:
             cost = quantity * price + commission + stamp + transfer
-            values[BUDGET] = max(0, int(values[BUDGET]) - cost)
+            self._reservations(item, max(0, int(values[BUDGET]) - cost), int(values[RESERVED]))
             item.spend_left -= cost
         else:
-            values[RESERVED] += quantity
+            self._reservations(item, int(values[BUDGET]), int(values[RESERVED]) + quantity)
 
     def end_day(self) -> None:
         day_index = self.data.day_index(self.index)

@@ -36,6 +36,7 @@ class BarRun(_Run):
             self.costs,
             execution.compile(),
             matcher(backend),
+            backend,
         )
         self.targets = BarIntentBook(self.broker)
         self.book = self.targets
@@ -49,13 +50,11 @@ class BarRun(_Run):
             self.rights.start(day_index, self.account, self.book)
         self.broker.tax = self.rights.tax.payable
         if index:
-            pending = dict(
-                zip(self.data.symbols, map(int, self.rights.pending_shares()), strict=True)
-            )
+            pending = self.rights.pending_shares()
             if any(not intent.sized for intent in self.book.pending.values()):
                 equity = self.account.value(
                     self.compiled.market[index, :, OPEN],
-                    self.rights.pending_shares(),
+                    pending,
                     self.rights.receivable,
                     self.rights.tax.payable,
                 )
@@ -85,9 +84,7 @@ class BarRun(_Run):
         self.holdings[index] = self.account.quantities()
         self.sellable[index] = self.account.quantities(day_index)
         self.reserved_cash[index] = self.broker.frozen_cash
-        self.reserved_shares[index] = [
-            self.broker.frozen_shares(i) for i in range(len(self.data.symbols))
-        ]
+        self.reserved_shares[index] = self.broker._frozen_shares
 
     def _context(self, index: int) -> Context:
         context = super()._context(index)
