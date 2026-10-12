@@ -138,8 +138,12 @@ def run_info(
         str(path.relative_to(root)).replace("\\", "/"): hashlib.sha256(
             path.read_bytes()
         ).hexdigest()
-        for path in sorted(root.rglob("*.py"))
+        for path in sorted(root.rglob("*"))
+        if path.suffix in (".py", ".c")
     }
+    from doribt.runtime.native_records import implementation_identity
+
+    code["@record_materializer"] = implementation_identity()
     strategy_json = (
         cast(PositionTargets | WeightTargets, strategy)._provenance_json
         if type(strategy) in (PositionTargets, WeightTargets)

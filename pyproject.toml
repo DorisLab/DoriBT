@@ -2,6 +2,13 @@
 requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+# 源码目录中残留的开发产物不能进入纯 Python wheel 或 sdist。
+exclude = ["**/*.so", "**/*.pyd", "**/*.dll", "**/*.dylib", "**/*.o", "**/*.a"]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "hatch_build.py"
+
 [project]
 name = "doribt"
 version = "0.5.0"

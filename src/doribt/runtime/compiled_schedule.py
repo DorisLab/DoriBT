@@ -13,6 +13,7 @@ from doribt.kernels.execution import TICK, IntArray
 from doribt.kernels.scheduled_loop import compiled_schedule
 from doribt.provenance import RunInfo
 from doribt.reporting.result import BacktestResult
+from doribt.runtime import native_records
 from doribt.runtime.record_materialization import materialize_fills
 from doribt.runtime.targets import PositionTargets, WeightTargets
 
@@ -94,17 +95,28 @@ def execute(run: "ScheduledRun", info: RunInfo) -> BacktestResult:
     except ValueError as error:
         restore_error(error, run)
     equity, cash, holdings, sellable, rows, intentions, lots, fill_rows, frozen, reserved = arrays
-    snapshot = order_snapshotter(run.data)
-    orders = tuple(snapshot(row, identifier) for identifier, row in enumerate(rows.tolist(), 1))
-    intents = materialize_intents(intentions, run)
-    fills = tuple(materialize_fills(fill_rows, rows, run.data, run.compiled.market))
-    tax_lots = tuple(
-        tax_lot_record(
-            (identifier + 1, run.data.symbols[column], run.data.sessions[acquired], quantity, ())
+    if native_records.available():
+        orders, intents, fills, tax_lots = native_records.materialize(
+            rows, intentions, lots, fill_rows, run.data, run.compiled.market
         )
-        for identifier, (column, acquired, quantity, _) in enumerate(lots.tolist())
-        if quantity
-    )
+    else:
+        snapshot = order_snapshotter(run.data)
+        orders = tuple(snapshot(row, identifier) for identifier, row in enumerate(rows.tolist(), 1))
+        intents = materialize_intents(intentions, run)
+        fills = tuple(materialize_fills(fill_rows, rows, run.data, run.compiled.market))
+        tax_lots = tuple(
+            tax_lot_record(
+                (
+                    identifier + 1,
+                    run.data.symbols[column],
+                    run.data.sessions[acquired],
+                    quantity,
+                    (),
+                )
+            )
+            for identifier, (column, acquired, quantity, _) in enumerate(lots.tolist())
+            if quantity
+        )
     for array in (
         equity,
         cash,

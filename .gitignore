@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *.nbc
 *.nbi
+*.so
+*.pyd
+*.dll
+*.dylib
+*.o
+*.a
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/

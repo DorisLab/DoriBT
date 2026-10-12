@@ -38,6 +38,9 @@ python -c "import doribt; print(doribt.__version__)"
 
 安装 Numba 后，仍需在 `RunConfig(backend="numba")` 中选择它。首次运行有编译开销；任意 Python 策略回调不会整体转成机器码。详见[预计算与性能](../scheduled-execution.md)。
 
+源码开发还提供[可选原生记录物化](../native-records.md)，目前仅验证 Linux x86_64 的
+CPython 3.13 GIL 构建。普通安装无需编译器；原生构建与运行开关须分别选择。
+
 中文图表会选择系统中的中文字体。Windows 通常可以使用微软雅黑；Linux 可安装 Noto CJK 字体（Debian／Ubuntu 包名 `fonts-noto-cjk`）。缺少中文字体时，内置图表标题回退为英文，自定义基准名称保持原文。
 
 ## 运行完整示例
