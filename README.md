@@ -4,7 +4,7 @@
 
 [文档中心](https://dorislab.github.io/DoriBT/) · [PyPI](https://pypi.org/project/doribt/) · [使用教程](https://dorislab.github.io/DoriBT/guide/quickstart.html)
 
-- 多标的共享资金、T+1、历史交易规则和分红送转。
+- 多标的共享资金、历史 T+0/T+1 预设、按证券/日期覆盖规则和分红送转。
 - 部分成交、可配置佣金与最低佣金、成交量参与率和滑点。
 - 函数策略与预计算目标，参数声明、自定义指标和研究输出。
 - 日频报告、基准与超额收益、图表和可对账的 CSV／JSON 导出。
@@ -68,11 +68,16 @@ print("总收益率：", result.report().stats["total_return"])
 
 ## 示例与参考
 
-完整示例位于 [examples](https://github.com/DorisLab/DoriBT/tree/main/examples)：买入持有、均线、组合轮动、分钟订单、权益处理、参数化研究与报告。
+完整示例位于 [examples](https://github.com/DorisLab/DoriBT/tree/main/examples)：买入持有、均线、组合轮动、分钟订单、分钟做 T、权益处理、参数化研究与报告。
 
 [数据输入](https://dorislab.github.io/DoriBT/guide/data.html) · [策略编写](https://dorislab.github.io/DoriBT/guide/strategies.html) · [分钟回测](https://dorislab.github.io/DoriBT/guide/minutes.html) · [结果与导出](https://dorislab.github.io/DoriBT/guide/reports.html) · [API 参考](https://dorislab.github.io/DoriBT/api.html)
 
-原始价用于成交与账户记账，按决策时点复权的价格用于研究。规则预设覆盖 2020–2025 沪深普通股票与境内股票 ETF；自定义规则须提供适用区间和来源。不提供行情下载或实盘接口，不覆盖盘口排队、融资融券、期货期权与 ETF 申赎。
+原始价用于成交与账户记账，按决策时点复权的价格用于研究。现金账户规则预设核验范围为
+2015-09-09 至 2026-10-12；科创板从 2019-07-22 起。覆盖沪深普通股票、境内股票 ETF、
+债券/黄金 ETF 及明确具有当期 T+0 资格的跨境 ETF。每日涨跌停、上市与停复牌由输入提供；
+特殊状态及竞价/盘后撮合边界见[市场规则](https://dorislab.github.io/DoriBT/china-market.html)。
+自定义规则与 override 须提供适用区间和来源。不提供行情下载或实盘接口，不覆盖盘口排队、
+融资融券、期货期权与 ETF 申赎。
 
 ## 参与开发
 

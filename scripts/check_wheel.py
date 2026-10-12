@@ -22,7 +22,7 @@ import doribt
 from dataclasses import replace
 from doribt import (
     CorporateAction, Instrument, MarketData, RuleBook, RulePeriod, TradingRule, WeightTargets,
-    PriceAdjustment, china_rules, Backtest, BarExecution, FixedTicks, PositionTargets
+    PriceAdjustment, china_rules, Backtest, BarExecution, FixedTicks, PositionTargets, RuleOverride
 )
 assert importlib.util.find_spec('doribt.experimental') is None
 
@@ -156,6 +156,13 @@ if backend == 'python':
     else:
         raise AssertionError('Formal engine must not silently fall back either')
 exec(compile(sys.argv[3], 'quickstart.py', 'exec'), {})
+intraday_scope = {'__name__': 'installed_intraday'}
+exec(compile(sys.argv[4], 'intraday_t.py', 'exec'), intraday_scope)
+for mode, expected in [('t0', [1000,-1000,1000,-1000]), ('t1', [1000]),
+                       ('inventory', [1000,-1000,1000]), ('native', [1000,-1000,1000,-1000])]:
+    case = intraday_scope['run_case'](mode, backend, '5min')
+    assert [f.quantity for f in case.fills] == expected
+    assert len(case.run_info.to_dict()['data']['rule_provenance']['overrides']) == int(mode=='t0')
 print('安装包验证通过：', doribt.__version__, backend)
 """
 
@@ -206,6 +213,7 @@ def check_wheel(wheel: Path, backend: str) -> None:
                 backend,
                 json.dumps(hashes),
                 (ROOT / "examples" / "quickstart.py").read_text(encoding="utf-8"),
+                (ROOT / "examples" / "intraday_t.py").read_text(encoding="utf-8"),
             ],
             cwd=temporary,
             check=True,

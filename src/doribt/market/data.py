@@ -260,6 +260,7 @@ class MarketData:
             "instruments": [asdict(i) for i in self.instruments],
             "bars": [asdict(b) for b in self.bars],
             "rules": [asdict(r) for r in self.rules.periods],
+            "rule_provenance": self.rules.provenance(),
             "source": self.source,
             "actions": [asdict(action) for action in self.actions],
             "adjustments": [asdict(item) for item in self.adjustments],

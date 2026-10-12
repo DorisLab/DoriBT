@@ -123,3 +123,17 @@ Windows 本地完整门禁通过：基础 367 项、含 Numba 完整 532 项；R
 PyPI 0.4.0 的 wheel／sdist、GitHub Release 三个公开资产均已无登录下载，与发行构建及 SHA256SUMS 逐字节相等。wheel SHA-256 为 49c4c8125cef69ed88a8730cf4674ee5b9ed0e014ed5da53bcb574aa427696ef，sdist 为 40ac42a3ef6f42ef2f4a5317b993a5ddc8d46d197b22b987220424f1a6f567f2。独立 Python 3.13 环境从官方 PyPI 安装 doribt[numba,plot]==0.4.0，实际导入位于独立 site-packages；target_sizing 的 Python／Numba 手算示例及全部仓库外教程通过。
 
 [GitHub Release v0.4.0](https://github.com/DorisLab/DoriBT/releases/tag/v0.4.0) 由 DorisLab 发布为 Latest 正式版本。[Pages 运行 37473282305](https://github.com/DorisLab/DoriBT/actions/runs/37473282305) 的 Linux 构建、教程检查与部署成功；公开首页、策略教程与执行契约均 HTTP 200，首页显示 0.4.0，线上内容包含 sizing、max_spend 和 spending_limit。发行与文档部署完成，消费者环境未修改；后续目标按实际使用反馈决定。
+
+2026-10-12 准备 0.5.0：历史现金账户预设扩展至 2015-09-09—2026-10-12，科创板从
+2019-07-22 起；新增沪深债券、黄金及当期具备 T+0 资格的跨境 ETF 分类。
+RuleOverride 按证券/profile 与日期覆盖字段，保留官方断点、固定优先级和批次可卖日，
+未知范围、缺口、重叠冲突及无效规则明确失败。规则包、分类与覆盖声明进入数据指纹
+和运行来源。详细决定和边界见[实现与验证记录](history/historical-rules-0.5.0.md)。
+
+Windows 本地完整门禁：基础 432 项、含 Numba 629 项，76 个文件 strict mypy、Ruff、
+400 行/复杂度、全部公开示例、基础与 Numba 全新 wheel 的仓库外安装及全 extras
+锁定依赖审计通过。1/5 分钟做 T 包含 T+0 两次往返、原生 T+0 ETF、T+1 底仓与覆盖
+到期；用独立 Decimal 逐 bar 重建账户，另验证股票情景保留税费和旧批次不被追溯解锁。
+严格文档构建、24 页内部链接/锚点/资源、新 API 搜索词干及两后端仓库外教程通过。
+文档搜索检查初次因英文词干预期错误失败，修正为 Sphinx 自身词干算法后通过。
+尚未把本地门禁记作 Linux/远程 CI 或正式发布；下一步按已授权流程合入、发行和公开验证。
