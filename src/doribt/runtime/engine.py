@@ -6,10 +6,11 @@ from typing import cast
 
 import numpy as np
 
-from doribt.accounting.account import Account, Position
+from doribt.accounting.account import Account
 from doribt.accounting.costs import Costs
 from doribt.accounting.orders import REASONS, Order
 from doribt.accounting.rights import RightsBook
+from doribt.accounting.views import PositionView
 from doribt.kernels.compiled import PreparedData, prepare
 from doribt.kernels.execution import BUY_STEP, MINIMUM, ORDER_MAXIMUM, SELL_STEP, IntArray, executor
 from doribt.kernels.valuation import valuer
@@ -19,7 +20,7 @@ from doribt.reporting.result import BacktestResult
 from doribt.research.config import RunConfig
 from doribt.research.outputs import Recorder
 from doribt.research.parameters import ParameterSet
-from doribt.runtime.context import Context, account_view
+from doribt.runtime.context import AccountView, Context
 from doribt.runtime.intents import IntentBook
 from doribt.runtime.slippage import BarExecution
 from doribt.runtime.targets import PositionTargets, WeightTargets
@@ -221,24 +222,19 @@ class _Run:
         )
 
     def _context(self, index: int) -> Context:
-        positions = [
-            Position(
-                symbol,
-                int(self.holdings[index, column]),
-                int(self.sellable[index, column]),
-                int(self.holdings[index, column] + self.pending_shares[index, column])
-                * int(self.compiled.closes[index, column])
-                / 10_000,
-                int(self.pending_shares[index, column]),
-            )
-            for column, symbol in enumerate(self.data.symbols)
-        ]
-        view = account_view(
-            self.account.cash,
-            int(self.equity[index]),
-            positions,
-            int(self.receivable[index]),
-            int(self.tax_payable[index]),
+        view = AccountView(
+            self.account.cash / 10_000,
+            int(self.equity[index]) / 10_000,
+            PositionView(
+                self.account._columns,
+                self.holdings[index],
+                self.sellable[index],
+                self.pending_shares[index],
+                self.compiled.closes[index],
+                self._frozen_positions(index),
+            ),
+            dividend_receivable=int(self.receivable[index]) / 10_000,
+            tax_payable=int(self.tax_payable[index]) / 10_000,
         )
         return Context(
             self.data,
@@ -249,6 +245,9 @@ class _Run:
             self.book,
             int(self.equity[index]),
         )
+
+    def _frozen_positions(self, index: int) -> IntArray | None:
+        return None
 
     def _finish(self) -> None:
         self.book.finish(self.data.sessions[-1])

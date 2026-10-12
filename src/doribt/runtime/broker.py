@@ -74,13 +74,24 @@ class Broker:
         self._orders: list[OrderState] = []
         self._snapshots: list[Order] = []
         self._dirty_orders: set[int] = set()
-        self.fills: list[Fill] = []
+        self._fills: list[Fill] = []
         self.active: dict[int, PendingOrder] = {}
         self.index = 0
         self.tax = 0
         self._frozen_cash = 0
         self._frozen_shares = [0] * len(data.symbols)
         self._columns = {symbol: column for column, symbol in enumerate(data.symbols)}
+
+    @property
+    def fills(self) -> list[Fill]:
+        return self._fills
+
+    @property
+    def fill_count(self) -> int:
+        return len(self._fills)
+
+    def order_state(self, order_id: int) -> OrderState:
+        return self._orders[order_id - 1]
 
     @property
     def orders(self) -> list[Order]:

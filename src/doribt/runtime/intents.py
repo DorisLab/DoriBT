@@ -1,9 +1,13 @@
 """Pending targets are distinct from their one-session child orders."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 
 from doribt.accounting.orders import IntentRecord, TargetAdjustment
+from doribt.accounting.records import record_factory
+
+intent_record: Callable[[tuple[object, ...]], IntentRecord] = record_factory(IntentRecord)
 
 
 @dataclass(slots=True)
@@ -29,19 +33,21 @@ class Intent:
         self.closed, self.status, self.reason = session, status, reason
 
     def record(self) -> IntentRecord:
-        return IntentRecord(
-            self.intent_id,
-            self.created,
-            self.symbol,
-            self.kind,
-            self.quantity if self.sized else None,
-            self.status,
-            self.closed,
-            self.reason,
-            tuple(self.adjustments),
-            self.weight_ppm,
-            self.sizing,
-            self.sized_at,
+        return intent_record(
+            (
+                self.intent_id,
+                self.created,
+                self.symbol,
+                self.kind,
+                self.quantity if self.sized else None,
+                self.status,
+                self.closed,
+                self.reason,
+                tuple(self.adjustments),
+                self.weight_ppm,
+                self.sizing,
+                self.sized_at,
+            )
         )
 
 

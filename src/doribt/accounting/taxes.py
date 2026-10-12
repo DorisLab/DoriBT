@@ -6,6 +6,7 @@ can offset in the account's daily net change.
 """
 
 from calendar import monthrange
+from collections import deque
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import date
@@ -84,11 +85,19 @@ class TaxPayment:
 class TaxBook:
     def __init__(self, kinds: Mapping[str, str]) -> None:
         self.kinds = dict(kinds)
-        self.lots: list[TaxLot] = []
+        self._live_lots: dict[int, TaxLot] = {}
+        self._symbol_lots: dict[str, deque[TaxLot]] = {}
+        self._empty_lots: dict[int, TaxLot] = {}
+        self._unpaid: list[Assessment] = []
+        self._payable = 0
         self.assessments: list[Assessment] = []
         self.payments: list[TaxPayment] = []
         self._next_id = 1
         self._registered: dict[str, int] = {}
+
+    @property
+    def lots(self) -> list[TaxLot]:
+        return list(self._live_lots.values())
 
     def reconcile(self, session: date, holdings: Mapping[str, int]) -> None:
         """Reconcile registered end-of-day shares, never individual trade fragments."""
@@ -96,7 +105,9 @@ class TaxBook:
             previous = self._registered.get(symbol, 0)
             change = current - previous
             if change > 0:
-                self.lots.append(TaxLot(self._next_id, symbol, session, change))
+                lot = TaxLot(self._next_id, symbol, session, change)
+                self._live_lots[lot.lot_id] = lot
+                self._symbol_lots.setdefault(symbol, deque()).append(lot)
                 self._next_id += 1
             elif change < 0:
                 self._dispose(symbol, -change, session)
@@ -106,17 +117,15 @@ class TaxBook:
         if self.kinds[symbol] == "etf":
             return
         validate_tax_period(session)
-        for lot in self.lots:
-            if lot.symbol == symbol:
-                lot.income_micros[action_id] = income_micros
+        for lot in self._symbol_lots.get(symbol, ()):
+            lot.income_micros[action_id] = income_micros
 
     def _dispose(self, symbol: str, quantity: int, session: date) -> None:
         products: dict[str, int] = {}
-        for lot in self.lots:
+        lots = self._symbol_lots.get(symbol, deque())
+        for lot in lots:
             if not quantity:
                 break
-            if lot.symbol != symbol:
-                continue
             consumed = min(lot.quantity, quantity)
             if lot.income_micros:
                 validate_tax_period(session)
@@ -126,33 +135,51 @@ class TaxBook:
             for action_id, income in lot.income_micros.items():
                 products[action_id] = products.get(action_id, 0) + consumed * income * rate
             lot.quantity -= consumed
+            if lot.quantity == 0:
+                self._empty_lots[lot.lot_id] = lot
             quantity -= consumed
-        self.lots = [lot for lot in self.lots if lot.quantity]
+        self._discard_empty()
         if quantity:
             raise RuntimeError("tax disposal exceeds registered shares")
+        self._assess(products, symbol, session)
+
+    def _discard_empty(self) -> None:
+        # 失败途中耗尽的批次也在下一次完整处置后清理，与原账本时机一致。
+        for lot in self._empty_lots.values():
+            del self._live_lots[lot.lot_id]
+            self._symbol_lots[lot.symbol].popleft()
+        self._empty_lots.clear()
+
+    def _assess(self, products: Mapping[str, int], symbol: str, session: date) -> None:
         for action_id, product in products.items():
-            # income is micro-yuan and the rate is ppm; round the aggregate to cents.
+            # 收入为微元、税率为 ppm，按公司行动汇总后舍入到分。
             tax = ((product + 5_000_000_000) // 10_000_000_000) * 100
             if tax > MAX_MONEY:
                 raise OverflowError("dividend tax exceeds supported bounds")
-            self.assessments.append(Assessment(action_id, symbol, session, tax))
+            assessment = Assessment(action_id, symbol, session, tax)
+            self.assessments.append(assessment)
+            if tax:
+                self._unpaid.append(assessment)
+                self._payable += tax
 
     @property
     def payable(self) -> int:
-        total = sum(item.amount_units - item.paid_units for item in self.assessments)
+        total = self._payable
         if total > MAX_MONEY:
             raise OverflowError("dividend tax payable exceeds supported bounds")
         return total
 
     def settle(self, session: date, cash: int) -> int:
-        for item in self.assessments:
+        for item in self._unpaid:
             if item.session >= session:
                 continue
             payment = min(cash, item.amount_units - item.paid_units)
             if payment:
                 cash -= payment
                 item.paid_units += payment
+                self._payable -= payment
                 self.payments.append(TaxPayment(item.action_id, item.symbol, session, payment))
+        self._unpaid = [item for item in self._unpaid if item.paid_units < item.amount_units]
         return cash
 
     def records(self) -> tuple[TaxRecord, ...]:
@@ -170,5 +197,5 @@ class TaxBook:
                 lot.quantity,
                 tuple(sorted(lot.income_micros.items())),
             )
-            for lot in self.lots
+            for lot in self._live_lots.values()
         )

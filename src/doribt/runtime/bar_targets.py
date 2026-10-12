@@ -80,7 +80,7 @@ class BarIntentBook(IntentBook):
         previous = self.children.get(intent_id)
         # A rejected/day-expired child is retried on the next trading day, not every minute.
         if previous is not None:
-            order = broker._orders[previous - 1]
+            order = broker.order_state(previous)
             if (
                 order.status != "filled"
                 and order.session == broker.data.sessions[broker.data.day_index(index)]

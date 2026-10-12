@@ -3,6 +3,7 @@
 from bisect import bisect_left
 from dataclasses import dataclass
 from datetime import date
+from heapq import heappop, heappush
 
 import numpy as np
 
@@ -64,7 +65,13 @@ class RightsBook:
         self.tax = TaxBook(self.kinds)
         self.entitlements: dict[str, Entitlement] = {}
         self.events: list[CorporateEvent] = []
-        self._empty_shares = np.zeros(len(data.symbols), dtype=np.int64)
+        self._columns = {symbol: column for column, symbol in enumerate(data.symbols)}
+        self._pending = dict.fromkeys(data.symbols, 0)
+        self._receivable = 0
+        self._outstanding: dict[str, int] = {}
+        self._settlement_events: list[tuple[date, int, str]] = []
+        self._due: set[str] = set()
+        self._ranks: dict[str, int] = {}
         self._record: dict[date, list[CorporateAction]] = {}
         self._ex: dict[date, list[CorporateAction]] = {}
         for action in data.actions:
@@ -79,12 +86,38 @@ class RightsBook:
             self._ex_date(action, session, account)
             bonus = integer(action.bonus_per_share, 1_000_000, "bonus", 0, 100_000_000)
             intents.adjust(action.symbol, action.action_id, session, bonus)
-        for entitlement in self.entitlements.values():
-            if not entitlement.accrued:
-                continue
+        self._settle_due(index, account)
+        account.cash = self.tax.settle(session, account.cash)
+
+    def _settle_due(self, index: int, account: Account) -> None:
+        session = self.data.sessions[index]
+        while self._settlement_events and self._settlement_events[0][0] <= session:
+            self._due.add(heappop(self._settlement_events)[2])
+        # 到期日不同的事件仍按登记顺序处理，保持付款和股份记录顺序。
+        for action_id in sorted(self._due, key=self._ranks.__getitem__):
+            entitlement = self.entitlements[action_id]
+            outstanding = not entitlement.cash_paid or not entitlement.shares_credited
             self._pay(entitlement, session, account)
             self._credit(entitlement, index, account)
-        account.cash = self.tax.settle(session, account.cash)
+            if outstanding and entitlement.cash_paid and entitlement.shares_credited:
+                self._outstanding[entitlement.action.symbol] -= 1
+            self._due.remove(action_id)
+
+    def _schedule(self, entitlement: Entitlement) -> None:
+        action = entitlement.action
+        if not entitlement.cash_paid:
+            self._receivable += entitlement.cash_units
+        if not entitlement.shares_credited:
+            self._pending[action.symbol] += entitlement.bonus_quantity
+        if not entitlement.cash_paid or not entitlement.shares_credited:
+            self._outstanding[action.symbol] = self._outstanding.get(action.symbol, 0) + 1
+        dates = {action.pay_date, action.share_credit_date} - {None}
+        for when in dates:
+            if when is not None:
+                heappush(
+                    self._settlement_events,
+                    (day(when), self._ranks[action.action_id], action.action_id),
+                )
 
     def close(self, index: int, account: Account) -> None:
         session = self.data.sessions[index]
@@ -120,6 +153,7 @@ class RightsBook:
             cash_paid=not bool(cash),
             shares_credited=not bool(bonus),
         )
+        self._ranks.setdefault(action.action_id, len(self.entitlements))
         self.entitlements[action.action_id] = entitlement
         if action.kind == "distribution":
             taxable_bonus = self._taxable_bonus(action, bonus)
@@ -136,16 +170,13 @@ class RightsBook:
 
     def _ex_date(self, action: CorporateAction, session: date, account: Account) -> None:
         entitlement = self.entitlements.get(action.action_id)
-        held = int(account.quantities()[self.data.symbols.index(action.symbol)])
-        pending = any(
-            e.action.symbol == action.symbol
-            and e.accrued
-            and (not e.shares_credited or not e.cash_paid)
-            for e in self.entitlements.values()
-        )
+        held = int(account.quantities()[self._columns[action.symbol]])
+        pending = bool(self._outstanding.get(action.symbol, 0))
         if action.kind != "distribution" and (entitlement is not None or held or pending):
             raise UnsupportedCorporateAction(f"unsupported {action.kind}: {action.action_id}")
         if entitlement is not None:
+            if not entitlement.accrued:
+                self._schedule(entitlement)
             entitlement.accrued = True
             self.events.append(
                 CorporateEvent(
@@ -166,6 +197,7 @@ class RightsBook:
         if account.cash > MAX_MONEY:
             raise OverflowError("dividend payment exceeds supported cash bounds")
         entitlement.cash_paid = True
+        self._receivable -= entitlement.cash_units
         self.events.append(
             CorporateEvent(
                 session,
@@ -195,6 +227,7 @@ class RightsBook:
             )
         )
         entitlement.shares_credited = True
+        self._pending[action.symbol] -= entitlement.bonus_quantity
         self.events.append(
             CorporateEvent(
                 session,
@@ -207,23 +240,15 @@ class RightsBook:
 
     @property
     def receivable(self) -> int:
-        total = sum(
-            e.cash_units for e in self.entitlements.values() if e.accrued and not e.cash_paid
-        )
+        total = self._receivable
         if total > MAX_MONEY:
             raise OverflowError("dividend receivables exceed supported bounds")
         return total
 
     def pending_shares(self) -> IntArray:
-        if not self.entitlements:
-            return self._empty_shares.copy()
-        pending = dict.fromkeys(self.data.symbols, 0)
-        for entitlement in self.entitlements.values():
-            if entitlement.accrued and not entitlement.shares_credited:
-                pending[entitlement.action.symbol] += entitlement.bonus_quantity
-        if any(quantity > 1_000_000_000 for quantity in pending.values()):
+        if any(quantity > 1_000_000_000 for quantity in self._pending.values()):
             raise OverflowError("pending share quantity exceeds supported bounds")
-        return np.array(list(pending.values()), dtype=np.int64)
+        return np.array(list(self._pending.values()), dtype=np.int64)
 
     def records(self) -> tuple[EntitlementRecord, ...]:
         result = []

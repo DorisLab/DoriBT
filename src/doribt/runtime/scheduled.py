@@ -31,9 +31,10 @@ class ScheduledRun(BarRun):
         self.precomputed_targets = targets
         self.scan = scanner(backend)
         self.intrabar = prepared.intrabar
+        from doribt.runtime.compiled_schedule import eligible as eligible_schedule
         from doribt.runtime.compiled_targets import eligible
 
-        if eligible(self):
+        if eligible(self) or eligible_schedule(self):
             return
         self.decisions = np.zeros(len(self.data.timeline), dtype=np.bool_)
         self.decisions[0] = True
@@ -61,8 +62,12 @@ class ScheduledRun(BarRun):
         self.boundaries = np.flatnonzero(boundaries)
 
     def execute(self, strategy: Callable[[Context], None], info: RunInfo) -> BacktestResult:
+        from doribt.runtime.compiled_schedule import eligible as eligible_schedule
+        from doribt.runtime.compiled_schedule import execute as execute_schedule
         from doribt.runtime.compiled_targets import eligible, execute
 
+        if eligible_schedule(self):
+            return execute_schedule(self, info)
         if eligible(self):
             return execute(self, info)
         return super().execute(strategy, info)
@@ -70,12 +75,12 @@ class ScheduledRun(BarRun):
     def _drive(self, strategy: Callable[[Context], None]) -> None:
         index, count = 0, len(self.data.timeline)
         while index < count:
-            previous_fills = len(self.broker.fills)
+            previous_fills = self.broker.fill_count
             self._open(index)
             self._close(index)
             if self.decisions[index]:
                 self._invoke_targets(strategy, index)
-            changed = self.decisions[index] or previous_fills != len(self.broker.fills)
+            changed = self.decisions[index] or previous_fills != self.broker.fill_count
             index = index + 1 if changed else self._skip(index)
 
     def _invoke_targets(self, strategy: Callable[[Context], None], index: int) -> None:
@@ -111,7 +116,7 @@ class ScheduledRun(BarRun):
                 continue  # Rules cannot change inside a trading date.
             if child is None:
                 return False
-            order = self.broker._orders[child - 1]
+            order = self.broker.order_state(child)
             if (
                 order.status == "filled"
                 or order.session != self.data.sessions[self.data.day_index(index)]

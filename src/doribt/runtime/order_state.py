@@ -1,9 +1,13 @@
 """内部可变订单状态；对外仅暴露独立、不可变的 Order 快照。"""
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 
 from doribt.accounting.orders import Order, Reason
+from doribt.accounting.records import record_factory
+
+order_record: Callable[[tuple[object, ...]], Order] = record_factory(Order)
 
 
 @dataclass(slots=True)
@@ -30,27 +34,29 @@ class OrderState:
     max_spend_units: int | None = None
 
     def snapshot(self) -> Order:
-        return Order(
-            self.order_id,
-            self.intent_id,
-            self.session,
-            self.symbol,
-            self.quantity,
-            self.filled,
-            self.price_units,
-            self.commission_units,
-            self.stamp_duty_units,
-            self.transfer_fee_units,
-            self.reason,
-            self.created_at,
-            self.updated_at,
-            self.state,
-            self.notional_units,
-            self.valid_for,
-            self.limit_units,
-            self.frozen_cash_units,
-            self.frozen_quantity,
-            self.max_spend_units,
+        return order_record(
+            (
+                self.order_id,
+                self.intent_id,
+                self.session,
+                self.symbol,
+                self.quantity,
+                self.filled,
+                self.price_units,
+                self.commission_units,
+                self.stamp_duty_units,
+                self.transfer_fee_units,
+                self.reason,
+                self.created_at,
+                self.updated_at,
+                self.state,
+                self.notional_units,
+                self.valid_for,
+                self.limit_units,
+                self.frozen_cash_units,
+                self.frozen_quantity,
+                self.max_spend_units,
+            )
         )
 
     @property

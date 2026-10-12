@@ -51,15 +51,24 @@ def compare_review(data, quantities, backend, **kwargs):
     actual = test.run(targets, backend=backend)
     reference = test.run(lambda ctx: targets(ctx), backend=backend)
     assert_review_parity(actual, reference)
-    with patch("doribt.runtime.compiled_targets.eligible", return_value=False):
+    with (
+        patch("doribt.runtime.compiled_targets.eligible", return_value=False),
+        patch("doribt.runtime.compiled_schedule.eligible", return_value=False),
+    ):
         fallback = test.run(targets, backend=backend)
     assert_review_parity(actual, fallback)
     assert actual.run_info == fallback.run_info
     if backend == "numba":
+        from doribt.kernels.scheduled_loop import simulate_schedule
         from doribt.kernels.target_loop import simulate_targets
 
-        with patch(
-            "doribt.runtime.compiled_targets.compiled_targets", return_value=simulate_targets
+        with (
+            patch(
+                "doribt.runtime.compiled_targets.compiled_targets", return_value=simulate_targets
+            ),
+            patch(
+                "doribt.runtime.compiled_schedule.compiled_schedule", return_value=simulate_schedule
+            ),
         ):
             interpreted = test.run(targets, backend=backend)
         assert_review_parity(actual, interpreted)
@@ -175,7 +184,7 @@ def test_review_remaining_tax_lots_keep_original_ids(backend):
     assert result.cash[-1] == 9000
 
 
-def test_review_minute_fallback_preserves_day_net_tax_lots(backend):
+def test_review_minute_schedule_preserves_day_net_tax_lots(backend):
     data = minute_data(frequency="5min", days=2, settlement=0, volume=100000)
     compare_review(
         data,
@@ -254,43 +263,51 @@ def test_review_blocked_or_partial_buy_keeps_reservation(backend, volume, expect
 
 
 @pytest.mark.numba
-def test_review_eligibility_falls_back_without_calling_kernel(monkeypatch):
-    from doribt.runtime import compiled_targets
+def test_review_compiled_dispatch_preserves_supported_scope(monkeypatch):
+    from doribt.runtime import compiled_schedule, compiled_targets
 
-    calls = []
+    calls, schedule_calls = [], []
     original = compiled_targets.execute
+    original_schedule = compiled_schedule.execute
 
     def observed(run, info):
         calls.append(run)
         return original(run, info)
 
+    def observed_schedule(run, info):
+        schedule_calls.append(run)
+        return original_schedule(run, info)
+
     monkeypatch.setattr(compiled_targets, "execute", observed)
+    monkeypatch.setattr(compiled_schedule, "execute", observed_schedule)
     daily = data_for([10] * 5)
     quantities = {"A": [100] * 5}
     compare_review(daily, quantities, "numba", execution=BarExecution())
-    assert len(calls) == 2
+    assert len(calls) == 2 and not schedule_calls
     compare_review(daily, quantities, "python", execution=BarExecution())
     minute = minute_data(frequency="5min")
     compare_review(minute, {"A": [100] * 96}, "numba", execution=BarExecution())
+    assert len(schedule_calls) == 2
     corporate = market_with_actions([10] * 5, [distribution()])
     result = compare_review(corporate, quantities, "numba", execution=BarExecution())
-    assert result.entitlements
+    assert result.entitlements and len(schedule_calls) == 2
     targets = WeightTargets(sessions=daily.timeline, weights={"A": [0.5] * 5})
     Backtest(daily, execution=BarExecution()).run(targets, backend="numba")
     Backtest(daily).run(
         PositionTargets(sessions=daily.timeline, quantities=quantities), backend="numba"
     )
-    assert len(calls) == 2
+    assert len(calls) == 2 and len(schedule_calls) == 3
 
 
 @pytest.mark.numba
 def test_review_subclass_and_unsupported_action_keep_original_paths(monkeypatch):
-    from doribt.runtime import compiled_targets
+    from doribt.runtime import compiled_schedule, compiled_targets
 
     def forbidden(*args):
         pytest.fail("回退场景不应进入编译目标路径")
 
     monkeypatch.setattr(compiled_targets, "execute", forbidden)
+    monkeypatch.setattr(compiled_schedule, "execute", forbidden)
     data = data_for([10] * 5)
     seen = []
 

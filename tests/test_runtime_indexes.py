@@ -12,6 +12,7 @@ from doribt.accounting.account import Account, Lot
 from doribt.accounting.rights import RightsBook
 from doribt.accounting.taxes import TaxBook
 from doribt.kernels.valuation import valuer
+from doribt.runtime.array_broker import ArrayBroker
 from doribt.runtime.broker import Broker
 from doribt.runtime.intents import IntentBook
 from doribt.runtime.matching import BUDGET, RESERVED
@@ -161,21 +162,35 @@ def test_integer_subclasses_retain_existing_string_conversion():
         integer(StringNumber(9), 1, "amount", 0, 1000)
 
 
+def check_reservation_indexes(broker, updates):
+    assert broker.frozen_cash == sum(int(o.values[BUDGET]) for o in broker.active.values())
+    expected = [0] * len(broker.data.symbols)
+    for order in broker.active.values():
+        expected[order.column] += int(order.values[RESERVED])
+    assert [broker.frozen_shares(i) for i in range(len(expected))] == expected
+    assert broker.frozen_cash >= 0 and min(expected) >= 0
+    updates.append((broker.frozen_cash, tuple(expected)))
+
+
 def test_reservation_indexes_match_active_orders_through_lifecycle(backend, monkeypatch):
     original = Broker._reservations
     updates = []
 
     def checked(broker, item, cash, shares):
         original(broker, item, cash, shares)
-        assert broker.frozen_cash == sum(int(o.values[BUDGET]) for o in broker.active.values())
-        expected = [0] * len(broker.data.symbols)
-        for order in broker.active.values():
-            expected[order.column] += int(order.values[RESERVED])
-        assert [broker.frozen_shares(i) for i in range(len(expected))] == expected
-        assert broker.frozen_cash >= 0 and min(expected) >= 0
-        updates.append((broker.frozen_cash, tuple(expected)))
+        check_reservation_indexes(broker, updates)
+
+    original_advance = ArrayBroker.advance
+    advanced = []
+
+    def checked_advance(broker, index):
+        check_reservation_indexes(broker, updates)
+        original_advance(broker, index)
+        check_reservation_indexes(broker, updates)
+        advanced.append(index)
 
     monkeypatch.setattr(Broker, "_reservations", checked)
+    monkeypatch.setattr(ArrayBroker, "advance", checked_advance)
     data = minute_data(days=2, frequency="5min", volume=100, settlement=0, symbols=("A", "B"))
     snapshots = []
 
@@ -204,6 +219,9 @@ def test_reservation_indexes_match_active_orders_through_lifecycle(backend, monk
         execution=BarExecution(participation=1),
     ).run(strategy, backend=backend)
     assert len(updates) > 15
+    if backend == "numba":
+        # 编译撮合不逐单返回 Python；每次队列调用前后仍逐项核对全部冻结额。
+        assert advanced == list(range(len(data.timeline)))
     assert any(order.status == "cancelled" for order in result.orders)
     assert any(order.status == "expired" for order in result.orders)
     assert result.orders[-1].status == "unexecuted"

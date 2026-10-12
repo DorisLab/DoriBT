@@ -2,15 +2,16 @@
 
 from collections.abc import Callable
 from dataclasses import replace
-from types import MappingProxyType
+from typing import cast
 
 import numpy as np
 
 from doribt.accounting.costs import Costs
 from doribt.kernels.compiled import PreparedData
-from doribt.kernels.execution import OPEN
+from doribt.kernels.execution import OPEN, IntArray
 from doribt.provenance import RunInfo
 from doribt.reporting.result import BacktestResult
+from doribt.runtime.array_broker import ArrayBroker
 from doribt.runtime.bar_targets import BarIntentBook
 from doribt.runtime.broker import Broker
 from doribt.runtime.context import Context
@@ -29,7 +30,8 @@ class BarRun(_Run):
         execution: BarExecution,
     ) -> None:
         super().__init__(prepared, initial_cash, costs, backend)
-        self.broker = Broker(
+        broker_type = ArrayBroker if backend == "numba" else Broker
+        self.broker = broker_type(
             self.data,
             self.compiled,
             self.account,
@@ -38,6 +40,8 @@ class BarRun(_Run):
             matcher(backend),
             backend,
         )
+        if isinstance(self.broker, ArrayBroker):
+            self.broker.initialize_arrays(prepared.intrabar)
         self.targets = BarIntentBook(self.broker)
         self.book = self.targets
         self.reserved_cash = np.zeros_like(self.cash)
@@ -91,16 +95,11 @@ class BarRun(_Run):
         context._order_reader = lambda: tuple(self.broker.orders)
         context._submit = self.broker.submit
         context._cancel_order = self.broker.cancel
-        positions = {
-            symbol: replace(position, frozen_quantity=int(self.reserved_shares[index, i]))
-            for i, (symbol, position) in enumerate(context.account.positions.items())
-        }
-        context.account = replace(
-            context.account,
-            frozen_cash=self.broker.frozen_cash / 10_000,
-            positions=MappingProxyType(positions),
-        )
+        context.account = replace(context.account, frozen_cash=self.broker.frozen_cash / 10_000)
         return context
+
+    def _frozen_positions(self, index: int) -> IntArray:
+        return cast(IntArray, self.reserved_shares[index])
 
     def _finish(self) -> None:
         quantities = self.account.quantities() + self.rights.pending_shares()
