@@ -111,6 +111,15 @@ gap_config = doribt.RunConfig(initial_cash=10000, costs=doribt.Costs(
 funded = Backtest(gap, config=gap_config).run(
     lambda ctx: ctx.target_positions({'A': 500}) if ctx.bar_index == 0 else None)
 assert funded.holdings[-1, 0] == 500 and funded.cash[-1] == 4900
+compiled_daily = Backtest(gap, config=gap_config).run(PositionTargets(
+    sessions=gap.timeline, quantities={'A': [500]*3}))
+for name in ('equity_units', 'cash_units', 'holdings', 'sellable'):
+    np.testing.assert_array_equal(getattr(compiled_daily, name), getattr(funded, name))
+assert compiled_daily.orders == funded.orders
+assert compiled_daily.intents == funded.intents
+assert compiled_daily.fills == funded.fills
+assert compiled_daily.tax_lots == funded.tax_lots
+
 capped = Backtest(gap, config=gap_config).run(
     lambda ctx: ctx.order('A', 500, max_spend=5000) if ctx.bar_index == 0 else None)
 assert capped.orders[0].filled == 490 and capped.orders[0].reason == 'spending_limit'

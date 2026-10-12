@@ -9,6 +9,8 @@ from doribt.accounting.costs import Costs
 from doribt.kernels.compiled import PreparedData
 from doribt.kernels.execution import STATUS
 from doribt.kernels.segments import scanner, value_span
+from doribt.provenance import RunInfo
+from doribt.reporting.result import BacktestResult
 from doribt.runtime.bar_runtime import BarRun
 from doribt.runtime.context import Context
 from doribt.runtime.slippage import BarExecution
@@ -29,6 +31,10 @@ class ScheduledRun(BarRun):
         self.precomputed_targets = targets
         self.scan = scanner(backend)
         self.intrabar = prepared.intrabar
+        from doribt.runtime.compiled_targets import eligible
+
+        if eligible(self):
+            return
         self.decisions = np.zeros(len(self.data.timeline), dtype=np.bool_)
         self.decisions[0] = True
         values = targets.quantities if isinstance(targets, PositionTargets) else targets.weights
@@ -53,6 +59,13 @@ class ScheduledRun(BarRun):
         boundaries[2:] |= transitions[:-1]
         boundaries[-1] = True
         self.boundaries = np.flatnonzero(boundaries)
+
+    def execute(self, strategy: Callable[[Context], None], info: RunInfo) -> BacktestResult:
+        from doribt.runtime.compiled_targets import eligible, execute
+
+        if eligible(self):
+            return execute(self, info)
+        return super().execute(strategy, info)
 
     def _drive(self, strategy: Callable[[Context], None]) -> None:
         index, count = 0, len(self.data.timeline)

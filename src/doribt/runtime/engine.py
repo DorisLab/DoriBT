@@ -23,7 +23,6 @@ from doribt.runtime.context import Context, account_view
 from doribt.runtime.intents import IntentBook
 from doribt.runtime.slippage import BarExecution
 from doribt.runtime.targets import PositionTargets, WeightTargets
-from doribt.serialization import encode
 from doribt.validation import Number, amount
 
 
@@ -121,17 +120,15 @@ class Backtest:
             backend,
             execution,
             data_json=self._prepared.provenance_json,
+            metadata=self._metadata(parameter_schema, backend),
         )
-        info = self._metadata(info, parameter_schema, backend)
         result = run.execute(recorded, info)
         if recorder.values:
             result = replace(result, outputs={"strategy": recorder.output()})
         return result
 
-    def _metadata(self, info: RunInfo, schema: ParameterSet | None, backend: str) -> RunInfo:
-        if self.config is None and schema is None:
-            return info
-        metadata = info.to_dict()
+    def _metadata(self, schema: ParameterSet | None, backend: str) -> dict[str, object]:
+        metadata: dict[str, object] = {}
         if self.config is not None:
             effective = replace(
                 self.config,
@@ -142,7 +139,7 @@ class Backtest:
             metadata["config"] = effective.to_dict() | {"backend": backend}
         if schema is not None:
             metadata["parameter_schema"] = schema.to_dict()
-        return RunInfo(encode(metadata))
+        return metadata
 
 
 class _Run:

@@ -131,6 +131,7 @@ def run_info(
     execution: BarExecution | None = None,
     *,
     data_json: str | None = None,
+    metadata: dict[str, object] | None = None,
 ) -> RunInfo:
     root = Path(__file__).parent
     code = {
@@ -195,7 +196,7 @@ def run_info(
     }
     return RunInfo(
         encode_run(
-            payload,
+            payload | (metadata or {}),
             {
                 "data": data_json if data_json is not None else encode(data_info(data)),
                 "strategy": strategy_json,
