@@ -10,6 +10,7 @@ from doribt.market.china import china_rules
 from doribt.market.clock import MinuteClock
 from doribt.market.data import MarketData
 from doribt.market.instruments import Instrument, TradingStatus
+from doribt.market.overrides import RuleOverride
 from doribt.market.rules import RuleBook, RulePeriod, TradingRule
 from doribt.provenance import RunInfo
 from doribt.reporting.benchmark import Benchmark
@@ -57,6 +58,7 @@ __all__ = [
     "Instrument",
     "MarketData",
     "RuleBook",
+    "RuleOverride",
     "RulePeriod",
     "TradingRule",
     "TradingStatus",
@@ -66,4 +68,4 @@ __all__ = [
     "Reason",
 ]
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"

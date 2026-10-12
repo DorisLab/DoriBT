@@ -101,6 +101,19 @@
 ```
 
 ```{eval-rst}
+.. autoclass:: doribt.RuleOverride
+```
+
+```{eval-rst}
+.. automethod:: doribt.RuleBook.with_overrides
+```
+
+按证券或 profile 与闭区间日期覆盖 `TradingRule` 字段。证券层优先于 profile 层；
+同级同字段重叠报错，不按列表顺序决定。`china_rules(..., overrides=[...])` 与
+`rules.with_overrides([...])` 都返回独立规则簿，保留官方费用断点。完整示例见
+[历史预设与覆盖](china-market.md#按证券和日期覆盖规则)。
+
+```{eval-rst}
 .. automethod:: doribt.MinuteClock.build
 ```
 

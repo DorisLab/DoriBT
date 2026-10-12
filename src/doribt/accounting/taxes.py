@@ -12,7 +12,7 @@ from datetime import date
 
 from doribt.validation import MAX_MONEY
 
-TAX_POLICY = "cn-individual-2015@2026-10-06"
+TAX_POLICY = "cn-individual-2015@2026-10-12"
 
 
 def anniversary(acquired: date, months: int) -> date:
@@ -33,7 +33,7 @@ def dividend_rate(acquired: date, sold: date) -> int:
 
 
 def validate_tax_period(session: date) -> None:
-    if not date(2015, 9, 9) <= session <= date(2026, 10, 6):
+    if not date(2015, 9, 9) <= session <= date(2026, 10, 12):
         raise ValueError("dividend tax date is outside the verified individual tax policy")
 
 

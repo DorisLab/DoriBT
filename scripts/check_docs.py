@@ -1,6 +1,7 @@
 """严格构建文档，校验站内链接，并在仓库外运行使用教程。"""
 
 import argparse
+import importlib
 import json
 import os
 import re
@@ -56,11 +57,25 @@ def check_search(site: Path) -> None:
     text = (site / "searchindex.js").read_text(encoding="utf-8")
     index = json.loads(text.removeprefix("Search.setIndex(").removesuffix(")"))
     terms = set(index["terms"]) | set(index["titleterms"])
-    missing = {"佣金", "最低佣金", "部分成交", "runconfig"} - terms
+    language = importlib.import_module("sphinx.search.zh").SearchChinese({})
+    expected = {
+        language.stem(word)
+        for word in ("佣金", "最低佣金", "部分成交", "RunConfig", "RuleOverride")
+    }
+    missing = expected - terms
     if missing:
         raise RuntimeError(f"中文／API 搜索索引缺少必要词条：{sorted(missing)}")
     api = Page(site / "api.html")
-    if not {"doribt.Backtest.run", "doribt.RunConfig", "doribt.Context.order"} <= api.ids:
+    if (
+        not {
+            "doribt.Backtest.run",
+            "doribt.RunConfig",
+            "doribt.Context.order",
+            "doribt.RuleOverride",
+            "doribt.RuleBook.with_overrides",
+        }
+        <= api.ids
+    ):
         raise RuntimeError("API 签名未生成可引用的对象锚点")
 
 
@@ -88,11 +103,13 @@ def run_examples(python: str, backend: str) -> None:
                     "dividends",
                     "historical_rules",
                     "minute",
+                    "intraday_t",
                     "slippage",
                     "target_sizing",
                 )
             ],
             ["examples/minute.py", "--backend", backend, "--precomputed"],
+            ["examples/intraday_t.py", "--backend", backend, "--frequency", "5min"],
             ["examples/research.py", "--backend", backend, "--plot", "--output", "report"],
         ]
         for command in commands:

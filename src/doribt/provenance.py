@@ -102,6 +102,7 @@ def data_info(data: MarketData) -> dict[str, object]:
         "frequency": data.clock.frequency if data.clock else "1d",
         "timestamps": list(data.timeline) if data.clock else None,
         "rules": rules,
+        "rule_provenance": data.rules.provenance(),
         "actions": actions,
         "rules_sha256": digest(rules),
         "actions_sha256": digest(actions),

@@ -54,8 +54,8 @@ def test_policy_changes_are_inclusive_and_preserve_source(session, stamp, transf
     assert period.rule.stamp_duty_sell == Decimal(stamp)
     assert period.rule.transfer_fee == Decimal(transfer)
     assert period.rule.order_maximum == maximum
-    assert "2020-2025" in period.version
-    assert "mof.gov.cn" in period.source
+    assert "2015-2026" in period.version
+    assert "mof.gov.cn" in period.source or "chinatax.gov.cn" in period.source
     assert "szse.cn" in period.source
     assert "hkex.com.hk" in period.source
 
@@ -106,8 +106,8 @@ def test_explicit_profile_cannot_conflict_with_instrument_kind():
     [
         ({}, "2020-01-01", "2025-12-31"),
         ({"A": "guess-from-code"}, "2020-01-01", "2025-12-31"),
-        ({"A": "sse_main"}, "2019-12-31", "2025-12-31"),
-        ({"A": "sse_main"}, "2020-01-01", "2026-01-01"),
+        ({"A": "sse_main"}, "2015-09-08", "2025-12-31"),
+        ({"A": "sse_main"}, "2020-01-01", "2026-10-13"),
         ({"A": "sse_main"}, "2025-01-01", "2020-01-01"),
     ],
 )

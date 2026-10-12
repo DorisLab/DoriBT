@@ -13,4 +13,8 @@
 
 策略参数与运行配置分别表达；研究输出不会反向修改账户。参数批量使用独立账户，证券组合使用共享账户。市场事实、费用假设与指标年化约定分别保存。
 
+市场规则由内置日期预设与 `RuleOverride` 组成；按证券/profile 和有效日期覆盖明确字段，
+生成无重叠 `RulePeriod`。`RuleBook` 保存规则包版本、分类及用户覆盖声明，行情指纹和
+`RunInfo` 同时冻结这些来源。覆盖可卖延迟不会改写行情事实、账户税务身份或已买入批次。
+
 源码按 `market`、`accounting`、`runtime`、`kernels`、`reporting`、`research` 组织，内部模块不作为用户依赖入口。具体签名见[API 参考](api.md)，开发检查见[贡献说明](https://github.com/DorisLab/DoriBT/blob/main/CONTRIBUTING.md)。
