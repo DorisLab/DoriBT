@@ -68,6 +68,7 @@ NumPy 2.5.3、Numba 0.68.0、llvmlite 0.50.0，纯 Python 记录路径、Numba �
 | 执行时权重再平衡 | 0.8105 | 0.8442 | 0.9600× | 16.6293 | 16.3501 | 622.0→617.0 |
 
 前两项暖态基本持平，权重项本轮约慢 4.16%；未据此宣称三个热点再次提速。
+样本分布较宽，本轮未做交替重复定位，不能认定该差异为稳定回退，也未把原因直接归为噪声或某项校验。
 冷启动是各自一个新缓存首调记录，不是重复冷启动的统计结论。表中 peak_wset 是截至该阶段的
 Windows 累计精确进程峰值，包含导入、输入、准备、冷启动与暖态，不是暖态独占内存。
 另保留冷／暖阶段名义 5 ms RSS 观察峰值；线程与 GIL 调度可能漏掉瞬时峰值，不能称为精确峰值。
@@ -76,4 +77,35 @@ Windows 累计精确进程峰值，包含导入、输入、准备、冷启动与
 摘要 `.quality/release-060-windows-b5-performance-final/summary.json` SHA-256：
 `6fa033bf160bd6dc87e4b4178a8d79a4855042f1e254c7bc3c51f706a4b4529a`。
 
-GitHub／PyPI／Pages 发布证据将在实际完成后补充。
+## 正式发布与公开验收
+
+发行提交 `2c8ad373621d14c71cc6ab8745ebf457e4b23547` 已安全快进 main；v0.6.0 指向同一提交，
+未创建 PR。代码修复提交为 `98e177a`，原交付四个提交保留来源。已发布版本／标签／资产未替换。
+
+[发行工作流 38340629270](https://github.com/DorisLab/DoriBT/actions/runs/38340629270) 的
+Windows／Linux×Python／Numba、原生、锁定依赖审计、历史凭据扫描共七项质量任务以及 build 均成功。
+实际标签的基础测试各 618 通过，Numba 各 918 通过，原生 960 通过且零跳过。
+取消请求到达上传阶段，工作流最终 canceled、publish job canceled；公开 PyPI 的两件资产实际已上传。
+确认两件文件与已成功 CI 构建的原件逐字节相等后，未重传或覆盖，继续正式发布 GitHub Release。
+
+- [PyPI 0.6.0](https://pypi.org/project/doribt/0.6.0/) 已公开，默认 wheel 为纯 Python。
+- [GitHub Release v0.6.0](https://github.com/DorisLab/DoriBT/releases/tag/v0.6.0) 已正式发布，
+  作者 DorisLab，非 draft／prerelease；无登录下载 wheel、sdist、SHA256SUMS 与 CI 原件相等。
+- [手册部署 38341043027](https://github.com/DorisLab/DoriBT/actions/runs/38341043027) 成功，
+  线上首页和 API 显示 0.6.0。浏览器中文“规则覆盖”搜索返回三页，API 三个关键锚点存在，
+  分钟做 T 表格和下载入口可见，下载的 intraday_t.py 与发行示例逐字节一致。
+  IAB 复制按钮已尝试点击，但会话剪贴板返回空，未将实际剪贴板内容核验标为通过。
+- Windows 从公开 PyPI 建立两个全新环境，基础无 Numba／Matplotlib；各八种分钟做 T 情况通过。
+  包模块字节与 CI wheel 相同，版本和真实安装路径相符。Numba／plot 环境执行线上下载示例，
+  日频报告、PNG 和 16 文件 manifest 的哈希全部读回通过，equity_units 为 1003838800。
+  公开安装解析到 NumPy 2.5.4，与锁定门禁使用的 2.5.3 分别记录。
+
+| 资产 | SHA-256 |
+| --- | --- |
+| doribt-0.6.0-py3-none-any.whl | 3bed0d910b62bb876759ee5d266547aae5052a1419869af0aa5658b608239620 |
+| doribt-0.6.0.tar.gz | 316989d91edbf569a4caa64f99d6ba5a0e3cdb5b945a7e1f02cdfc00e33e84df |
+| SHA256SUMS | 39df16c3b8e2bab0c5b1940b0b3d78485eee28118c1c97336e36271d694f008b |
+
+公开 Linux 验收首次在 WSL DrvFS 导出返回 EINVAL；该挂载不支持原子不覆盖操作，未修改发布保证。
+Windows 受限沙盒也曾阻止父目录 realpath；标准权限复验通过。两次失败证据均保留。
+Linux 报告须选择支持原子发布的文件系统，相关边界补入手册并单独部署，发行代码和资产保持原样。
