@@ -109,3 +109,14 @@ Windows／Linux×Python／Numba、原生、锁定依赖审计、历史凭据扫�
 公开 Linux 验收首次在 WSL DrvFS 导出返回 EINVAL；该挂载不支持原子不覆盖操作，未修改发布保证。
 Windows 受限沙盒也曾阻止父目录 realpath；标准权限复验通过。两次失败证据均保留。
 Linux 报告须选择支持原子发布的文件系统，相关边界补入手册并单独部署，发行代码和资产保持原样。
+
+Linux 公共 PyPI numba／plot 的全新环境最终通过：75 个包内文件逐字节匹配正式 wheel；
+历史费率断点、证券／日期覆盖优先级、16 个 1／5 分钟做 T 情况、6 个预计算场景、
+公司行动和日频报告／PNG／manifest 读回均通过。原生文件系统输出为独立 `/tmp` 目录，
+报告副本和 `acceptance.json` 保存到 `.quality/public-060-linux/`。
+DrvFS 专门失败复验确认 errno 22 明确抛出、目标未创建、暂存清理；已有报告拒绝且 marker／目录清单不变。
+没有把首次失败计为通过，或以可覆盖的 rename 替代原子不覆盖契约。
+
+补充边界的 `milestone/docs/0.6.0-1` 指向 `dbfd9f07ca5b4bbc99fc924d2deb113303f2a1b7`；
+[文档部署 38342140834](https://github.com/DorisLab/DoriBT/actions/runs/38342140834) 成功，
+线上 results.html 已实际读回 DrvFS／EINVAL 说明。此后仅补工程记录，v0.6.0 发行代码和资产不变。
