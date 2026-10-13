@@ -22,7 +22,10 @@ uv run --no-sync python scripts/check_docs.py
 
 文档源码位于 `docs/`，历史验证材料位于 `engineering/`；后者不进入手册或站点搜索。教程通过 literalinclude 引用实际示例，API 签名从包中提取。检查包含严格构建、站内链接、仓库外示例执行与正文片段。
 
-本地预览：`python -m http.server 8000 --directory .quality/docs-site --bind 127.0.0.1`。发布步骤见[维护者说明](engineering/publishing.md)。普通提交和 PR 不运行 CI；仅引擎里程碑、文档里程碑或发行触发对应工作流。
+`engineering/` 保留在 Git 仓库，用于维护者发布流程与可复核证据；不进入发行 wheel／sdist。
+完整发布验收也随正式 GitHub Release 提供独立 Markdown 附件。
+
+本地预览：`python -m http.server 8000 --directory .quality/docs-site --bind 127.0.0.1`。发布步骤见[维护者说明](https://github.com/DorisLab/DoriBT/blob/main/engineering/publishing.md)。普通提交和 PR 不运行 CI；仅引擎里程碑、文档里程碑或发行触发对应工作流。
 
 通过分支和 Pull Request 提交变更。提交信息使用 Conventional Commits；说明行为、验证与已知限制。推送前核对仓库本地的作者邮箱、署名和远程；SSH 认证身份不等于提交作者身份。
 

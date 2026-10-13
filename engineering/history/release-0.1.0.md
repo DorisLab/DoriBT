@@ -1,6 +1,6 @@
 # 0.1.0 范围与验收索引
 
-0.1.0 已于 2026-10-06 发布，可从本地数据完成策略编写、回测、解释成交、比较指标和导出复现记录。本文将[路线图](../../docs/roadmap.md)要求对应到实现和可复核证据；最终标签 [CI 37390685059](https://github.com/DorisLab/DoriBT/actions/runs/37390685059) 六个任务全部成功，[GitHub Release](https://github.com/DorisLab/DoriBT/releases/tag/v0.1.0) 已公开。内部历史实施记录不覆盖后续提交的验证。
+0.1.0 已于 2026-10-06 发布，可从本地数据完成策略编写、回测、解释成交、比较指标和导出复现记录。本文将[路线图](../../docs/roadmap.md)要求对应到实现和可复核证据；最终标签 [CI 37390685059](https://github.com/DorisLab/DoriBT/actions/runs/37390685059) 六个任务全部成功，当时的 GitHub Release 已公开，现已按发行列表整理要求移除；[源码标签](https://github.com/DorisLab/DoriBT/tree/v0.1.0) 保留。内部历史实施记录不覆盖后续提交的验证。
 
 | 验收要求 | 公共入口与行为 | 证据 |
 | --- | --- | --- |

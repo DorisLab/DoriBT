@@ -120,3 +120,7 @@ DrvFS 专门失败复验确认 errno 22 明确抛出、目标未创建、暂存�
 补充边界的 `milestone/docs/0.6.0-1` 指向 `dbfd9f07ca5b4bbc99fc924d2deb113303f2a1b7`；
 [文档部署 38342140834](https://github.com/DorisLab/DoriBT/actions/runs/38342140834) 成功，
 线上 results.html 已实际读回 DrvFS／EINVAL 说明。此后仅补工程记录，v0.6.0 发行代码和资产不变。
+
+2026-10-13 发行列表整理：完整验收另附在 [v0.6.0 Release](https://github.com/DorisLab/DoriBT/releases/tag/v0.6.0) 的
+[release-0.6.0-acceptance.md](https://github.com/DorisLab/DoriBT/releases/download/v0.6.0/release-0.6.0-acceptance.md)。
+冻结 v0.6.0 标签及旧 sdist 中的草稿反映创建标签时点；完整发布结果以附加完成记录为准。既有 wheel／sdist 未替换。

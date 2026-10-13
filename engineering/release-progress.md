@@ -2,7 +2,7 @@
 
 发布目标以 [开发目标](../docs/roadmap.md) 的基础引擎完整要求为准。本记录用于持续实施与验收，不把内部任务拆分改写为对外路线图，也不把部分通过视为发布完成。
 
-当前结论：0.1.0 首版目标已完成并[正式发布](https://github.com/DorisLab/DoriBT/releases/tag/v0.1.0)。最终提交、跨平台 CI、发行包及公开下载证据见[首版发行记录](history/release-0.1.0.md#最终发行记录)；下文按目标保留开发过程中的阶段证据。
+当前已发布基线为 0.6.0；0.6.1 整理发行内容与完整发布流程。最新状态见文末。0.1.0–0.4.0 GitHub Release 已按用户要求清理，Git 标签与下文历史验证证据保留；这些记录反映当时的实现和发布状态。
 
 ## 主要目标与证据
 
@@ -112,7 +112,7 @@ Windows 本地完整门禁通过：基础 367 项、含 Numba 完整 532 项；R
 
 公开 PyPI 0.3.0 的 wheel／sdist 与发行构建、SHA256SUMS 三方一致；GitHub Release 三个资产均通过无登录下载和逐字节哈希核对。独立 Python 3.13 环境从官方 PyPI 安装 doribt[numba,plot]==0.3.0，Python／Numba 三种滑点模式示例及全部仓库外教程通过，实际导入来自该环境的 site-packages。wheel SHA-256 为 cb9e5ae096d974410654be6167e58cd45b3d7724c57138e9a8119a308ed1f79b，sdist 为 95af528715d4fe77394660dd5fa55c2aa2d156efb12c8ce2169aa22fc766cef6。
 
-[GitHub Release v0.3.0](https://github.com/DorisLab/DoriBT/releases/tag/v0.3.0) 由 DorisLab 发布，为 Latest 正式版本。[Pages 运行 37461243552](https://github.com/DorisLab/DoriBT/actions/runs/37461243552) 的 Linux 文档构建、教程检查与部署成功；公开首页与分钟教程返回 HTTP 200，首页版本为 0.3.0，教程包含 slippage_policy。本次仅使用发行事件运行 CI／Pages，普通 PR 不触发；消费者环境未修改。发布目标完成，后续研究使用 cost 模式需显式配置，默认 strict 保持不变。
+[GitHub Release v0.3.0](https://github.com/DorisLab/DoriBT/tree/v0.3.0) 由 DorisLab 发布，为 Latest 正式版本。[Pages 运行 37461243552](https://github.com/DorisLab/DoriBT/actions/runs/37461243552) 的 Linux 文档构建、教程检查与部署成功；公开首页与分钟教程返回 HTTP 200，首页版本为 0.3.0，教程包含 slippage_policy。本次仅使用发行事件运行 CI／Pages，普通 PR 不触发；消费者环境未修改。发布目标完成，后续研究使用 cost 模式需显式配置，默认 strict 保持不变。
 
 2026-10-06 准备 0.4.0：BarExecution 的股数委托及目标子单可用自身预留额加未占用现金，不再把前收估算金额作为隐式支出上限；保护其他挂单冻结额与应付税款。显式 `order(max_spend=...)` 限制含费用累计支出，部分成交不重置。权重默认 close 定量，新增 execution 在下一 bar 开盘、公司行动后且全部成交前按统一原始开盘权益定量一次，保留数量约束；受阻与部分成交不重新追踪权重。新的公开意图记录保存权重、模式、定量 bar，未定量数量为 null，明确支出上限与运行模型也进入导出。旧单片段日线入口不支持新增选项，使用 RunConfig／BarExecution。
 
@@ -122,7 +122,7 @@ Windows 本地完整门禁通过：基础 367 项、含 Numba 完整 532 项；R
 
 PyPI 0.4.0 的 wheel／sdist、GitHub Release 三个公开资产均已无登录下载，与发行构建及 SHA256SUMS 逐字节相等。wheel SHA-256 为 49c4c8125cef69ed88a8730cf4674ee5b9ed0e014ed5da53bcb574aa427696ef，sdist 为 40ac42a3ef6f42ef2f4a5317b993a5ddc8d46d197b22b987220424f1a6f567f2。独立 Python 3.13 环境从官方 PyPI 安装 doribt[numba,plot]==0.4.0，实际导入位于独立 site-packages；target_sizing 的 Python／Numba 手算示例及全部仓库外教程通过。
 
-[GitHub Release v0.4.0](https://github.com/DorisLab/DoriBT/releases/tag/v0.4.0) 由 DorisLab 发布为 Latest 正式版本。[Pages 运行 37473282305](https://github.com/DorisLab/DoriBT/actions/runs/37473282305) 的 Linux 构建、教程检查与部署成功；公开首页、策略教程与执行契约均 HTTP 200，首页显示 0.4.0，线上内容包含 sizing、max_spend 和 spending_limit。发行与文档部署完成，消费者环境未修改；后续目标按实际使用反馈决定。
+[GitHub Release v0.4.0](https://github.com/DorisLab/DoriBT/tree/v0.4.0) 由 DorisLab 发布为 Latest 正式版本。[Pages 运行 37473282305](https://github.com/DorisLab/DoriBT/actions/runs/37473282305) 的 Linux 构建、教程检查与部署成功；公开首页、策略教程与执行契约均 HTTP 200，首页显示 0.4.0，线上内容包含 sizing、max_spend 和 spending_limit。发行与文档部署完成，消费者环境未修改；后续目标按实际使用反馈决定。
 
 2026-10-12 准备 0.5.0：历史现金账户预设扩展至 2015-09-09—2026-10-12，科创板从
 2019-07-22 起；新增沪深债券、黄金及当期具备 T+0 资格的跨境 ETF 分类。
@@ -321,3 +321,24 @@ Linux 原生为 10.98／12.34／18.11 倍，完整字段相等。首次 JIT 较�
 75 包文件字节核对、16 个做 T 情况、6 个预计算场景及报告／PNG／manifest 读回。
 DrvFS 的明确失败、暂存清理和既有报告保护单独复验；报告目标改为 Linux 原生文件系统后通过。
 新文档里程碑 `milestone/docs/0.6.0-1` 的部署 38342140834 成功，线上手册已补此边界。
+
+## 2026-10-13：0.6.1 发行整理与本地验收
+
+按用户要求保留 0.5.0／0.6.0 的 CHANGELOG 和 GitHub Release，并新增本次 0.6.1。
+0.1.0–0.4.0 Release 的元数据及资产已先下载、核验尺寸和摘要，再删除发行条目；Git 标签、
+历史证据和 PyPI 历史文件保留。完整 0.6.0 验收已附在该 Release 的
+`release-0.6.0-acceptance.md`，公开下载逐字节核对通过；旧标签和发行包未替换。
+
+`engineering/` 仍是仓库维护契约与证据入口，因此保留在 Git，排除 wheel／sdist；
+Pages 原本只发布 docs 的构建结果。打包验证植入工程哨兵，并实际检查纯包、原生包和
+sdist 重建，确认工程文件排除、构建所需源码保留、RECORD 正确。构建子进程失败现在
+以 UTF-8 保留中文 stdout／stderr 和退出码，新增真实失败回归通过。
+
+Windows 基础门禁 620 项通过（42 跳过、300 项 Numba 用例排除）；最终 Numba 门禁
+921 项通过（42 个非原生环境用例跳过），含全部三个新增打包／错误回归。Ruff、
+101 文件 strict mypy、400 行／复杂度、示例、新构建基础及 Numba／plot wheel 的
+仓库外安装通过，全部 extras 锁定依赖审计未发现已知漏洞。文档 25 页严格构建、
+站内链接／API／中文索引与可执行教程通过。Linux 定向打包通过纯包和原生包隔离安装、
+四类非空 C 调用及 required 失败路径；运行源码仅版本变化，未重新宣称新的性能结论。
+正式 v0.6.1 的跨平台门禁、PyPI 部署、发行资产和 Pages 将按实际完成结果另行记录，
+完成验收单独附在 Release，避免把发行前快照作为发行后证据。

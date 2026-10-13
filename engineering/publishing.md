@@ -41,6 +41,17 @@ Trusted Publisher 使用以下值，GitHub `pypi` 环境只允许 `v*` 标签：
 
 发布后从公开 PyPI 安装基础包和可选依赖，执行最小回测与教程，核对 wheel／sdist 的 SHA-256。GitHub Release 附上同一次构建的 wheel、sdist 和 SHA256SUMS，说明当前能力、安装要求和边界，不把内部迭代记录当成用户发行说明。
 
+发布完成以 `publish` job 和 GitHub `pypi` deployment 均为 success，并通过公开安装及资产哈希核验为准。
+上传步骤被取消但文件已公开时，须分别记录流程状态和实际资产状态，不将其写成完整流程通过。
+已有 PyPI 版本不能覆盖；完成下一版本的完整发行流程。
+
+`engineering/` 承载维护者流程与历史证据，保留在 Git 仓库，排除发行 wheel／sdist 和 Pages。
+标签源码归档反映创建标签时的文件；完整发布结果写入 main 的工程记录，并作为该版本 Release 的
+`release-<版本>-acceptance.md` 附件提供。Release 正文直接链接完成记录，避免使用发布前草稿作为最终证据。
+
+当前 GitHub Release／CHANGELOG 仅保留 0.5.0 起的版本。按用户要求清理较早 Release 时，先保存
+Release 元数据与资产校验清单；只删除对应 Release，保留 Git 标签和历史提交。历史证据注明该变更。
+
 ```sh
 python -m pip install doribt
 python -m pip install "doribt[numba,plot]"

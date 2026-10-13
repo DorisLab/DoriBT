@@ -21,6 +21,7 @@ from zipfile import ZipFile
 ROOT = Path(__file__).resolve().parents[1]
 BINARY_SUFFIXES = (".so", ".pyd", ".dll", ".dylib", ".o", ".a")
 NATIVE_NAME = "doribt/_native_records.abi3.so"
+ENGINEERING_SENTINEL = "engineering/history/package-exclusion-sentinel.json"
 
 SMOKE = """
 import importlib.util, json, os, sys
@@ -107,9 +108,14 @@ print(json.dumps({'installed_from_wheel': True, 'native': expected,
 
 
 def _run(command: list[str], cwd: Path, env: dict[str, str]) -> str:
-    completed = subprocess.run(command, cwd=cwd, env=env, text=True, capture_output=True)
+    completed = subprocess.run(
+        command, cwd=cwd, env=env, text=True, encoding="utf-8", capture_output=True
+    )
     if completed.returncode:
-        raise RuntimeError(f"子进程验证失败：\n{completed.stderr}\n{completed.stdout}")
+        raise RuntimeError(
+            f"子进程验证失败（退出码 {completed.returncode}）：\n"
+            f"{completed.stderr}\n{completed.stdout}"
+        )
     return completed.stdout.strip()
 
 
@@ -123,6 +129,9 @@ def _copy_source(destination: Path) -> None:
         )
     for name in ("pyproject.toml", "hatch_build.py", "README.md", "LICENSE", ".gitignore"):
         shutil.copy2(ROOT / name, destination / name)
+    sentinel = destination / ENGINEERING_SENTINEL
+    sentinel.parent.mkdir(parents=True)
+    sentinel.write_text('{"engineering_only": true}\n', encoding="utf-8")
     _plant_stale_artifacts(destination)
 
 
@@ -148,6 +157,7 @@ def _sdist(temporary: Path, uv: list[str], env: dict[str, str]) -> Path:
     with tarfile.open(artifact) as archive:
         names = [name.split("/", 1)[1] for name in archive.getnames() if "/" in name]
         assert not any(name.endswith(BINARY_SUFFIXES) for name in names)
+        assert not any("engineering" in Path(name).parts for name in names)
         for required in (
             "hatch_build.py",
             "src/doribt/_native_build.py",
@@ -178,6 +188,7 @@ def _check_record(archive: ZipFile, record_path: str) -> None:
 def _inspect_wheel(wheel: Path, native: bool) -> dict[str, object]:
     with ZipFile(wheel) as archive:
         names = archive.namelist()
+        assert not any("engineering" in Path(name).parts for name in names)
         binaries = [name for name in names if name.endswith(BINARY_SUFFIXES)]
         assert binaries == ([NATIVE_NAME] if native else [])
         wheel_path = next(name for name in names if name.endswith(".dist-info/WHEEL"))

@@ -2,8 +2,8 @@
 
 面向 A 股研究的 Python 回测引擎，支持日线与 1／5 分钟现金账户回测。
 
-当前发行版 **0.6.0**：完整账本编译执行、按需历史窗口、随记录增长的审计缓冲区与流式导出，
-并修复日期上界及冻结数组可写问题。公共策略和结果接口保持兼容。
+当前发行版 **0.6.1**：整理发行记录与安装包内容，沿用 0.6.0 的完整账本编译执行、
+按需历史窗口、随记录增长的审计缓冲区与流式导出。公共策略和结果接口保持兼容。
 
 [文档中心](https://dorislab.github.io/DoriBT/) · [PyPI](https://pypi.org/project/doribt/) · [使用教程](https://dorislab.github.io/DoriBT/guide/quickstart.html)
 
