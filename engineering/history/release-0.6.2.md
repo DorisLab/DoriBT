@@ -100,11 +100,25 @@ NEXT_STEPS 中的 sitemap、robots 和搜索站长提交属可选建议，本次
 明确导航已可访问，额外站长提交需要具体站点账户与目标。`llms.txt` 是文本索引，不承诺排名
 或 AI 收录。工程记录不进入 wheel／sdist 或 Pages。
 
-最终源码的 75 个 Python／C 文件与性能 wheel 核对一致，差异仅为 4 个 Python 文件的 CRLF／LF；
-这些文件另经 AST 等价核对。Git 按 LF 签入，正式发行会单独登记其字节摘要；原性能记录不改写。
-具体文件与测量 wheel 哈希见 source-equivalence.json。
+性能 wheel 与首次发行提交的 75 个 Python／C 文件核对一致，差异仅为 4 个 Python 文件的 CRLF／LF，
+这些文件另经 AST 等价核对。随后 CI 修复只调整 `execution_audit.py` 的可选依赖类型声明：
+以 Protocol／cast 描述 Numba 动态配置属性，计算、数据准备和记录代码未变。原性能记录保留
+测量时的源码摘要，不能当作最终发行包的字节摘要。文件差异见 source-equivalence.json；
+正式包另核对发行提交及公开资产摘要。
 
 本地最终质量入口：Python 636 通过、42 原生跳过、479 Numba 用例明确排除；
 Numba 1115 通过、42 原生跳过。Ruff、104 文件 strict mypy、400 行／复杂度、示例、
 两种隔离 wheel、两后端文档教程与锁定依赖联网审计均通过。Actionlint、Git 历史及待提交
 内容 Gitleaks 扫描通过，未发现泄漏。
+
+## 首次发行 CI 的失败与修复
+
+首次标签对应提交 `29eb2aadfb842f133c591c561adfa60428b365bd`，
+[工作流 38359791922](https://github.com/DorisLab/DoriBT/actions/runs/38359791922)
+的 6 个基础后端任务因 mypy `unused-ignore` 失败；其余 15 个质量任务通过，构建与发布跳过。
+原因是没有安装 Numba 时，其配置模块的类型退化为 Any，原来的属性忽略声明变成多余。
+此前隔离基础 wheel 验证覆盖了运行时，但本地基础开发门禁仍使用装有 Numba 的环境，
+没有覆盖这一静态检查差异。此次增加真正不安装 Numba 的独立开发环境，修复类型边界，
+不放宽检查、不跳过失败用例。Windows 11 和 WSL2 Ubuntu 的 CPython 3.15.0 独立无 Numba
+环境均通过完整基础门禁（636 通过、42 原生跳过、479 Numba 用例明确排除）；Windows
+Numba 环境再次通过完整门禁（1115 通过、42 原生跳过）。日志摘要另存 ci-fix-local-checks.json。

@@ -7,5 +7,14 @@
     "doribt/runtime/bar_runtime.py",
     "doribt/runtime/compiled_schedule.py",
     "doribt/runtime/compiled_targets.py"
+  ],
+  "comparison_scope": "Measured wheel versus first release attempt 29eb2aadfb842f133c591c561adfa60428b365bd",
+  "ci_fix_changes": [
+    {
+      "file": "doribt/runtime/execution_audit.py",
+      "measured_lf_sha256": "126fc4e07fad7c4b22eadcb8e08c107098680070696e4ed04ee254874f2c1684",
+      "release_lf_sha256": "357aaceef2f16127b74e372a2aa1ca53eb2c98e96ed4519c232b31d02751d56c",
+      "change": "Add a typed Protocol and identity typing.cast for Numba dynamic configuration; remaining AST identical. Numerical, preparation and record code unchanged."
+    }
   ]
 }

@@ -1,0 +1,32 @@
+[
+  {
+    "platform": "Windows 11",
+    "log": "base-no-numba-check.log",
+    "python": "3.15.0",
+    "numba_installed": false,
+    "passed": 636,
+    "skipped": 42,
+    "deselected": 479,
+    "sha256": "c65c7f10e7ff81ace2d2ce1a6b03f8323c778975338789a24372b7f5f3b45ba5"
+  },
+  {
+    "platform": "Windows 11",
+    "log": "numba-ci-fix-check.log",
+    "python": "3.15.0",
+    "numba_installed": true,
+    "passed": 1115,
+    "skipped": 42,
+    "deselected": 0,
+    "sha256": "c02cf77865db4ad92c50b485eb0d29505d9b38d1187b163a7673c2d00863c722"
+  },
+  {
+    "platform": "WSL2 Ubuntu 24.04",
+    "log": "base-no-numba-check.log",
+    "python": "3.15.0",
+    "numba_installed": false,
+    "passed": 636,
+    "skipped": 42,
+    "deselected": 479,
+    "sha256": "3c10f7f67a95b03fb56045f5d5715ad5d88d2f5195b7bac481471f15c3023aaf"
+  }
+]
