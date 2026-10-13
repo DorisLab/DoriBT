@@ -79,3 +79,9 @@ uv run --no-sync python scripts/check.py --backend numba --audit
 订单之和一致。保存的回调上下文在后续成交、公司行动和再次运行后首次访问持仓映射，
 仍须对应原收盘快照。权重收盘／执行时点定量、最终未定量意图、非活动规则区间回退
 和错误链都应与正式回调逐字段相同；不能用调用次数替代资金不变量。
+
+可选原生扩展有独立的 Linux x86_64／CPython 3.13／Numba CI 任务，与现有四项纯包矩阵一起运行。
+任务从当前 C 源码显式构建，使用 `DORIBT_NATIVE_RECORDS=required` 执行完整测试，缺扩展不得跳过；
+随后运行 `scripts/check_native_package.py`，从 sdist 验证纯／原生 wheel 的隔离安装、实际 C 调用及构建失败路径。
+基础纯包矩阵中的原生协议用例会明确跳过，不计为原生验收通过。此任务也进入发布前质量门禁，
+但正式发行流程继续生成纯 Python wheel；原生二进制的跨平台发行另需验证。
