@@ -2,7 +2,7 @@
 
 发布目标以 [开发目标](../docs/roadmap.md) 的基础引擎完整要求为准。本记录用于持续实施与验收，不把内部任务拆分改写为对外路线图，也不把部分通过视为发布完成。
 
-当前已发布基线为 0.6.0；0.6.1 整理发行内容与完整发布流程。最新状态见文末。0.1.0–0.4.0 GitHub Release 已按用户要求清理，Git 标签与下文历史验证证据保留；这些记录反映当时的实现和发布状态。
+当前已发布基线为 0.6.1，已完成发行整理、PyPI 上传与部署、公开安装和 Pages 验收。最新状态见文末。0.1.0–0.4.0 GitHub Release 已按用户要求清理，Git 标签与下文历史验证证据保留；这些记录反映当时的实现和发布状态。
 
 ## 主要目标与证据
 
@@ -112,7 +112,7 @@ Windows 本地完整门禁通过：基础 367 项、含 Numba 完整 532 项；R
 
 公开 PyPI 0.3.0 的 wheel／sdist 与发行构建、SHA256SUMS 三方一致；GitHub Release 三个资产均通过无登录下载和逐字节哈希核对。独立 Python 3.13 环境从官方 PyPI 安装 doribt[numba,plot]==0.3.0，Python／Numba 三种滑点模式示例及全部仓库外教程通过，实际导入来自该环境的 site-packages。wheel SHA-256 为 cb9e5ae096d974410654be6167e58cd45b3d7724c57138e9a8119a308ed1f79b，sdist 为 95af528715d4fe77394660dd5fa55c2aa2d156efb12c8ce2169aa22fc766cef6。
 
-[GitHub Release v0.3.0](https://github.com/DorisLab/DoriBT/tree/v0.3.0) 由 DorisLab 发布，为 Latest 正式版本。[Pages 运行 37461243552](https://github.com/DorisLab/DoriBT/actions/runs/37461243552) 的 Linux 文档构建、教程检查与部署成功；公开首页与分钟教程返回 HTTP 200，首页版本为 0.3.0，教程包含 slippage_policy。本次仅使用发行事件运行 CI／Pages，普通 PR 不触发；消费者环境未修改。发布目标完成，后续研究使用 cost 模式需显式配置，默认 strict 保持不变。
+v0.3.0 当时由 DorisLab 发布为 Latest 正式版本；该 Release 已清理，[源码标签](https://github.com/DorisLab/DoriBT/tree/v0.3.0) 保留。[Pages 运行 37461243552](https://github.com/DorisLab/DoriBT/actions/runs/37461243552) 的 Linux 文档构建、教程检查与部署成功；公开首页与分钟教程返回 HTTP 200，首页版本为 0.3.0，教程包含 slippage_policy。本次仅使用发行事件运行 CI／Pages，普通 PR 不触发；消费者环境未修改。发布目标完成，后续研究使用 cost 模式需显式配置，默认 strict 保持不变。
 
 2026-10-06 准备 0.4.0：BarExecution 的股数委托及目标子单可用自身预留额加未占用现金，不再把前收估算金额作为隐式支出上限；保护其他挂单冻结额与应付税款。显式 `order(max_spend=...)` 限制含费用累计支出，部分成交不重置。权重默认 close 定量，新增 execution 在下一 bar 开盘、公司行动后且全部成交前按统一原始开盘权益定量一次，保留数量约束；受阻与部分成交不重新追踪权重。新的公开意图记录保存权重、模式、定量 bar，未定量数量为 null，明确支出上限与运行模型也进入导出。旧单片段日线入口不支持新增选项，使用 RunConfig／BarExecution。
 
@@ -122,7 +122,7 @@ Windows 本地完整门禁通过：基础 367 项、含 Numba 完整 532 项；R
 
 PyPI 0.4.0 的 wheel／sdist、GitHub Release 三个公开资产均已无登录下载，与发行构建及 SHA256SUMS 逐字节相等。wheel SHA-256 为 49c4c8125cef69ed88a8730cf4674ee5b9ed0e014ed5da53bcb574aa427696ef，sdist 为 40ac42a3ef6f42ef2f4a5317b993a5ddc8d46d197b22b987220424f1a6f567f2。独立 Python 3.13 环境从官方 PyPI 安装 doribt[numba,plot]==0.4.0，实际导入位于独立 site-packages；target_sizing 的 Python／Numba 手算示例及全部仓库外教程通过。
 
-[GitHub Release v0.4.0](https://github.com/DorisLab/DoriBT/tree/v0.4.0) 由 DorisLab 发布为 Latest 正式版本。[Pages 运行 37473282305](https://github.com/DorisLab/DoriBT/actions/runs/37473282305) 的 Linux 构建、教程检查与部署成功；公开首页、策略教程与执行契约均 HTTP 200，首页显示 0.4.0，线上内容包含 sizing、max_spend 和 spending_limit。发行与文档部署完成，消费者环境未修改；后续目标按实际使用反馈决定。
+v0.4.0 当时由 DorisLab 发布为 Latest 正式版本；该 Release 已清理，[源码标签](https://github.com/DorisLab/DoriBT/tree/v0.4.0) 保留。[Pages 运行 37473282305](https://github.com/DorisLab/DoriBT/actions/runs/37473282305) 的 Linux 构建、教程检查与部署成功；公开首页、策略教程与执行契约均 HTTP 200，首页显示 0.4.0，线上内容包含 sizing、max_spend 和 spending_limit。发行与文档部署完成，消费者环境未修改；后续目标按实际使用反馈决定。
 
 2026-10-12 准备 0.5.0：历史现金账户预设扩展至 2015-09-09—2026-10-12，科创板从
 2019-07-22 起；新增沪深债券、黄金及当期具备 T+0 资格的跨境 ETF 分类。
@@ -340,5 +340,16 @@ Windows 基础门禁 620 项通过（42 跳过、300 项 Numba 用例排除）�
 仓库外安装通过，全部 extras 锁定依赖审计未发现已知漏洞。文档 25 页严格构建、
 站内链接／API／中文索引与可执行教程通过。Linux 定向打包通过纯包和原生包隔离安装、
 四类非空 C 调用及 required 失败路径；运行源码仅版本变化，未重新宣称新的性能结论。
-正式 v0.6.1 的跨平台门禁、PyPI 部署、发行资产和 Pages 将按实际完成结果另行记录，
-完成验收单独附在 Release，避免把发行前快照作为发行后证据。
+本段记录本地阶段；正式 v0.6.1 的跨平台门禁、PyPI 部署、发行资产和 Pages 均已完成，见下文。
+
+## 2026-10-13：0.6.1 正式发布完成
+
+v0.6.1 指向 `99d95f9f415d90554654d98b9ed325527d569a0f`，main 已安全快进，未创建 PR。
+[发行工作流 38345521644](https://github.com/DorisLab/DoriBT/actions/runs/38345521644) 的七项质量任务、
+build 和 publish 全部 success；两平台基础各 621 通过、Numba 各 921 通过，原生 963 通过零跳过。
+`pypi` deployment 7029960656 亦为 success。GitHub／PyPI 公开文件与 CI 原件逐字节相同。
+[Pages 38346044330](https://github.com/DorisLab/DoriBT/actions/runs/38346044330) 成功；线上手册显示 0.6.1，
+中文规则覆盖搜索和下载示例核验通过。Windows 两个全新公开安装各八个做 T 情况，Linux 全新安装
+16 个做 T、六个日线预计算、分钟预计算、公司行动及报告／PNG／清单读回通过。
+完整范围、版本、资产摘要和边界见[0.6.1 完成验收](history/release-0.6.1.md)，并随 Release 提供独立附件。
+本次仅版本与发行整理，不宣称新增性能改善，0.6.0 已发布资产与失败历史保持可追溯。
