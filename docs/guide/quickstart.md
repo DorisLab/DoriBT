@@ -1,4 +1,4 @@
-# 第一次回测
+# 第一次回测：解释三日买入持有的收益
 
 先完成[安装](install.md)。将以下代码保存为 `quickstart.py`，执行 `python quickstart.py`。
 它使用三个人工交易日，无需账号或行情服务。

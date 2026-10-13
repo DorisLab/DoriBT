@@ -13,6 +13,7 @@ from doribt.market.data import MarketData
 from doribt.provenance import RunInfo
 from doribt.reporting.result import BacktestResult
 from doribt.runtime.context import Context
+from doribt.runtime.execution_audit import jit_enabled
 from doribt.runtime.slippage import BarExecution
 from doribt.runtime.targets import PositionTargets, WeightTargets
 
@@ -75,11 +76,12 @@ def target_run(
     from doribt.runtime.compiled_schedule import eligible as eligible_schedule
     from doribt.runtime.compiled_targets import eligible
 
+    executor(backend)
     candidate = TargetCandidate(prepared.data, prepared.compiled, backend, targets)
     plan: Literal["daily_targets", "compiled_schedule"] | None = None
-    if eligible_schedule(candidate):
+    if jit_enabled(backend) and eligible_schedule(candidate):
         plan = "compiled_schedule"
-    elif eligible(candidate):
+    elif jit_enabled(backend) and eligible(candidate):
         plan = "daily_targets"
     if plan is not None:
         return CompiledRun(prepared, initial_cash, costs, backend, execution, targets, plan)

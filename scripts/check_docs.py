@@ -106,6 +106,7 @@ def run_examples(python: str, backend: str) -> None:
                     "intraday_t",
                     "slippage",
                     "target_sizing",
+                    "inactive_weights",
                 )
             ],
             ["examples/minute.py", "--backend", backend, "--precomputed"],
@@ -126,11 +127,17 @@ def check_snippets(python: str, work: Path, env: dict[str, str]) -> None:
         "data = synthetic_market()\n"
         "result = Backtest(data, config=RunConfig()).run(moving_average)\n"
     )
-    for name in ("minutes", "parameters", "reports", "extensions"):
-        text = (ROOT / f"docs/guide/{name}.md").read_text(encoding="utf-8")
+    sources = [
+        (ROOT / f"docs/guide/{name}.md", preamble)
+        for name in ("minutes", "parameters", "reports", "extensions")
+    ]
+    sources += [(path, "") for path in sorted((ROOT / "docs/tutorials").glob("*.md"))]
+    for path, setup in sources:
+        text = path.read_text(encoding="utf-8")
         blocks = re.findall(r"```python\n(.*?)\n```", text, re.DOTALL)
-        script = work / "examples" / f"tutorial_{name}.py"
-        script.write_text(preamble + "\n".join(blocks), encoding="utf-8")
+        script = work / "examples" / f"tutorial_{path.stem}.py"
+        script.write_text(setup + "\n".join(blocks), encoding="utf-8")
+        print("正文片段验证：", path.relative_to(ROOT), flush=True)
         subprocess.run([python, str(script)], cwd=work, env=env, check=True)
 
 

@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-13",
+  "scope": "Documentation archive integrity and functional reproduction only; no new full performance measurements.",
+  "source_manifest_entries_verified": 138,
+  "archive_entries_verified": 145,
+  "source_archive_sha256": "9032412a19fb3a5dc501d491be26bc97fbb94eb6c62af5880272a042788dfe1e",
+  "archive_safety_checks": [
+    "No absolute or escaping ZIP paths",
+    "No original workspace or runtime path prefixes in source/results",
+    "No environments, caches, market data NPZ, or compiled binaries",
+    "Project LICENSE retained verbatim",
+    "Executed portable runner and verifier byte-identical to final archive"
+  ],
+  "help_command": "run.py --help passed",
+  "functional_checks": [
+    {
+      "case": "smoke-dori",
+      "engine": "doribt-python",
+      "bars": 40,
+      "assets": 2,
+      "trade_count": 6,
+      "status": "passed",
+      "assertions": "Every full economic output verified by independent integer-cents oracle",
+      "max_absolute_errors": {
+        "cash": 0.0,
+        "equity": 0.0,
+        "holdings": 0.0
+      }
+    },
+    {
+      "case": "smoke-vbt",
+      "engine": "vectorbt-rust",
+      "bars": 40,
+      "assets": 2,
+      "trade_count": 6,
+      "status": "passed",
+      "assertions": "Every full economic output verified by independent integer-cents oracle",
+      "max_absolute_errors": {
+        "cash": 0.0,
+        "equity": 0.0,
+        "holdings": 0.0
+      }
+    },
+    {
+      "case": "matrix-smoke",
+      "engine": "dori",
+      "bars": 4,
+      "assets": 3,
+      "trade_count": 3,
+      "status": "passed",
+      "assertions": "Independent full cash, holdings, equity and fills oracle; matrix last-warm NPZ also checked with verify_matrix.py",
+      "max_absolute_errors": null
+    },
+    {
+      "case": "matrix-vbt-smoke",
+      "engine": "vbt",
+      "bars": 4,
+      "assets": 3,
+      "trade_count": 3,
+      "status": "passed",
+      "assertions": "Independent full cash, holdings, equity and fills oracle; matrix last-warm NPZ also checked with verify_matrix.py",
+      "max_absolute_errors": null
+    },
+    {
+      "case": "smoke-zipline",
+      "engine": "zipline",
+      "bars": 40,
+      "assets": 2,
+      "trade_count": 6,
+      "status": "passed",
+      "assertions": "Every full economic output verified by independent integer-cents oracle",
+      "max_absolute_errors": {
+        "cash": 0.0,
+        "equity": 0.0,
+        "holdings": 0.0
+      }
+    },
+    {
+      "case": "smoke-relocated",
+      "engine": "doribt-python",
+      "bars": 40,
+      "assets": 2,
+      "trade_count": 6,
+      "status": "passed",
+      "assertions": "Every full economic output verified by independent integer-cents oracle",
+      "max_absolute_errors": {
+        "cash": 0.0,
+        "equity": 0.0,
+        "holdings": 0.0
+      }
+    }
+  ],
+  "environment_note": "Used existing frozen comparison dependency environments and exact installed release. Did not repeat network dependency installation. Also copied the pure installation into a new temporary path and verified --source relocation. Smoke timings are not performance data.",
+  "summary_checks": [
+    "Daily headline median matches recorded result",
+    "17 comparable matrix rows; pure 14 and native 17 within 3x",
+    "Performance page prose does not relabel exact tested package identity"
+  ],
+  "not_rerun": [
+    "Full daily/batch/grid/matrix timing suites",
+    "Native source build or native runtime smoke",
+    "Fresh dependency installation",
+    "Earlier frozen baseline economic NPZ; archive contains complete public field fingerprints and historical parity report instead"
+  ],
+  "git_csv_normalization_checks": [
+    {
+      "file": "single-summary.csv",
+      "git_blob_sha1": "fc09fa8da5e8fbdf28b68ba58a9133ec75d6e72e",
+      "working_bytes_match_git_clean_filter": true,
+      "published_sha256": "d3562d017d1755d47c7211a439f9be9c581db85c79cf7d67c32647639e68c78c"
+    },
+    {
+      "file": "batch-summary.csv",
+      "git_blob_sha1": "4762d060d93242e11737276ee34c5e1939fa2acf",
+      "working_bytes_match_git_clean_filter": true,
+      "published_sha256": "fe0f4050cf5842d526f03c75cefa30714aeba415accfcd5131dc5b41c97b58c3"
+    },
+    {
+      "file": "grid-summary.csv",
+      "git_blob_sha1": "91cfde84a75e301f7701c87ca284e9250865654f",
+      "working_bytes_match_git_clean_filter": true,
+      "published_sha256": "fba75b6228c99094cf595a963bf2a4c5c7b7469fe820cac25c38d7f2b3217f6e"
+    }
+  ]
+}

@@ -37,7 +37,7 @@ def _compatible_runtime() -> bool:
     # 不先导入扩展再检查 free-threaded，避免导入本身改变解释器 GIL 行为。
     return (
         sys.implementation.name == "cpython"
-        and sys.version_info[:2] == (3, 13)
+        and (3, 13) <= sys.version_info[:2] < (3, 16)
         and sys.platform == "linux"
         and sysconfig.get_platform() == "linux-x86_64"
         and not sysconfig.get_config_var("Py_GIL_DISABLED")

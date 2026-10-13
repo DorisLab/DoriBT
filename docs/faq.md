@@ -1,4 +1,4 @@
-# 常见问题
+# 常见问题：成交、费用、数据与收益口径
 
 ## 为什么没有成交
 
@@ -24,7 +24,10 @@
 
 ## 为什么 Numba 没有更快
 
-首次调用要编译；频繁的 Python 回调、密集订单和结果构建也有开销。预计算目标的稳定区间更适合分段扫描。应分别比较首次调用与预热运行，详见[执行与性能](scheduled-execution.md)。
+首次调用要编译；行情准备、Python 回调、密集订单和完整账本构建也占用时间。先查看
+`result.run_info.to_dict()["execution_plan"]`：`compiled_targets` 表示目标与撮合进入完整编译，
+`scheduled_segments` 表示兼容分段，`bar_callbacks` 表示逐 bar 回调。选择 Numba 并不意味着
+整个研究流程都在编译代码中。分别测量输入准备、首次调用与预热运行，详见[执行与性能](scheduled-execution.md)。
 
 ## 如何选取回测时间和基准
 

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>DoriBT</title>
+  <rect x="1" y="1" width="62" height="62" rx="14" fill="#22292d"/>
+  <path d="M13 51V13h17c14 0 23 9 23 20 0 6-2 10-6 14H35c7-3 10-8 10-14 0-7-6-12-15-12h-9v30Z" fill="#f3ede1"/>
+  <path d="M27 29h7v15h15v7H27Z" fill="#d9b779"/>
+  <path d="M37 30h5v9h-5Z" fill="#d9b779"/>
+</svg>

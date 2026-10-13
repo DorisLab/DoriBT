@@ -1,0 +1,973 @@
+{
+  "documentation_date": "2026-10-13",
+  "original_paths_root": "${BENCHMARK_ROOT}/release060",
+  "sanitization": "Local filesystem prefixes only in JSON. Exact package identity and all measured numbers retained. Harness source unchanged. Public CSV line endings normalized from CRLF to LF to match repository attributes; ZIP CSV copies retain original bytes. New portable runner does not change economic adapters. No account data, market datasets, binaries, caches or environments included.",
+  "files": [
+    {
+      "source": "environment.json",
+      "destination": "environment.json",
+      "source_sha256": "034157629c2ad19ef73e909ce15feed646393cc99fb3c4fe21cf2d2f02248827",
+      "published_sha256": "c9e08314ceda28af7486fc974bff3bf04ad8928e45b5d14da24c16407e4bde1d",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "release-artifact-provenance.json",
+      "destination": "artifact-provenance.json",
+      "source_sha256": "7a066976039cee19df69887e8eee103a5f3135d0f5b47a1b0b22f28743f596e7",
+      "published_sha256": "6d387dc10903f5d125130aefa33de18d7653c41465e3272e434a8bb9a342ad53",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "SUMMARY.json",
+      "destination": "matrix-summary.json",
+      "source_sha256": "48bb9360c05a3f6e38bd1e8f322cdaee440eb37e5c0089f6a38080ea98aa5083",
+      "published_sha256": "9d0b60526d53b0d1a886fccb9deb0df0ba42a559574f4c9be8d88f14c8f062a7",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "AUDIT_PARITY.json",
+      "destination": "audit-parity.json",
+      "source_sha256": "301bf7867d919dfa477326c8f68efde2109a6a1a2dcb2b2e80b50552051c7464",
+      "published_sha256": "9d7e8d793da5f9d9a6d21f87a5e6d84be11af44540de13acde689ff737b06606",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "TIMING_QUALIFICATION.json",
+      "destination": "timing-qualification.json",
+      "source_sha256": "ed49239a4dd3d31270371873efe920e8065254ae3ffda98ab641c868de7a2320",
+      "published_sha256": "334e6a6f9b937d7cb42fb783d485bca9c3aae01ba9e49d03df7897334128cb72",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "saved-economics-verification.json",
+      "destination": "saved-economics-verification.json",
+      "source_sha256": "06c582087d19be4981c227f307cd72d04264bf9ff4088f861437385cb623e165",
+      "published_sha256": "005ddc33c7068428de98b85cec624b3c59c560132d96d8bb69ad23ce77145af2",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/SUMMARY.json",
+      "destination": "daily-summary.json",
+      "source_sha256": "e1aec721825710e574f8883c3b013ec0537d85edbd8c10cd8f130c589c91dd89",
+      "published_sha256": "19b28a76ef3002bddf188d938c938dc67bf6e1ba59763de0f5aa6d68bc9ed572",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/harness/benchmark.py",
+      "destination": "source-results.zip/sources/daily/benchmark.py",
+      "source_sha256": "6041cf9762e551bec0cdedf2dca7c76057a3302babfec6e69151797c6764a976",
+      "published_sha256": "6041cf9762e551bec0cdedf2dca7c76057a3302babfec6e69151797c6764a976",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "original_comparison/harness/batch.py",
+      "destination": "source-results.zip/sources/daily/batch.py",
+      "source_sha256": "f491e7dd40b576bddd81cd12e6d9c88a3778b3e811d44d35d28cb79325ea3d38",
+      "published_sha256": "f491e7dd40b576bddd81cd12e6d9c88a3778b3e811d44d35d28cb79325ea3d38",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "original_comparison/harness/heavy.py",
+      "destination": "source-results.zip/sources/daily/heavy.py",
+      "source_sha256": "89cf90a8b623cfbcb509edded9cfc5f883258fcc1bcf09140cc6c9150943d9a6",
+      "published_sha256": "89cf90a8b623cfbcb509edded9cfc5f883258fcc1bcf09140cc6c9150943d9a6",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "original_comparison/harness/stability.py",
+      "destination": "source-results.zip/sources/daily/stability.py",
+      "source_sha256": "a31859fa4f91abe40d9c0ea47a9f1a15e9873dda47e5fca9f7a2002339dd6021",
+      "published_sha256": "a31859fa4f91abe40d9c0ea47a9f1a15e9873dda47e5fca9f7a2002339dd6021",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "original_comparison/harness/zipline_adapter.py",
+      "destination": "source-results.zip/sources/daily/zipline_adapter.py",
+      "source_sha256": "eed42a6e06d17f4cf9c150690bc9e398391d44b079a4290c8efd8cfb50ac0893",
+      "published_sha256": "eed42a6e06d17f4cf9c150690bc9e398391d44b079a4290c8efd8cfb50ac0893",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "harness/matrix.py",
+      "destination": "source-results.zip/sources/matrix/matrix.py",
+      "source_sha256": "b52ac63a1db07862cad9f6bac8df739e8ce0e8ec979118f9b831ab8760a1acbb",
+      "published_sha256": "b52ac63a1db07862cad9f6bac8df739e8ce0e8ec979118f9b831ab8760a1acbb",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "harness/matrix_workloads.py",
+      "destination": "source-results.zip/sources/matrix/matrix_workloads.py",
+      "source_sha256": "9d39bbe7a56628f88cf2bd17e3c3ff1ccfa9b257bccc8cc7eae60195316591a1",
+      "published_sha256": "9d39bbe7a56628f88cf2bd17e3c3ff1ccfa9b257bccc8cc7eae60195316591a1",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "harness/matrix_vectorbt.py",
+      "destination": "source-results.zip/sources/matrix/matrix_vectorbt.py",
+      "source_sha256": "ee958647befe3a2a978f22134da4ddbaa6a0df2e71275dc7b2ae894d99acac89",
+      "published_sha256": "ee958647befe3a2a978f22134da4ddbaa6a0df2e71275dc7b2ae894d99acac89",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "harness/matrix_extra_models.py",
+      "destination": "source-results.zip/sources/matrix/matrix_extra_models.py",
+      "source_sha256": "51283c32bc58ac7c8f59202e4fbfe5dcc6479994ba8096b9eb92c0e5e2ba5252",
+      "published_sha256": "51283c32bc58ac7c8f59202e4fbfe5dcc6479994ba8096b9eb92c0e5e2ba5252",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "harness/matrix_native_evidence.py",
+      "destination": "source-results.zip/sources/matrix/matrix_native_evidence.py",
+      "source_sha256": "ae9ed86a4e9e72493066bc6d13ebf69e154aba50d03c6cfaf7f3fa590a035105",
+      "published_sha256": "ae9ed86a4e9e72493066bc6d13ebf69e154aba50d03c6cfaf7f3fa590a035105",
+      "changes": "Unchanged historical synthetic benchmark source."
+    },
+    {
+      "source": "original_comparison/results/batch-backtrader.json",
+      "destination": "source-results.zip/recorded/daily/batch-backtrader.json",
+      "source_sha256": "3ba2537ad2e59e3f1f0bd753a925cecc89007dac40db02ca288ed871ccd2a5b2",
+      "published_sha256": "f8b72bc5e60e2d9188501c0fbadb8e10dbc4eaefe3335dcfb7fffccb2e11c186",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/batch-native-numba.json",
+      "destination": "source-results.zip/recorded/daily/batch-native-numba.json",
+      "source_sha256": "91b0821c8e2d39dbf21b8f1be439426856992b74b679fcc262833d429f9d2e64",
+      "published_sha256": "830f16647df20249ca496f7bf8d3630de8f64fd0bacf5f210df65e2d901cb7f2",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/batch-pure-numba.json",
+      "destination": "source-results.zip/recorded/daily/batch-pure-numba.json",
+      "source_sha256": "ddd27b143f62b68e7fa0c53dddc3f39490de8ad6543e2b537e188c37164f7364",
+      "published_sha256": "da4860bd39201859487dab34a6f67b488ec024b6a87fb83b3429e1e8a5c811df",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/batch-pure-python.json",
+      "destination": "source-results.zip/recorded/daily/batch-pure-python.json",
+      "source_sha256": "c690472b405c037e0a7b434a6f3e7b8b2ad106664bae051eeae9ec273d449575",
+      "published_sha256": "dcaa728b0054b0fabd45aa9b4fab2779218ab35655529e170bab63cfcb07c6da",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/batch-vectorbt-numba.json",
+      "destination": "source-results.zip/recorded/daily/batch-vectorbt-numba.json",
+      "source_sha256": "855d7157170bc8f267658581106ec8a0ace00b8685a35d697199998a08d0a451",
+      "published_sha256": "7e7fd59a7d9bf346d1a62982946cac2f4c6112889760080fbd3f9b8b3bac578a",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/batch-vectorbt-rust.json",
+      "destination": "source-results.zip/recorded/daily/batch-vectorbt-rust.json",
+      "source_sha256": "0dab893603ee3b53b7909c595e6cf505336eae664173e9217ff6e3171a74db08",
+      "published_sha256": "cfc7f279a1a8d0b85720c2be1487728baf0535e9411c85bd370d6416b3c3f8db",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/batch-zipline.json",
+      "destination": "source-results.zip/recorded/daily/batch-zipline.json",
+      "source_sha256": "742820393c0f5286854148108daadee0c0760c1b2dd31bb0ee0d0e12721ea227",
+      "published_sha256": "5c77bba0d76ec157ff3d2ac447b589cedcc8b3b71d99b649f8763572e93231ac",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-native-numba-trial1.json",
+      "destination": "source-results.zip/recorded/daily/heavy-native-numba-trial1.json",
+      "source_sha256": "a771b9a8b281d87ade92b5a589f1fa833c5421fbb15939717377e8ea580025c1",
+      "published_sha256": "f0429e9d5bf61215ded7a0971238c4ea5f880b7c772eb5d33f960de4fbb49df5",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-native-numba-trial2.json",
+      "destination": "source-results.zip/recorded/daily/heavy-native-numba-trial2.json",
+      "source_sha256": "7dc319283c6684e4a296adea2fb6ff4ad1860c6f3a2a5d5d952457d634035421",
+      "published_sha256": "9739bba9cdd956c9cbcb90203e3feb2ac40956c9127c5a67cec2a7fd5f0c1b7c",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-native-numba-trial3.json",
+      "destination": "source-results.zip/recorded/daily/heavy-native-numba-trial3.json",
+      "source_sha256": "017393d19af46e4fc4d850fca44eb40c8f3ebf0f1c32180d171e4644b2bc15fe",
+      "published_sha256": "91565fc8e6b40334ba39c1cfc20505653b1affba324290e7d890ae9f5c019168",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-pure-numba-trial1.json",
+      "destination": "source-results.zip/recorded/daily/heavy-pure-numba-trial1.json",
+      "source_sha256": "d22fb9a2b829a1ab3264a7287e4b3e12a5668222afccb6d418e51ad943778441",
+      "published_sha256": "b3f0f4baf390f13ab2d2613a79e8ec7b46d8bd12806d70ea1adcd5ca3f26ebc2",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-pure-numba-trial2.json",
+      "destination": "source-results.zip/recorded/daily/heavy-pure-numba-trial2.json",
+      "source_sha256": "f34022ac7bd5a57b9a8e2b692b6899044f99a46d1f57b4f26a3c5fc3cfa38d8f",
+      "published_sha256": "e88ca44b21c784357ad8594edc8dd8329fbaf2fdf599f8779e7e239408fc4d48",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-pure-numba-trial3.json",
+      "destination": "source-results.zip/recorded/daily/heavy-pure-numba-trial3.json",
+      "source_sha256": "82eb81a3e73d297f462a01a7276cf7eaa2f798c06ab1d140d9cf87eb59635723",
+      "published_sha256": "5fe8bb546865dfefd41923b639dc56818cd6dfcb51b0f62ff15a3f5780b02978",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-pure-python-trial1.json",
+      "destination": "source-results.zip/recorded/daily/heavy-pure-python-trial1.json",
+      "source_sha256": "ae9b08286f04cededef34a8eb6481b64e8ef291a7b78dd75f7d9983e4914615f",
+      "published_sha256": "7131a491e516f96085b89b10cb5b3f246b4605bf294ad0f07a3b16bb7755548e",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-vectorbt-numba-trial1.json",
+      "destination": "source-results.zip/recorded/daily/heavy-vectorbt-numba-trial1.json",
+      "source_sha256": "f7d01046eff1e55ccc8c6bbb06a1adc5f585e30a635f9535d00c9782a5b1c4c6",
+      "published_sha256": "8d8fb6e42186c388369fbab1100277057956854061743de99155dcbf18f4e3c0",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-vectorbt-numba-trial2.json",
+      "destination": "source-results.zip/recorded/daily/heavy-vectorbt-numba-trial2.json",
+      "source_sha256": "d0d7bb42a1cb1fd6e835a86a377b2e34a7b0b291bbafd8277225e492c4ff804b",
+      "published_sha256": "bac219ae50d1782e02457de0b21bdad9e3a69c725c43913da5816a7dbbaefa3a",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-vectorbt-numba-trial3.json",
+      "destination": "source-results.zip/recorded/daily/heavy-vectorbt-numba-trial3.json",
+      "source_sha256": "b8d600409708c8b8e1e26e858e599ca71d838419c89dc32db93f37fb1c4d9984",
+      "published_sha256": "240d3ce9d4e9cda8e001d1912fd2f8c5ebe7b5489c5115a5898d9eb1f9bcdc6f",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-vectorbt-rust-trial1.json",
+      "destination": "source-results.zip/recorded/daily/heavy-vectorbt-rust-trial1.json",
+      "source_sha256": "af9089815d1130601464a5ff9933e67da4dc0ad5eb1d851d1ae571e829929c11",
+      "published_sha256": "189a0f36ec67c1a1f2a30ac54c4dcdc67aa0ddc2d880215a1f58fc2f0c24a4ca",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-vectorbt-rust-trial2.json",
+      "destination": "source-results.zip/recorded/daily/heavy-vectorbt-rust-trial2.json",
+      "source_sha256": "d428f644640fe003637ae6c5171a824a2d342b202dd95586b48645b18af59936",
+      "published_sha256": "d0d1af6b5872d550598633a11aa73d09509b6dd430c2cf81489982f3915295a4",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/heavy-vectorbt-rust-trial3.json",
+      "destination": "source-results.zip/recorded/daily/heavy-vectorbt-rust-trial3.json",
+      "source_sha256": "a46b1cdb1e93db06994da0aebfcc9693fc0337b3b83fb6b3849f9361c2d5caf0",
+      "published_sha256": "86790a2b333bcfe70582587ea8cb4693d6bab1050d0f4874aca501091626ded1",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-backtrader-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-backtrader-252-1.json",
+      "source_sha256": "48b95e1900a96896a78424d2434615acf5634961a1b668a848d1f25ca4fcf456",
+      "published_sha256": "3ea80a417fc631b07eed445b541ce17e52736094d1214b859e8a37c5d8fff185",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-backtrader-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-backtrader-2520-1.json",
+      "source_sha256": "488aaa55cd6774baceeab60f44ed1940943e84768b438f38aa88e965a1850bc8",
+      "published_sha256": "df417b0db25215d8534968ec7453dd00cdb52864774798ebf79927944d1832e6",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-backtrader-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-backtrader-2520-10.json",
+      "source_sha256": "e9b44368c55ec26108d18af06b2a47f871ea157f17b82a588e13493e57cda1e4",
+      "published_sha256": "4f89c67b58e8afdb91d47bfd6b9ebc038fd0f810f6d48b6ac8ab8823d86e2ff0",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-backtrader-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-backtrader-2520-100.json",
+      "source_sha256": "1e317765c4dc9b64475486dc82ed10530a78f4a71a155120db80ba608367f1d7",
+      "published_sha256": "703663e10de81b1d817e6009b190bf38da9d630758028b886d54a6e984561cce",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-native-numba-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-native-numba-252-1.json",
+      "source_sha256": "0bd44875268983040b0d637d55ca2c65e012736b7c9b7ca0d7f117dd0f294ff6",
+      "published_sha256": "9ae6ba6d8411c80a5a05d3f64fe691f6a3df93155841acfc2f6ec2473165018b",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-native-numba-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-native-numba-2520-1.json",
+      "source_sha256": "c26c1ed46c5c54d43f0f7a9ee7b872e2ca4b150af7eb9a171817ab4c05ab7d34",
+      "published_sha256": "c62a7bdaa24a1e8b12a6065daabed8993440f94871973ace62168d550f1ca190",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-native-numba-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-native-numba-2520-10.json",
+      "source_sha256": "0e31005668b403cfe4950d70188b99059c8fd7fa0369bfa62e1d2f7ed6e348bf",
+      "published_sha256": "1311d332e532b6229670f2e10b6808fcd67c86d22f56c235f0b4c95ccdc555dc",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-native-numba-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-native-numba-2520-100.json",
+      "source_sha256": "ebd30dfd39080c1c560e8bd3f2a2ba0dd0750c0fc81cb943812cbeafeea9150a",
+      "published_sha256": "ed50a6913770dbcc5dbe4df73a15df9e3c6d98e9e0cf642b9d81000e6ddccc00",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-252-1.json",
+      "source_sha256": "e425278ceecaa01ff6193cb0ed88710a9aae42500e390c167c569e9b2eaecdf5",
+      "published_sha256": "787739b3e1ee06da3252fa5e3883426d0048cce104766fea330bdbedee2078e9",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-2520-1.json",
+      "source_sha256": "9b9a09a64d6075afc5b34e0e1a5f57891b4b0fde743845c1a1cc94e0736fcb92",
+      "published_sha256": "15ff2045ce71b8a589f0adbe4003559fb37474e69940ef3b07db16ab2cfe5e99",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-2520-10.json",
+      "source_sha256": "61ac6ec321b53629611856ca5a2758c70fa6a7b174229ce4e280b03c81ce380d",
+      "published_sha256": "d4c634f706dc29028b998d5eef5c74dd7b2ee76642621a5848440a8ccfc4a15e",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-2520-100.json",
+      "source_sha256": "24bdadcb7fabb7f73ab4b86255e34dd69fc051eebc87ae49499417793afa8356",
+      "published_sha256": "9b155621a2d13d5416316c52eae4df59160e709432c9d16d91baf5ad41b2b579",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-callback-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-callback-252-1.json",
+      "source_sha256": "51282531c87e38af3e05bc0700892156d0861bbae7b951f9aa258fef83fed675",
+      "published_sha256": "4cd4e6f7c161ae42eac16d083345ae65ec70eb65d84005609fdc25e04db9bbf0",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-callback-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-callback-2520-1.json",
+      "source_sha256": "f8c8939b8d42c5a27ddf9621afcbe7828a015348fa4a75b27a10133d924e51b3",
+      "published_sha256": "16462a34508ed7458cb113efa749cb4d1c73aaf36cd3d9b7f995414e13f05b0e",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-callback-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-callback-2520-10.json",
+      "source_sha256": "330bfff1e0ce195af4176010bd48824950afefc09e68e88efddd09256f269641",
+      "published_sha256": "7799fd8a7cf5d42f19b1ae60c921b779e3ab377cd62f9bfbcc74f7befb36a4be",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-numba-callback-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-numba-callback-2520-100.json",
+      "source_sha256": "3e60925698b365b66765958d7534473a845676dcf4ce974b49cb521c22cc6db1",
+      "published_sha256": "825794f5a83801c77e41cc597ddc2cbc0ea0bba6e4c58ef6237374e7ee8362e0",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-252-1.json",
+      "source_sha256": "bf74f54ca3a7be8580fbc297841bd3f4eac040f2f306e8ce1c6c44e24cbf388f",
+      "published_sha256": "5cb9d7a1a2fa76e5673f71b243cba47f1e2f389d29cef265ad0a814424c5e0bc",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-2520-1.json",
+      "source_sha256": "4b17a806fd4f083817f18dbede821025dc9c72b6e77c86854285d4f07120e071",
+      "published_sha256": "1ade8b088e7c7f3add71d7305d696f38cd6de877b3d76685459ffc51261e926d",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-2520-10.json",
+      "source_sha256": "e13a1d7a1168b110ab800cce428a52252bb58213437094dd1334ade735e41fb6",
+      "published_sha256": "0c0d677134c56327f2e38d5b2dcdee2f2472998db72b2f9a5846c2ab9ad7ac45",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-2520-100.json",
+      "source_sha256": "69407c867b4923fdcc9687f28ee4a29121507130b471d82401e0731d234cd4a8",
+      "published_sha256": "29305ad1141effdbc4e73e8956fc7bb4b89a68b0a67f8da501df5d3b0add7e6d",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-callback-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-callback-252-1.json",
+      "source_sha256": "1504ca434551337ba0c64ce6c673ef3bf445b4685bb5a441b3646363053069fa",
+      "published_sha256": "0188aa550695ace72639147c5daff03f2e21b09caaae7650d8913246a73bf038",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-callback-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-callback-2520-1.json",
+      "source_sha256": "dc65afaab1d914db9200001ecda3f20252b181990d17a09d5913b2a7e211a8ac",
+      "published_sha256": "2ef491e11fdfaacee8b4742b701bf1fffcadc14c3677b053ae252920df0a62d2",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-callback-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-callback-2520-10.json",
+      "source_sha256": "05d2ac0836f8ab18840024825adb15e011a90b9f1d7107fcefe76ec85d22ae00",
+      "published_sha256": "28a723a8af8f960abe1496337e902505add2632488e68f23fea3a85f13ceea48",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-pure-python-callback-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-pure-python-callback-2520-100.json",
+      "source_sha256": "c00348673485a7c32704767ddb290522445e5388cb286821d61d6f60d7030d11",
+      "published_sha256": "e5965990ceda884e3d8ecac8dbf3c5b0716ec1ae1b5c6bad9f6880417cedbd70",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-numba-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-numba-252-1.json",
+      "source_sha256": "b2e6576109058faa26f5443ae20335d64d78a3c7d1ede215a12fc8ac9ac0ba9d",
+      "published_sha256": "72f6e18ee6e2b93cd94a96027c3e7d475a8655dbe474cac617fa3acf310e57f1",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-numba-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-numba-2520-1.json",
+      "source_sha256": "49d87c1cc48e0ae358dd2a6e69dc3b4352d2a1e77c27e3291a25cd2e7a3773f5",
+      "published_sha256": "7c6ed2ccab5da3455d734ed3136774cc8d1e9c04c18730b73fdd48aa7cd1af6f",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-numba-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-numba-2520-10.json",
+      "source_sha256": "3789c92536d4698c4068d1b588b9fa913e540b287bdfc0a193b43159dd0c6a5f",
+      "published_sha256": "843da6c82f80f295b60ae561ff8f01a867d008a0945f6937a51507c51b42deb9",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-numba-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-numba-2520-100.json",
+      "source_sha256": "11c89b94b2776a9a4da85ad5b703f51809330670f5d64c1c033a04a06a5b0c34",
+      "published_sha256": "be1d6cea49130dc0897f6cad5b889a07ae33e42f4ac433a1775ea529f740bebc",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-rust-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-rust-252-1.json",
+      "source_sha256": "85145c1b85e4fedddad516261f93bf51465a74ea087ac4f41151ac897719d89a",
+      "published_sha256": "3d454c71741087be64cbc9d144d16d8cef937024cc468bb490207dc073361c1b",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-rust-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-rust-2520-1.json",
+      "source_sha256": "b2e3e11c05c1b918988975429175d59bb0434c3123fb6138cc7915235a61577c",
+      "published_sha256": "657389796bcba37ee646e21a8bca261035fe04362e7e3ff4f9f1fe76706ccf7b",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-rust-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-rust-2520-10.json",
+      "source_sha256": "1c6b3ca9321d76ceb70e13be9a548a5fad35125daee7c9d58bb7d8bfe713ec3d",
+      "published_sha256": "983acce3b293aab5b6a0b643eaab92d195696ef0305a0c4dec2c88831a1c70c3",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-vectorbt-rust-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-vectorbt-rust-2520-100.json",
+      "source_sha256": "f657cd9f24b13d25513934dde4e46dcf611025a1b0a7710ea9147c5028c3f525",
+      "published_sha256": "bb699ca007d11eaa748891325188d56e53b95eff22d8de398376626d1e44bfb9",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-zipline-252-1.json",
+      "destination": "source-results.zip/recorded/daily/single-zipline-252-1.json",
+      "source_sha256": "0963bea1c4e13c39d4969d09077e3758989ffe64f4b84247918b7b8569c78dbf",
+      "published_sha256": "15f6d26f689ab92d3e8e802770461be03c0493c5f62586233a4266cc4e3ca36c",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-zipline-2520-1.json",
+      "destination": "source-results.zip/recorded/daily/single-zipline-2520-1.json",
+      "source_sha256": "1e66bc34039580bae78c025736b586777575778410c3d3e211961bd1e1fa2bb9",
+      "published_sha256": "3bac0fc4840d04789fccaf05c03a93940e9c73ffd45fdf945b983bf4775835d4",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-zipline-2520-10.json",
+      "destination": "source-results.zip/recorded/daily/single-zipline-2520-10.json",
+      "source_sha256": "db51c6c1c665493fd737095e13a8cedadab434ec90557c49aa38367af9a51641",
+      "published_sha256": "45df3270514aedb0a184a692b3b8339805f6096c4d8cbd5f30c2a8702614ce53",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/results/single-zipline-2520-100.json",
+      "destination": "source-results.zip/recorded/daily/single-zipline-2520-100.json",
+      "source_sha256": "2aa5feb232cc2a514d8580215bc1cef686362cac5f57be4194ae1344f732f27c",
+      "published_sha256": "f3cee14e132e7dcdd8efcb69eb146522b2e0e067699e0c57640d29d79e948504",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_corporate_actions.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_corporate_actions.json",
+      "source_sha256": "94986fa095ae0f38c21920e1ddeedb20bfc47dda400ebd4adc5839d9407c5bc6",
+      "published_sha256": "16d36a3dfa9d765b4d21694f73ca6e72c4d5ebfba9f79b06d13e9d6f9f8b278a",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_dense_callback.json",
+      "source_sha256": "67824ffd270716f69b694e2e2c1d4cf601aa0f3a35fa80d13fa1006a5a106781",
+      "published_sha256": "55752e9fff1863c72a6c1b78ffd880d88d68394ca3cad06901f2994aee9036c7",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_dense_targets.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_dense_targets.json",
+      "source_sha256": "88bb6b3cfc0e1472e4ef3b94773ddd0fc8daf2af1719ae9d1ccac36c02560dce",
+      "published_sha256": "c4fe7a17b43eb0f431f269f98f598cf764605892fbfe86988a4bd14790ed77af",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_rounded_fees.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_rounded_fees.json",
+      "source_sha256": "96eb131852be7bc97005ad1c040a242fb61f71c86e3c4446511aeb5c6ac2f823",
+      "published_sha256": "4c22f4f41bc261e94bb87f1393d2d7ad2eebc56b414cc304113052a36a5270ac",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_shared_cash.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_shared_cash.json",
+      "source_sha256": "b45709247ccc7a9952a6d264b27fd9c2615334f44c8c1050ddf5b95bcb72e108",
+      "published_sha256": "0effce56d91143db696ebd10e8e17ce678d2f50d36520e6b66f827fc4a803bc3",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_sparse_callback.json",
+      "source_sha256": "30ea7768db015749c4cc72d081122c781f9e78eef35fbeccc6c8a7df49e17d8a",
+      "published_sha256": "b76ec380c2adef00409889a2c2e4c0f37c11dbf316c1af2a8d9224769bbe7989",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_sparse_targets.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_sparse_targets.json",
+      "source_sha256": "4eed23bbf5d1bbd5b3aa954dc9460258c1bc8e4109179cc36f6b940743d1cbd2",
+      "published_sha256": "ff3db80b22d4993ae91f24afcd9c2a655b73a919490256b2f9a018c554ceb3d1",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_weights_close_once.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_weights_close_once.json",
+      "source_sha256": "d7df6558fde8a0b882cbd8a196e90fff5a5b6a9a08d8ca23aaa3332ca6fa8aec",
+      "published_sha256": "29084e1b3359b84b57f4582daadad19f48680293344ae4e36a153f040ecd4478",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/daily_weights_close_rebalance.json",
+      "destination": "source-results.zip/recorded/matrix/pure/daily_weights_close_rebalance.json",
+      "source_sha256": "dc2bbb4a9650aea860cdb944e06c9efd33ba393fb96b816e849ccc5bc91ed3d6",
+      "published_sha256": "3d10795370a4cabbd9232212e74d158917c8fbf363dc42d73d6aed14c6a168f4",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_dense_callback.json",
+      "source_sha256": "1a6da47e5301617712ab66360f9ed8130e6ab2f7b4ee4c81933822cafb5a65d6",
+      "published_sha256": "4057ed818bb420a2b55b06aceb8463892d8da2e6eba327e2f0ba5b783a50f759",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_dense_targets.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_dense_targets.json",
+      "source_sha256": "c042deb9bcd50f88184a2c90d9072af88f19f1da587c4cf2d640009777c0d157",
+      "published_sha256": "3bec65121e35d265cfa8a7848fd2092d3c5957696a7b2a7b576433be58d2a649",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_partial_fills.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_partial_fills.json",
+      "source_sha256": "78ee83af48f11eed7efc09530473dd175d9f1e0d696de017ad9041d92d32e497",
+      "published_sha256": "9c910d562128fabc2c5646a128c44d74e937729e651a9567a5fc9291c845c563",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_sparse_callback.json",
+      "source_sha256": "f5dcbf684e519baf29ff96af9d59ea7d7af01d4ebc3c16072aba324021f5f704",
+      "published_sha256": "80e3cdbfd4d478c885539c368783d99f2fb34324322947f4ab6218991bb8b792",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_sparse_targets.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_sparse_targets.json",
+      "source_sha256": "ff6b5b36d5fa0281d387a97cd4657bdc5d449ef509d4f30a47cb135da2533eee",
+      "published_sha256": "286a48a38234a699c893bb96018ecec91bf7fd2c1e0823b0c164d06dc800a464",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_stateful_orders.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_stateful_orders.json",
+      "source_sha256": "1bc8e9e4a4df36ac73395fd5558b2f92933c9d38d0f597abc924467f2e511547",
+      "published_sha256": "89458133d0f191eb7b842ecb8c610be27a53f58f3a95543d666ef7364c4a8213",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_t1_limits_status.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_t1_limits_status.json",
+      "source_sha256": "b1021f6e454e26fdc0e1b68c1815c2e6567c2a3346ca3ec756fbca86e15df1fb",
+      "published_sha256": "292ea253bb4cb837568b1f39984a1724ab8b4a98322a6b69f7bcd2560e624311",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_weights_execution_once.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_weights_execution_once.json",
+      "source_sha256": "fce808245af82b21a82150f0b19a500de8f1fe6f6ba6048dd4c7c8eaaf90061a",
+      "published_sha256": "2b5d67e961c3e0379bc4ac15dbefbf016caa2b0c65aa7e305c9412994030395f",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "pure/minute_weights_execution_rebalance.json",
+      "destination": "source-results.zip/recorded/matrix/pure/minute_weights_execution_rebalance.json",
+      "source_sha256": "f94e22519c933219822e00404004963c506402fe323ee72b0cfb210202479a9f",
+      "published_sha256": "f220017388c1443c32cbfec6381ced515491271daef4568f7dc0c466d9ffb31d",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_corporate_actions.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_corporate_actions.json",
+      "source_sha256": "2a16fe8e638375db92ea278e0bddecdf9a4523755cb6cb4804cd7fae4df9233c",
+      "published_sha256": "1dd96d49247d04d4272afe132a750d7adfdf5d33b83a7f384922b680a7450cbc",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_dense_callback.json",
+      "source_sha256": "993d1094ecba9cf8cb1aaed098923649d7be68693cda4fd0331dab980290fc10",
+      "published_sha256": "644fac05e8f0300f64e7f8dab1e5f1c98f024014ba90ed369e9b9a4ffb6f5853",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_dense_targets.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_dense_targets.json",
+      "source_sha256": "24a0e6e6bcf681df51961ad94208fbb2f0ab9a16c7d2ada9d5406acf56bde640",
+      "published_sha256": "99a4586752178081d75e10f75b7eeb165021fa5987ccd039e9f120dddd8b7b45",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_rounded_fees.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_rounded_fees.json",
+      "source_sha256": "6ad541ee7d7a4757f780f0105bdd088d35cfd0a84ba51f62e142e562751c49f5",
+      "published_sha256": "e874ab16fd3d98cffadd6a047fa17a0a220668f09afe91db2bbe86bb03e8aa32",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_shared_cash.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_shared_cash.json",
+      "source_sha256": "71c75d1ad2ecb599197f612cb60c669d4e67846dc99b43829a3cde01baae6446",
+      "published_sha256": "00c111b2e967ee5de4f167cf61fb06a7c42ae3f81d6da1b3b3031d1c6e479f9d",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_sparse_callback.json",
+      "source_sha256": "9411f6be98cb911a0231e2a7c1ababbc3a503f0ba33c7b3e5d9f2fd287a83ae7",
+      "published_sha256": "fd3d07a6342d338d575e4b27e9077c69e94edeeebf058b2ba7672d1d97bfd88f",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_sparse_targets.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_sparse_targets.json",
+      "source_sha256": "d8035391bd77cebd871b27d06c3300b388a209012cf3af7b6a1ac40d75a8039a",
+      "published_sha256": "4c307afcb6d6374fe884b6023d326f220ff5abe6177d1e80f1c1ca10aad5ec16",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_weights_close_once.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_weights_close_once.json",
+      "source_sha256": "e7bcc5d4fe3bef75a62303e824a637f850cb6ab6cbbe40a6cea73c0e1942d398",
+      "published_sha256": "813a5267b7cee8b7a9af3cd52ca7987fe6679516cbb514a1307276ecb8ac7b30",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/daily_weights_close_rebalance.json",
+      "destination": "source-results.zip/recorded/matrix/native/daily_weights_close_rebalance.json",
+      "source_sha256": "be99e2a6080f175ec48ca74e7eb9217a8eb1db007eaf365b95ee9827a99143bf",
+      "published_sha256": "30fc1c5c5bd33f8bd63ba450130c87c0819b9ecb381047adaaa713d022048360",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_dense_callback.json",
+      "source_sha256": "bc90b33868a661eb61574b373fab5c24d54e3e30893626f59269c8360970af17",
+      "published_sha256": "f86446133f78525fbb93f5739e9d34f729cbb4055d4ede49aa69293a608e69f5",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native-recovery/minute_dense_targets.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_dense_targets.json",
+      "source_sha256": "12805ba7251fd18a215bc6ca8bb39edfa9a01ac28e2a9cf712770a464d2a4354",
+      "published_sha256": "b2a93d77b918704903107a9aaf69e9b29d9f12f8404126a9774f6766783085ca",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_partial_fills.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_partial_fills.json",
+      "source_sha256": "6526192dd0d5c9ef84151232d8d0e7d1bf5908c562d8c6b6f414097c95aa4a8d",
+      "published_sha256": "4611312895b9c77067f0ba0abedc44dc7e1e5b124b02d705786476c9c31539b5",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_sparse_callback.json",
+      "source_sha256": "0ab86386e8a24685e3b861a3932b8997e9d6ae67a8e31d3a870a87dca5014ba0",
+      "published_sha256": "b5568e4b00b2a4cdeab6ea4d0443dc060fb5fae71fa9d8d46f639d57b2d300ed",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_sparse_targets.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_sparse_targets.json",
+      "source_sha256": "155cbf58b9054d8c6bf8a650c147b167bccbbed09f420c8723b3af64b849818e",
+      "published_sha256": "81afd75e10e70876f6a75a5e517a41251df8a128991d1ee7e228905e4cb3f4a0",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_stateful_orders.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_stateful_orders.json",
+      "source_sha256": "88e72f2e1400bcf299fbe1ecee2351f7ad199453ab46f072f2dc0e3493da9536",
+      "published_sha256": "f53f457293db18dd4e81c15da383389f6963a4bac683f6ad485c73b0dad19583",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_t1_limits_status.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_t1_limits_status.json",
+      "source_sha256": "3a802b0d8e9208d48dd211c92585205d6fdbe3e23e2b62af63ebf56612823352",
+      "published_sha256": "629e76830e29cf6c19740a6cdd72076d88921e28a27188a47af1f76d4a059884",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_weights_execution_once.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_weights_execution_once.json",
+      "source_sha256": "695b4bf5ef7af2bd7c3b52f96d80b8146f4af990324201ff296492bb527d36ea",
+      "published_sha256": "44303a83bf4d233811f76f4c20e5aab7d3b4bf88bfceb5246931ec70d7e029b9",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "native/minute_weights_execution_rebalance.json",
+      "destination": "source-results.zip/recorded/matrix/native/minute_weights_execution_rebalance.json",
+      "source_sha256": "1d2beed1bed8f34fb0d0db748520abe2c75905d1023b79ada6762309bdaf241e",
+      "published_sha256": "94dd6f556a796d20f2836feda4b2e180d3215d4b4a4982544c528145a13e1f49",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_dense_callback.json",
+      "source_sha256": "ffa1785604987cd4f94e29adc500eb8d85fff046ada32d1a646de0702af2a0fc",
+      "published_sha256": "5359a762ab580cb8a92465cc93dc5dd01b83517fb3b4e3acf7223fc39ecda529",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_dense_targets.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_dense_targets.json",
+      "source_sha256": "c026cf479ff553f3d03298c3747619f58002b78785c304a034b5971c4fd6a15c",
+      "published_sha256": "c18159286d366624bdec7029e2ae12578d9d25dd86ae621d389a73b4ddf13236",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_rounded_fees.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_rounded_fees.json",
+      "source_sha256": "4f1a4480ef3042d840ff4e6a8d89d2eb7e45d3688d510204c261149f75015a1a",
+      "published_sha256": "cd2694ddca2c0415a5128c90fc99c084c1d8ac4c04126ab4d5fca6b8bd36639b",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_shared_cash.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_shared_cash.json",
+      "source_sha256": "1701cb7ffef8d7d800c401dbf9c2a1ab2ab02269ca67b6a3d5e68eac6b622a88",
+      "published_sha256": "c900a29dd4cef64b5d147581b22c2ab5e421c6b138acddd6e611311af8829924",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_sparse_callback.json",
+      "source_sha256": "cea6981b9ccd462ed2769ea9354a72ae3948caf594743ab97dc7dde1154247f9",
+      "published_sha256": "7151861d9730678f560d64a66a2d1d9181b4a015aa40b91b5747fe017d0eb5e0",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_sparse_targets.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_sparse_targets.json",
+      "source_sha256": "939d5a9d55b6660f81a89579702be9efaf69e238c107a1a4c72dc97063e98bfa",
+      "published_sha256": "2fcb5d286ff4b2ed75c775ac264b1436439609c878117656c96fc67e194e633c",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_weights_close_once.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_weights_close_once.json",
+      "source_sha256": "40beda993c8592c86a2e1eeb6307a1d5a2ebc834c2d3e6ded44ec54dde2955f4",
+      "published_sha256": "69d5ebdac02f8c946a2d8effdc77ccd3570cc360a99d3134c375f91c6c84613e",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/daily_weights_close_rebalance.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/daily_weights_close_rebalance.json",
+      "source_sha256": "fe1242acbae331eb49b3fad1ffacbc5968f1a0b993d9f425dbedc8be19aa880e",
+      "published_sha256": "0bafc681610b726e338388dfd030ea53d685863a6f127f972781a0f4fd0239b5",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_dense_callback.json",
+      "source_sha256": "d911207b78dd3a602019fc81da32f7d4e207d4c1eeb5c431655304babf190088",
+      "published_sha256": "1e05b46d925aa7a368d112b0e8c002277dffbbfcec49227825d7f051c3339178",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_dense_targets.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_dense_targets.json",
+      "source_sha256": "4e6f00bb638da7eca7ad3584cbe4676a9f52581f0d77dfb5bf0e128322f2d185",
+      "published_sha256": "f659c57896d15178f4186cfd0ebfab0427f0ff2de417e149bf176c45b7bb74c8",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_partial_fills.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_partial_fills.json",
+      "source_sha256": "1b4e201a7530012d13712bfce2d04d6ba5433a1fa4d7af569efc8a604614c4aa",
+      "published_sha256": "dd7928e724a94dec31cc886544a2b0e7388bf8388ecffdba5c6bb52f573bc2b3",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_sparse_callback.json",
+      "source_sha256": "155a8896f9ecd7131ac254dccad5cedcc6d674a14ba5aae207301368f59daf80",
+      "published_sha256": "261cb05c1c0226a72100913a521108781db70896fc08d04ec4753e83bb3d5fdb",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_sparse_targets.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_sparse_targets.json",
+      "source_sha256": "4739afae0f3d05f57c936239ac19ad7d141eb05c081e887af3ea620e1e1675c5",
+      "published_sha256": "165e4136bfd4586cd669bba5dbaa64ef79a2d5d39ed4e71649e8de4af612010f",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_stateful_orders.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_stateful_orders.json",
+      "source_sha256": "fe10fb5f3b320f39fc89b4f7cd7e836c345494dfd239c6588dbe57798b07eb93",
+      "published_sha256": "0af146a636f457d55a57a4bc7cb9e9fde7f4276233565a0d72b5e62b8a009e38",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_t1_limits_status.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_t1_limits_status.json",
+      "source_sha256": "567a7466a05780f8a0887ec576068ca6c5bbbd2fadbfa76a215feb9c848f3368",
+      "published_sha256": "8e820c6b99df7f1942f0f8c21e219d1a89e04eb194dc5a363e77490630d47680",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_weights_execution_once.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_weights_execution_once.json",
+      "source_sha256": "ee520161d9e3f57b0faca29243080356c232cc3307390fa759907483d7ab90a8",
+      "published_sha256": "2c3155c0f28a57854d0932cd1fb1ab25d9cc8dd9282243c4fae8cc9102f129b7",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "vectorbt/minute_weights_execution_rebalance.json",
+      "destination": "source-results.zip/recorded/matrix/vectorbt/minute_weights_execution_rebalance.json",
+      "source_sha256": "37f42d2c55a932c290e057c6cd23e1f5a07ae6186c1ed810314fa766080376a0",
+      "published_sha256": "25f827a6d85b855d716c83504bea5ee5c372826d0ff28bfdfebee43f1de0ecf9",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "rust-alternative/daily_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/rust-alternative/daily_dense_callback.json",
+      "source_sha256": "f718d29a79c735359bd0a0c7a73ca3dedd7ca616d7b61259080528f17f344f3e",
+      "published_sha256": "225a4244b39528ca2d627a081a2ac7e7877926416694e6d273eb8ee94a22cfae",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "rust-alternative/daily_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/rust-alternative/daily_sparse_callback.json",
+      "source_sha256": "b6adfcca180dd6df7ce115a492164d2ccf29e76db76942ce6b3fee73d03c1f1a",
+      "published_sha256": "a1bbc7702949d768f4738aed9a53a1725864ded92553d51de6228acb8a89f1c2",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "rust-alternative/minute_dense_callback.json",
+      "destination": "source-results.zip/recorded/matrix/rust-alternative/minute_dense_callback.json",
+      "source_sha256": "fedb5f83b33486739e038449a24af4ef0b79231fad7c554805ec1e4fb143cd2b",
+      "published_sha256": "8fbf4dc9dc0c0f8c97a0293cfb5cd0f6bdd9cde934c7476d4e0c2c2efcd51084",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "rust-alternative/minute_sparse_callback.json",
+      "destination": "source-results.zip/recorded/matrix/rust-alternative/minute_sparse_callback.json",
+      "source_sha256": "e3ac1912fe59e929ccbeeb417b5684c9c482ed123631e540a78b8fe26ceab4c3",
+      "published_sha256": "d85f4b27ab8c714107f81f61a73aa8693626d3b1ec719e89fc57073ee30616fb",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "numba-alternative/minute_stateful_orders.json",
+      "destination": "source-results.zip/recorded/matrix/numba-alternative/minute_stateful_orders.json",
+      "source_sha256": "db12b49ef0f6ef3ed2c420f3c2f6f50f2b7aae3c19f574ff7eb1973c1d4e77f5",
+      "published_sha256": "365bb0c2236e392cb43a69517ab113075d28c463cc10088e45fb153db2cfd9c7",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/attestations/native-dispatch.json",
+      "destination": "source-results.zip/recorded/attestations/native-dispatch.json",
+      "source_sha256": "f1a75c2a5999e2731431d908da02f01fde9e92e83a702adcf8c2268a77f92862",
+      "published_sha256": "297026b57f14d72548f57bb0f43e27baeb99a56e9f182fd031a6c54b65064972",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/attestations/native.json",
+      "destination": "source-results.zip/recorded/attestations/native.json",
+      "source_sha256": "fc30a23cd07de6c8e9c5b615c08c4371d9ee7cd0dccfb198db7eb001cd878278",
+      "published_sha256": "aba4f1afead0c8707904aa6bc2abeffe5103e32d0c1322af093c88f8ddb14db9",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/attestations/pure-dispatch.json",
+      "destination": "source-results.zip/recorded/attestations/pure-dispatch.json",
+      "source_sha256": "803cef6de8e6fa9c5792eaf87f78f0e193f2bf2d7d50be1e660d0b1619c9ec31",
+      "published_sha256": "d018370d36dce742353a4d26064d50c83b4dc5f4bfd21709265427b141ff01cc",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/attestations/pure.json",
+      "destination": "source-results.zip/recorded/attestations/pure.json",
+      "source_sha256": "d529fd1f1961de01d20113b518dd5f212f7fccd027b62476c9a693841c9456bb",
+      "published_sha256": "f0e32b35256bd84c811f8983576b67099f923b1f5dc4c9aa733f24ca9e8d6c88",
+      "changes": "Only local machine path prefixes replaced with placeholders; numerical values, versions and hashes retained."
+    },
+    {
+      "source": "original_comparison/single-summary.csv",
+      "destination": "single-summary.csv",
+      "source_sha256": "659ea8975747b42934d0672ddf7a776c4f55c1fb4a98b3868d0aa61b8025beee",
+      "published_sha256": "d3562d017d1755d47c7211a439f9be9c581db85c79cf7d67c32647639e68c78c",
+      "changes": "Public CSV line endings normalized from CRLF to LF to match repository Git attributes. CSV contents and values unchanged. CSV copies inside source-results.zip retain original CRLF bytes."
+    },
+    {
+      "source": "original_comparison/batch-summary.csv",
+      "destination": "batch-summary.csv",
+      "source_sha256": "6801803a7fa5ef3e7ca4e694c67de567ff00a266af297c6593453913b9c334bd",
+      "published_sha256": "fe0f4050cf5842d526f03c75cefa30714aeba415accfcd5131dc5b41c97b58c3",
+      "changes": "Public CSV line endings normalized from CRLF to LF to match repository Git attributes. CSV contents and values unchanged. CSV copies inside source-results.zip retain original CRLF bytes."
+    },
+    {
+      "source": "original_comparison/grid-summary.csv",
+      "destination": "grid-summary.csv",
+      "source_sha256": "73b38950f8c10b7a2f85eac840af65da8715a01e4a734a1f6d9101b55105f3c9",
+      "published_sha256": "fba75b6228c99094cf595a963bf2a4c5c7b7469fe820cac25c38d7f2b3217f6e",
+      "changes": "Public CSV line endings normalized from CRLF to LF to match repository Git attributes. CSV contents and values unchanged. CSV copies inside source-results.zip retain original CRLF bytes."
+    }
+  ]
+}

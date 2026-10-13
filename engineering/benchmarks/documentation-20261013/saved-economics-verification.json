@@ -1,0 +1,282 @@
+[
+  {
+    "folder": "pure",
+    "scenario": "daily_sparse_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_sparse_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_sparse_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_dense_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_dense_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_dense_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_sparse_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_sparse_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_sparse_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_dense_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_dense_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_dense_targets",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "daily_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "daily_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "minute_sparse_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "minute_dense_callback",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_shared_cash",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_shared_cash",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_shared_cash",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_rounded_fees",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_rounded_fees",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_rounded_fees",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_partial_fills",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_partial_fills",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_partial_fills",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_t1_limits_status",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_t1_limits_status",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_t1_limits_status",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_stateful_orders",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_stateful_orders",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_stateful_orders",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "numba-alternative",
+    "scenario": "minute_stateful_orders",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_weights_close_once",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_weights_close_once",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_weights_close_once",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_weights_close_rebalance",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_weights_close_rebalance",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_weights_close_rebalance",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_weights_execution_once",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_weights_execution_once",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_weights_execution_once",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_weights_execution_rebalance",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_weights_execution_rebalance",
+    "final_warm_outputs": "pass"
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_weights_execution_rebalance",
+    "final_warm_outputs": "pass"
+  }
+]

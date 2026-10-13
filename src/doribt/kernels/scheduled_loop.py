@@ -51,6 +51,7 @@ type ScheduledKernel = Callable[
         IntArray,
         IntArray,
         IntArray,
+        IntArray,
         int,
         IntArray,
     ],
@@ -97,6 +98,7 @@ def simulate_schedule(
     config: IntArray,
     days: IntArray,
     ordinals: IntArray,
+    sizing_rules: IntArray,
     initial_cash: int,
     options: IntArray,
 ) -> tuple[IntArray, ...]:
@@ -129,7 +131,9 @@ def simulate_schedule(
         day = int(days[index])
         ledger_advance(day, ledger.lots, ledger.heap, ledger.control, ledger.settled)
         if index:
-            resolve_weights(index, active, intents, ledger.totals, market, int(money[0]))
+            resolve_weights(
+                index, active, intents, ledger.totals, market, sizing_rules, int(money[0])
+            )
             order_count = sync_targets(
                 index,
                 active,
@@ -183,7 +187,7 @@ def simulate_schedule(
             options,
             int(equity[index]),
             closes,
-            market,
+            sizing_rules,
             ledger.totals,
             active,
             intents,
@@ -216,7 +220,7 @@ def place_decisions(
     options: IntArray,
     equity: int,
     closes: IntArray,
-    market: IntArray,
+    sizing_rules: IntArray,
     positions: IntArray,
     active: IntArray,
     intents: IntArray,
@@ -237,7 +241,7 @@ def place_decisions(
         bool(options[1]),
         equity,
         closes,
-        market,
+        sizing_rules,
         positions,
         active,
         intents,

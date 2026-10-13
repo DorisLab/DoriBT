@@ -39,7 +39,7 @@ def assert_review_parity(actual, reference):
         else:
             assert left == right, item.name
     left, right = actual.run_info.to_dict(), reference.run_info.to_dict()
-    for key in ("strategy", "execution_path"):
+    for key in ("strategy", "execution_path", "execution_plan"):
         left.pop(key, None)
         right.pop(key, None)
     assert left == right
@@ -57,7 +57,7 @@ def compare_review(data, quantities, backend, **kwargs):
     ):
         fallback = test.run(targets, backend=backend)
     assert_review_parity(actual, fallback)
-    assert actual.run_info == fallback.run_info
+    assert fallback.run_info.to_dict()["execution_plan"]["plan"] == "scheduled_segments"
     if backend == "numba":
         from doribt.kernels.scheduled_loop import simulate_schedule
         from doribt.kernels.target_loop import simulate_targets

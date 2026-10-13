@@ -1,0 +1,11 @@
+{
+  "measured_wheel_sha256": "d9bbdef3917a96ff0652877349f7a8bd6c1cbd154fa4d38c7149f0947a9357ab",
+  "source_file_count": 75,
+  "comparison": "all source bytes equal after CRLF to LF normalization; changed Python files also have identical AST",
+  "line_ending_only_files": [
+    "doribt/__init__.py",
+    "doribt/runtime/bar_runtime.py",
+    "doribt/runtime/compiled_schedule.py",
+    "doribt/runtime/compiled_targets.py"
+  ]
+}

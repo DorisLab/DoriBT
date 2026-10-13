@@ -1,0 +1,106 @@
+{
+  "run_id": "c2076632-2921-49c6-a036-ae800621672b",
+  "mode": "cold",
+  "environment": {
+    "adapter": "doribt_v1",
+    "cpu": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "doribt_version": "0.6.2",
+    "installed_source_sha256": "2fba91f09eec233f58d2018c77979c58b8f4cb9be16537e9ccfb8a83f633bf8a",
+    "llvmlite_version": "0.50.0",
+    "logical_cpus": 16,
+    "numba_jit_disabled": "false",
+    "numba_version": "0.68.0",
+    "numpy": "2.4.4",
+    "numpy_version": "2.4.4",
+    "physical_cpus": 8,
+    "platform": "Windows-11-10.0.26300-SP0",
+    "price_mode": "synthetic_adjusted",
+    "python_engine": "doribt",
+    "rules": "tick0.0001_lot100_partial1_T0",
+    "sizing": "close",
+    "slippage_policy": "cost",
+    "versions": {
+      "doribt": "0.6.2",
+      "llvmlite": "0.50.0",
+      "numba": "0.68.0",
+      "numpy": "2.4.4",
+      "platform": "Windows-11-10.0.26300-SP0",
+      "python": "3.13.16"
+    },
+    "engine_sha256": "aecdfb8f6f350eadcc78788db2d83d43d3c0a3cb7aef56933fe49eabe4023471",
+    "threads": {
+      "NUMBA_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "source_run_id": "4901814d-d6ec-4afc-b5c4-0575e379270c",
+  "manifest_sha256": "3dd4d4565403bbfc06a28e3f318d1d5bec76cd43c47f9c8a7b6aac24a356387e",
+  "identities": [
+    {
+      "backend": "numba",
+      "case": "baseline",
+      "data_fingerprint": "3fbc401690e286f09d0b4db051f07abb0e5f2e0baa7ace62990786c9d3185044",
+      "fills": 854,
+      "intents": 28908,
+      "ledger_sha256": "9034c999c66e0bb2474bc005023b39c13223526ce2c46abfdb94665dd1744682",
+      "plan": {
+        "actual_backend": "numba",
+        "compiled_scope": "targets_and_matching",
+        "fallback_reasons": [],
+        "jit_enabled": true,
+        "plan": "compiled_targets",
+        "requested_backend": "numba",
+        "schema": "doribt.execution-plan/1"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "check": "dense_sparse_targets_qmt_exact",
+      "passed": true
+    },
+    {
+      "check": "baseline_frozen_and_full_ledgers_exact",
+      "passed": true
+    }
+  ],
+  "peak_memory": {
+    "process_tree_peak_rss_bytes": 913432576,
+    "sample_interval_seconds": 0.02
+  },
+  "samples": [
+    {
+      "stage": "strategy_targets",
+      "seconds": 2.161149400053546,
+      "case": null,
+      "backend": null,
+      "repeat": null,
+      "kernel_seconds": null,
+      "records_and_result_seconds": null,
+      "backtest_run_seconds": null
+    },
+    {
+      "stage": "market_prepare",
+      "seconds": 7.861426699906588,
+      "case": "baseline",
+      "backend": null,
+      "repeat": null,
+      "kernel_seconds": null,
+      "records_and_result_seconds": null,
+      "backtest_run_seconds": null
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 18.24265079991892,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 0.0,
+      "kernel_seconds": 14.550221499986947,
+      "records_and_result_seconds": 0.044796099886298,
+      "backtest_run_seconds": 17.26906510000117
+    }
+  ],
+  "summaries": [],
+  "timing_boundary": "Replay includes target normalization, fresh Backtest.run, complete records and adapter output; market and strategy targets timed separately. Kernel and record fields are included in Backtest.run, never added twice."
+}

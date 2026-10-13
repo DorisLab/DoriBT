@@ -1,41 +1,61 @@
-# DoriBT
+---
+myst:
+  html_meta:
+    description: "DoriBT 中文文档：用 Python 研究 A 股与 ETF 轮动、日线和分钟做 T，接入 CSV/DataFrame 行情并生成可对账的回测报告。"
+---
 
-面向 A 股研究的 Python 回测引擎。用自己的行情，编写函数策略或预计算目标，运行日线与 1／5 分钟回测，查看成交、账户和研究报告。
+# DoriBT：A 股与 ETF 的 Python 量化回测
 
-本手册对应 **0.6.1**。本版整理发行记录与安装包内容；完整账本、历史规则与分钟做 T
-沿用 0.6.0 的执行契约。
+用自己的行情，在共享现金账户中编写函数策略或预计算目标，研究日线择时、ETF 轮动和 1／5 分钟做 T，再核对订单、成交、费用与研究报告。本手册对应 **0.6.2**。
 
-**从一次能解释结果的回测开始：** [安装](guide/install.md) → [第一次回测](guide/quickstart.md) → [接入数据](guide/data.md) → [编写策略](guide/strategies.md)。
+**第一次使用：** [安装 Python 与 DoriBT](guide/install.md) → [运行三日回测并解释收益](guide/quickstart.md) → [接入自己的行情](guide/data.md)。
 
-| 研究任务 | 对应能力 |
+## 你想完成什么
+
+| 研究任务 | 从这里开始 |
 | --- | --- |
-| 个股或 ETF 择时 | 历史窗口、目标仓位、T+1、费用和滑点 |
-| 多标的轮动 | 共享资金、先卖后买、显式再平衡 |
-| 分钟执行模拟 | 部分成交、成交量参与率、订单有效期与撤单 |
-| 分钟做 T | 原生 T+0 ETF、日期化规则覆盖与 T+1 底仓约束 |
-| 比较研究结果 | 日频报告、基准、超额、自定义指标和 CSV／JSON 导出 |
+| 研究多个 A 股 ETF 的轮动组合 | [ETF 轮动实战](tutorials/etf-rotation.md)：历史窗口、共享资金与再平衡 |
+| 分清分钟做 T 与 T+1 可卖约束 | [分钟做 T 实战](tutorials/intraday-t.md)：T+0 ETF、T+1 底仓与逐笔费用 |
+| 把已有行情变成可复核的结果 | [CSV／DataFrame 到研究报告](tutorials/data-to-report.md)：字段转换、指标与导出 |
+| 判断框架是否适合自己的研究 | [功能与框架比较](comparison.md) · [性能、边界与复现](performance.md) |
+| 排查不成交、费用或收益口径 | [常见问题](faq.md) · [API 参考](api.md) |
 
-支持 Python 3.13，Windows／Linux；基础依赖 NumPy，可选 Numba 和 Matplotlib。
-现金账户预设核验范围为 2015-09-09 至 2026-10-12，科创板从 2019-07-22 起；
-支持按证券与日期覆盖 T+0/T+1 等字段，完整资产与执行边界见[市场规则](china-market.md)。
-引擎不提供行情下载或实盘接口；公开示例采用人工行情。
+支持 Python 3.13—3.15、Windows／Linux；基础依赖 NumPy，可选 Numba 和 Matplotlib。现金账户预设核验范围为 2015-09-09 至 2026-10-12，科创板从 2019-07-22 起。数据、日历、证券身份与涨跌停价由调用者提供；完整资产和执行边界见[市场规则](china-market.md)。不提供行情下载或实盘接口，公开示例采用人工行情。
 
-[PyPI](https://pypi.org/project/doribt/) · [GitHub](https://github.com/DorisLab/DoriBT) · [示例](examples.md) · [问题反馈](https://github.com/DorisLab/DoriBT/issues)
+[PyPI](https://pypi.org/project/doribt/) · [GitHub](https://github.com/DorisLab/DoriBT) · [全部示例](examples.md) · [问题反馈](https://github.com/DorisLab/DoriBT/issues) · [文本导航](llms.txt)
 
 ```{toctree}
-:caption: 使用教程
+:caption: 开始使用
 :maxdepth: 1
 
 guide/install
 guide/quickstart
 guide/data
 guide/strategies
+faq
+```
+
+```{toctree}
+:caption: 完成一次研究
+:maxdepth: 1
+
+tutorials/etf-rotation
+tutorials/intraday-t
+tutorials/data-to-report
 guide/minutes
 guide/parameters
 guide/reports
 guide/extensions
 examples
-faq
+```
+
+```{toctree}
+:caption: 选型与性能
+:maxdepth: 1
+
+comparison
+performance
+native-records
 ```
 
 ```{toctree}
@@ -59,5 +79,4 @@ scheduled-execution
 
 roadmap
 api-design
-native-records
 ```

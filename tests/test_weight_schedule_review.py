@@ -1,4 +1,4 @@
-"""非活动规则区间的权重目标必须保留完整回退语义。"""
+"""非活动规则区间的权重目标保留原语义并进入完整编译。"""
 
 import pytest
 from engine_fixtures import data_for
@@ -48,14 +48,20 @@ def inactive_weight_case(backend, sizing="close", rebalance=False):
 @pytest.mark.numba
 @pytest.mark.parametrize("sizing", ["close", "execution"])
 @pytest.mark.parametrize("rebalance", [False, True])
-def test_inactive_weight_rows_do_not_enter_compiled_schedule(monkeypatch, sizing, rebalance):
+def test_inactive_weight_rows_enter_compiled_schedule(monkeypatch, sizing, rebalance):
     from doribt.runtime import compiled_schedule
 
-    def forbidden(*args):
-        pytest.fail("非活动规则权重场景不能进入编译调度器")
+    execute = compiled_schedule.execute
+    calls = []
 
-    monkeypatch.setattr(compiled_schedule, "execute", forbidden)
-    inactive_weight_case("numba", sizing, rebalance)
+    def observed(*args):
+        calls.append(True)
+        return execute(*args)
+
+    monkeypatch.setattr(compiled_schedule, "execute", observed)
+    result, _ = inactive_weight_case("numba", sizing, rebalance)
+    assert calls == [True]
+    assert result.run_info.to_dict()["execution_plan"]["plan"] == "compiled_targets"
 
 
 def full_cash_weight_case(backend, sizing, rebalance, minute):

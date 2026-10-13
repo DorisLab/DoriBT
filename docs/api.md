@@ -14,7 +14,8 @@
 .. automethod:: doribt.Backtest.run
 ```
 
-`strategy` 是普通函数或预计算目标；参数以关键字传给策略。`backend` 可覆盖配置中选择的后端，实际值写入运行信息。
+`strategy` 是普通函数或预计算目标；参数以关键字传给策略。`backend` 可覆盖配置中的后端请求，
+实际执行计划与 JIT 状态记录在 `run_info.to_dict()["execution_plan"]`，见[路径说明](scheduled-execution.md)。
 
 ```{eval-rst}
 .. autoclass:: doribt.RunConfig

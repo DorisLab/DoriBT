@@ -1,10 +1,12 @@
 """Validated data compiled once to numeric daily inputs."""
 
+from bisect import bisect_left, bisect_right
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import date
 from functools import cached_property
 from types import MappingProxyType
+from typing import cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -13,8 +15,8 @@ from doribt.kernels.execution import IntArray
 from doribt.market.bars import Bar
 from doribt.market.data import MarketData
 from doribt.market.instruments import TradingStatus
-from doribt.market.rules import TradingRule
-from doribt.validation import ratio
+from doribt.market.rules import RuleBook, TradingRule
+from doribt.validation import day, ratio
 
 FIELDS = ("open", "high", "low", "close")
 
@@ -51,6 +53,7 @@ class CompiledData:
     market: IntArray
     closes: IntArray
     settlement: IntArray
+    sizing_rules: IntArray
 
 
 @dataclass(frozen=True)
@@ -120,7 +123,13 @@ class _RuleRows:
 
     def at(self, bar: Bar, column: int) -> tuple[int, ...]:
         if self._dates[column] != bar.session:
-            rule = self._data.rules.at(bar.symbol, bar.session).rule
+            try:
+                rule = self._data.rules.at(bar.symbol, bar.session).rule
+            except ValueError:
+                # 数据验证已要求活动行有规则；非活动缺口只在真正定量时报告。
+                self._rows[column] = ()
+                self._dates[column] = bar.session
+                return ()
             if rule not in self._cache:
                 self._cache[rule] = _compile_rule(rule)
             self._rows[column] = self._cache[rule]
@@ -128,25 +137,70 @@ class _RuleRows:
         return self._rows[column]
 
 
-def compile_data(data: MarketData) -> CompiledData:
-    shape = (len(data.timeline), len(data.symbols))
-    market = np.zeros((*shape, 14), dtype=np.int64)
-    closes = np.zeros(shape, dtype=np.int64)
-    settlement = np.zeros(shape, dtype=np.int64)
+def _custom_rules(
+    data: MarketData, market: IntArray, settlement: IntArray, sizing: IntArray
+) -> None:
+    """规则簿子类保留逐日公开查询，不能绕过用户重写的 at 方法。"""
     rules = _RuleRows(data)
     for offset, bar in enumerate(data.bars):
-        row, column = divmod(offset, shape[1])
-        market[row, column, :4] = (
-            bar.open,
-            int(bar.status),
-            bar.upper_limit or 0,
-            bar.lower_limit or 0,
-        )
-        closes[row, column] = bar.close
-        if bar.status not in (TradingStatus.TRADING, TradingStatus.SUSPENDED):
-            continue
+        row, column = divmod(offset, len(data.symbols))
         values = rules.at(bar, column)
-        market[row, column, 4:] = values[:-1]
-        market[row, column, 10] = bar.volume
-        settlement[row, column] = values[-1]
-    return CompiledData(_freeze(market), _freeze(closes), _freeze(settlement))
+        if values:
+            market[row, column, 4:] = values[:-1]
+            settlement[row, column] = values[-1]
+            sizing[row, column] = values[0], values[1], values[2], values[3], values[8]
+
+
+def _fill_rules(data: MarketData, market: IntArray, settlement: IntArray, sizing: IntArray) -> None:
+    if type(data.rules) is not RuleBook:
+        _custom_rules(data, market, settlement, sizing)
+        return
+    columns = {symbol: i for i, symbol in enumerate(data.symbols)}
+    bars_per_day = len(data.timeline) // len(data.sessions)
+    cache: dict[TradingRule, tuple[int, ...]] = {}
+    # MarketData 已验证完整时钟，RuleBook 已验证不重叠；按显式有效期批量写入。
+    for period in data.rules.periods:
+        if period.symbol not in columns:
+            continue
+        start = bisect_left(data.sessions, day(period.start)) * bars_per_day
+        end = bisect_right(data.sessions, day(period.end)) * bars_per_day
+        if start == end:
+            continue
+        if period.rule not in cache:
+            cache[period.rule] = _compile_rule(period.rule)
+        values, column = cache[period.rule], columns[period.symbol]
+        market[start:end, column, 4:] = values[:-1]
+        settlement[start:end, column] = values[-1]
+        sizing[start:end, column] = values[0], values[1], values[2], values[3], values[8]
+
+
+def compile_data(data: MarketData) -> CompiledData:
+    shape = (len(data.timeline), len(data.symbols))
+    # 流式输入避免每根 bar 多次数组切片赋值，也不额外创建整张 Python 行列表。
+    inputs = cast(
+        IntArray,
+        np.fromiter(
+            (
+                (b.open, int(b.status), b.upper_limit or 0, b.lower_limit or 0, b.close, b.volume)
+                for b in data.bars
+            ),
+            dtype=np.dtype((np.int64, 6)),
+            count=len(data.bars),
+        ),
+    ).reshape((*shape, 6))
+    market = np.zeros((*shape, 14), dtype=np.int64)
+    market[:, :, :4] = inputs[:, :, :4]
+    closes = inputs[:, :, 4]
+    settlement = np.zeros(shape, dtype=np.int64)
+    sizing_rules = np.zeros((*shape, 5), dtype=np.int64)
+    _fill_rules(data, market, settlement, sizing_rules)
+    market[:, :, 10] = inputs[:, :, 5]
+    inactive = (inputs[:, :, 1] != TradingStatus.TRADING) & (
+        inputs[:, :, 1] != TradingStatus.SUSPENDED
+    )
+    # 定量规则与申报资格分开：非活动行即使有规则，也不能因此生成子单。
+    market[:, :, 4:][inactive] = 0
+    settlement[inactive] = 0
+    return CompiledData(
+        _freeze(market), _freeze(closes), _freeze(settlement), _freeze(sizing_rules)
+    )

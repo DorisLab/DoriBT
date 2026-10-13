@@ -1,0 +1,350 @@
+[
+  {
+    "folder": "pure",
+    "scenario": "daily_sparse_targets",
+    "repetitions": 648,
+    "cumulative_ready_seconds": 10.010105530051078
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_dense_targets",
+    "repetitions": 99,
+    "cumulative_ready_seconds": 10.088253403995623
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_sparse_targets",
+    "repetitions": 257,
+    "cumulative_ready_seconds": 10.036767913008589
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_dense_targets",
+    "repetitions": 13,
+    "cumulative_ready_seconds": 10.077959731999727
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_sparse_callback",
+    "repetitions": 214,
+    "cumulative_ready_seconds": 10.003849898001135
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_dense_callback",
+    "repetitions": 34,
+    "cumulative_ready_seconds": 10.104078326998206
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_sparse_callback",
+    "repetitions": 92,
+    "cumulative_ready_seconds": 10.122777069984295
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_dense_callback",
+    "repetitions": 7,
+    "cumulative_ready_seconds": 11.141294326002026
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_shared_cash",
+    "repetitions": 210,
+    "cumulative_ready_seconds": 10.035348449002413
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_rounded_fees",
+    "repetitions": 98,
+    "cumulative_ready_seconds": 10.074323118991742
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_partial_fills",
+    "repetitions": 195,
+    "cumulative_ready_seconds": 10.021659247995558
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_t1_limits_status",
+    "repetitions": 28,
+    "cumulative_ready_seconds": 10.237204841992934
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_corporate_actions",
+    "repetitions": 216,
+    "cumulative_ready_seconds": 10.013663561996509
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_stateful_orders",
+    "repetitions": 25,
+    "cumulative_ready_seconds": 10.09306280700548
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_weights_close_once",
+    "repetitions": 644,
+    "cumulative_ready_seconds": 10.003918678943592
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_weights_close_rebalance",
+    "repetitions": 69,
+    "cumulative_ready_seconds": 10.085974037994674
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_weights_execution_once",
+    "repetitions": 273,
+    "cumulative_ready_seconds": 10.108796916001666
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_weights_execution_rebalance",
+    "repetitions": 11,
+    "cumulative_ready_seconds": 10.789306177999606
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_sparse_targets",
+    "repetitions": 624,
+    "cumulative_ready_seconds": 10.011345499015079
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_dense_targets",
+    "repetitions": 92,
+    "cumulative_ready_seconds": 10.049051083980885
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_sparse_targets",
+    "repetitions": 392,
+    "cumulative_ready_seconds": 10.032779640978333
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_dense_targets",
+    "repetitions": 29,
+    "cumulative_ready_seconds": 10.227835354997296
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_sparse_callback",
+    "repetitions": 218,
+    "cumulative_ready_seconds": 10.064636949988198
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_dense_callback",
+    "repetitions": 34,
+    "cumulative_ready_seconds": 10.106295013001727
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_sparse_callback",
+    "repetitions": 93,
+    "cumulative_ready_seconds": 10.096595796992915
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_dense_callback",
+    "repetitions": 7,
+    "cumulative_ready_seconds": 11.280086618000496
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_shared_cash",
+    "repetitions": 210,
+    "cumulative_ready_seconds": 10.03521205899051
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_rounded_fees",
+    "repetitions": 99,
+    "cumulative_ready_seconds": 10.019745709007111
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_partial_fills",
+    "repetitions": 293,
+    "cumulative_ready_seconds": 10.006065174968171
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_t1_limits_status",
+    "repetitions": 77,
+    "cumulative_ready_seconds": 10.007217583008241
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_corporate_actions",
+    "repetitions": 217,
+    "cumulative_ready_seconds": 10.01058710099096
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_stateful_orders",
+    "repetitions": 26,
+    "cumulative_ready_seconds": 10.168436713996925
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_weights_close_once",
+    "repetitions": 824,
+    "cumulative_ready_seconds": 10.000438920069428
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_weights_close_rebalance",
+    "repetitions": 136,
+    "cumulative_ready_seconds": 10.046930061002058
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_weights_execution_once",
+    "repetitions": 390,
+    "cumulative_ready_seconds": 10.001114218979637
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_weights_execution_rebalance",
+    "repetitions": 29,
+    "cumulative_ready_seconds": 10.264162400993882
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_sparse_targets",
+    "repetitions": 351,
+    "cumulative_ready_seconds": 10.00955916899693
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_dense_targets",
+    "repetitions": 183,
+    "cumulative_ready_seconds": 10.049987549005891
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_sparse_targets",
+    "repetitions": 239,
+    "cumulative_ready_seconds": 10.039867643023172
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_dense_targets",
+    "repetitions": 56,
+    "cumulative_ready_seconds": 10.057032106009501
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_sparse_callback",
+    "repetitions": 43,
+    "cumulative_ready_seconds": 10.092642338004225
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_dense_callback",
+    "repetitions": 10,
+    "cumulative_ready_seconds": 10.345258970997747
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_sparse_callback",
+    "repetitions": 14,
+    "cumulative_ready_seconds": 10.502904374998252
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_dense_callback",
+    "repetitions": 3,
+    "cumulative_ready_seconds": 13.84148530299899
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_shared_cash",
+    "repetitions": 323,
+    "cumulative_ready_seconds": 10.002402745039944
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_rounded_fees",
+    "repetitions": 156,
+    "cumulative_ready_seconds": 10.006760263007891
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_partial_fills",
+    "repetitions": 111,
+    "cumulative_ready_seconds": 10.087789725997936
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_t1_limits_status",
+    "repetitions": 118,
+    "cumulative_ready_seconds": 10.036098325021158
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_stateful_orders",
+    "repetitions": 6,
+    "cumulative_ready_seconds": 11.773692143999142
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_weights_close_once",
+    "repetitions": 373,
+    "cumulative_ready_seconds": 10.014973366962295
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "daily_weights_close_rebalance",
+    "repetitions": 166,
+    "cumulative_ready_seconds": 10.033128473021861
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_weights_execution_once",
+    "repetitions": 253,
+    "cumulative_ready_seconds": 10.027832899982968
+  },
+  {
+    "folder": "vectorbt",
+    "scenario": "minute_weights_execution_rebalance",
+    "repetitions": 52,
+    "cumulative_ready_seconds": 10.137994335003896
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "daily_sparse_callback",
+    "repetitions": 409,
+    "cumulative_ready_seconds": 10.016097235014968
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "daily_dense_callback",
+    "repetitions": 185,
+    "cumulative_ready_seconds": 10.025463820993537
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "minute_sparse_callback",
+    "repetitions": 305,
+    "cumulative_ready_seconds": 10.01227494097111
+  },
+  {
+    "folder": "rust-alternative",
+    "scenario": "minute_dense_callback",
+    "repetitions": 56,
+    "cumulative_ready_seconds": 10.109160707999763
+  },
+  {
+    "folder": "numba-alternative",
+    "scenario": "minute_stateful_orders",
+    "repetitions": 123,
+    "cumulative_ready_seconds": 10.037220018997687
+  }
+]

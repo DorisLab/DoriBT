@@ -9,7 +9,7 @@ from doribt.accounting.orders import IntentRecord
 from doribt.accounting.records import record_factory
 from doribt.accounting.taxes import TaxLotRecord
 from doribt.kernels.broker_state import order_snapshotter
-from doribt.kernels.execution import TICK, IntArray
+from doribt.kernels.execution import IntArray
 from doribt.kernels.scheduled_loop import compiled_schedule
 from doribt.provenance import RunInfo
 from doribt.reporting.result import BacktestResult
@@ -29,8 +29,7 @@ def eligible(run: "TargetCandidate") -> bool:
     if run.backend != "numba" or run.data.actions:
         return False
     if type(run.precomputed_targets) is WeightTargets:
-        # 非活动证券没有编译申报规则，仍走能够按原时点报告错误的完整回调路径。
-        return bool(np.all(run.compiled.market[:, :, TICK]))
+        return True
     return type(run.precomputed_targets) is PositionTargets and run.data.clock is not None
 
 
@@ -89,6 +88,7 @@ def execute(run: "CompiledRun", info: RunInfo) -> BacktestResult:
             run.execution_config,
             days,
             ordinals,
+            run.compiled.sizing_rules,
             run.initial_cash,
             options,
         )
@@ -182,15 +182,20 @@ def target_arrays(run: "CompiledRun") -> tuple[IntArray, IntArray, IntArray]:
 
 
 def restore_error(error: ValueError, run: "CompiledRun") -> NoReturn:
-    if len(error.args) != 4 or error.args[0] != "weight_sizing":
+    if len(error.args) != 5 or error.args[0] != "weight_sizing":
         raise error
-    _, index, mode, code = error.args
+    _, index, mode, code, column = error.args
     original: ValueError | OverflowError
     original = (
         ValueError("cannot size a target without a current valuation")
         if code == 1
         else OverflowError("target quantity exceeds supported bounds")
     )
+    if code == 3:
+        session = run.data.sessions[run.data.day_index(index)]
+        original = ValueError(
+            f"missing historical rule for {run.data.symbols[column]} on {session}"
+        )
     if mode == 1:
         session = run.data.timeline[index]
         raise RuntimeError(f"strategy failed at close on {session}: {original}") from original

@@ -45,6 +45,7 @@ def main() -> None:
     run(sys.executable, "examples/intraday_t.py", "--backend", args.backend, "--frequency", "5min")
     run(sys.executable, "examples/slippage.py", "--backend", args.backend)
     run(sys.executable, "examples/target_sizing.py", "--backend", args.backend)
+    run(sys.executable, "examples/inactive_weights.py", "--backend", args.backend)
     run(sys.executable, "examples/market_data.py")
     run(sys.executable, "examples/strategies.py", "--backend", args.backend)
     run(sys.executable, "examples/dividends.py", "--backend", args.backend)

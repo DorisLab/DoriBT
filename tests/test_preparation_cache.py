@@ -71,7 +71,7 @@ def rule_boundary_data():
     return replace(base, rules=RuleBook(tuple(periods)))
 
 
-def test_minute_preparation_reuses_rules_without_skipping_day_boundaries(monkeypatch):
+def test_minute_preparation_batches_explicit_periods_without_skipping_boundaries(monkeypatch):
     data = rule_boundary_data()
     lookups, conversions = [], []
     original_at, original_compile = RuleBook.at, compiled._compile_rule
@@ -87,13 +87,7 @@ def test_minute_preparation_reuses_rules_without_skipping_day_boundaries(monkeyp
     monkeypatch.setattr(RuleBook, "at", at)
     monkeypatch.setattr(compiled, "_compile_rule", convert)
     actual = compiled.compile_data(data)
-    assert lookups == [
-        ("B", data.sessions[0]),
-        ("A", data.sessions[1]),
-        ("B", data.sessions[1]),
-        ("A", data.sessions[2]),
-        ("B", data.sessions[2]),
-    ]
+    assert lookups == []  # 已验证的显式区间不再逐日反复查找。
     assert len(conversions) == 2
     for offset, bar in enumerate(data.bars):
         row, column = divmod(offset, 2)
@@ -114,6 +108,49 @@ def test_preparation_still_rejects_active_rule_gaps():
     incomplete = RuleBook(tuple(p for p in data.rules.periods if p.symbol == "B"))
     with pytest.raises(ValueError, match="missing historical rule for A on 2025-01-03"):
         replace(data, rules=incomplete)
+
+
+def test_explicit_rule_gaps_and_custom_queries_produce_the_same_numeric_inputs():
+    from inactive_fixtures import scenario
+
+    data, _ = scenario("never")
+    rule = data.rules.periods[0].rule
+    periods = tuple(data.rules.periods) + tuple(
+        RulePeriod(
+            symbol="A",
+            start=data.sessions[start],
+            end=data.sessions[end],
+            rule=replace(rule, buy_step=step),
+            source="人工非活动规则缺口",
+            version="1",
+        )
+        for start, end, step in ((1, 2, 100), (4, 6, 1))
+    )
+    data = replace(data, rules=RuleBook(periods))
+
+    class QueriedRules(RuleBook):
+        pass
+
+    reference = compiled.compile_data(replace(data, rules=QueriedRules(periods)))
+    actual = compiled.compile_data(data)
+    for field in ("market", "closes", "settlement", "sizing_rules"):
+        np.testing.assert_array_equal(getattr(actual, field), getattr(reference, field))
+    assert actual.sizing_rules[:, 0, 0].tolist() == [0, 100, 100, 0, 100, 100, 100, 0]
+    assert actual.sizing_rules[:, 0, 2].tolist() == [0, 100, 100, 0, 1, 1, 1, 0]
+    assert not actual.market[:, 0, 4:].any()  # 有定量规则也不能让未上市证券申报。
+
+
+def test_rulebook_subclass_keeps_its_public_query_override():
+    class ChangedRules(RuleBook):
+        def at(self, symbol, session):
+            period = super().at(symbol, session)
+            return replace(period, rule=replace(period.rule, buy_minimum=200))
+
+    data = data_for([10] * 3)
+    data = replace(data, rules=ChangedRules(data.rules.periods))
+    actual = compiled.compile_data(data)
+    assert actual.market[:, 0, 5].tolist() == [200] * 3
+    assert actual.sizing_rules[:, 0, 1].tolist() == [200] * 3
 
 
 def test_history_fields_are_lazy_cached_and_cannot_modify_shared_inputs(monkeypatch):

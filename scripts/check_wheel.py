@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from zipfile import ZipFile
@@ -208,7 +209,7 @@ def check_wheel(wheel: Path, backend: str) -> None:
                 "--isolated",
                 "--no-project",
                 "--python",
-                "3.13",
+                sys.executable,
                 "--with",
                 package,
                 "--with-requirements",

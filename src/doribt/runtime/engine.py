@@ -21,6 +21,7 @@ from doribt.research.config import RunConfig
 from doribt.research.outputs import Recorder
 from doribt.research.parameters import ParameterSet
 from doribt.runtime.context import AccountView, Context
+from doribt.runtime.execution_audit import execution_audit
 from doribt.runtime.execution_plan import RunDriver, target_run
 from doribt.runtime.intents import IntentBook
 from doribt.runtime.slippage import BarExecution
@@ -121,7 +122,8 @@ class Backtest:
             backend,
             execution,
             data_json=self._prepared.provenance_json,
-            metadata=self._metadata(parameter_schema, backend),
+            metadata=self._metadata(parameter_schema, backend)
+            | {"execution_plan": execution_audit(run, strategy, backend, self.data, execution)},
         )
         result = run.execute(recorded, info)
         if recorder.values:
