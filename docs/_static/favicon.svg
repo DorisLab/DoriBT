@@ -1,6 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
-  <title>DoriBT — BT icon</title>
-  <rect x="4" y="4" width="248" height="248" rx="58" fill="#22292d"/>
-  <path fill-rule="evenodd" d="M61 208V48h65c39 0 61 17 61 43 0 16-8 28-23 35 20 7 31 20 31 39 0 28-24 43-62 43H61Zm30-132v36h35c21 0 33-6 33-21 0-10-12-15-33-15H91Zm0 63v41h42c22 0 34-7 34-21 0-13-12-20-34-20H91Z" fill="#f3ede1"/>
-  <path d="M104 94h101v27h-36v87h-27v-87h-38Z" fill="#d9b779"/>
+  <title>DoriBT — BT</title>
+  <defs>
+    <linearGradient id="blue" x1="24" y1="16" x2="228" y2="248" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3864f2"/>
+      <stop offset="1" stop-color="#1740c5"/>
+    </linearGradient>
+  </defs>
+  <path d="M36 8h166l46 46v166c0 16-12 28-28 28H36c-16 0-28-12-28-28V36C8 20 20 8 36 8Z" fill="url(#blue)"/>
+  <path fill-rule="evenodd" d="M40 56h48c26 0 40 13 40 34 0 15-6 26-16 34 16 8 24 19 24 34 0 28-17 42-48 42H40V56Zm28 26v30h20c10 0 14-5 14-15s-4-15-14-15H68Zm0 58v34h22c12 0 18-6 18-17s-6-17-18-17H68Z" fill="#fff"/>
+  <path d="M148 56h76v28h-24v116h-28V84h-24V56Z" fill="#fff"/>
 </svg>

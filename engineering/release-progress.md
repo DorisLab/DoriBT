@@ -406,3 +406,19 @@ favicon 改为 BT，采用 Dorislab DL 的 256 网格、圆角底色、双色与
 
 本轮使用 `codex/docs-human-copy` 本地分支提交，按维护者要求不推送、不创建 PR 或部署。
 下一步由维护者逐项确认文案和图标后决定。
+
+## 2026-10-13：A 股轻量回测定位与独立 BT 字标
+
+检索并复核 vectorbt、Backtesting.py、RQAlpha、AKQuant、Hikyuu、WonderTrader、SimTradeLab、
+New Tea Quant 的官方定位、文档和相关实现，判断及来源见[定位复核](history/positioning-2026-10-13.md)。
+README、首页、项目介绍、性能解读、文本导航和开发方向统一为“A 股与 ETF 的轻量高性能回测框架”，
+突出历史规则开箱即用、快速回放、NumPy 单一基础依赖和完整交易账本。
+GitHub About／Topics 候选保存在 `.github/repository-profile.json`，按维护者本地确认要求保留远程现状。
+
+对已有测量归档直接计数：17 个具有主对照耗时的场景中，DoriBT Numba 有 10 个更快；
+日线主场景相对 vectorbt Numba 的耗时比为 1.539。性能表、原始 JSON／CSV／ZIP 和 README 可运行代码保持原值。
+favicon 重新绘制为独立蓝白 BT 字标，采用并排字母、较粗笔画和切角底形；浏览器查看明暗背景下 16—160 px。
+
+`scripts/check_docs.py --backend numba` 通过 30 页严格构建、站内链接／锚点／资源、中文与 API 搜索、
+所有示例及可执行教程。最后的措辞补充经严格重建和站内检查，仓库文档链接与元数据 JSON 单独检查。
+浏览器复核首页、介绍页和新图标。本轮继续在 `codex/docs-human-copy` 本地提交，供维护者确认。
