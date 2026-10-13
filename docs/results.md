@@ -1,6 +1,6 @@
-# 结果、指标与研究记录
+# 结果与指标
 
-正式 `BacktestResult` 表示一次共享现金账户运行。证券列顺序为 `result.symbols`，行顺序为 `result.sessions`；不会把参数组合放进证券列。金额账本与分析浮点数分别使用，指标不反向修改账本。
+`BacktestResult` 保存一次共享现金账户运行的结果。证券列按 `result.symbols` 排列，时间行按 `result.sessions` 排列；多组参数各自运行、各自返回结果。金额账本采用精确整数，分析指标采用浮点数。
 
 `report()` 从初始资金开始计算每天收益，包含首日成本，默认 252 个交易日年化。`stats()` 按原始 bar 统计且不默认年化。自定义输出见[研究契约](research-contract.md)，完整流程见[报告教程](guide/reports.md)。
 
@@ -62,9 +62,9 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 | `order_count` / `fill_count` | 委托／实际成交条数；不是完整买卖交易轮次或胜率 |
 | `unfilled_order_count` / `partial_order_count` | 无成交／部分成交的委托数；持续目标的不同交易日尝试分别计数 |
 
-`risk_free_rate` 是年有效利率，默认 0；每区间门槛 `q=(1+rate)**(1/P)-1`。它只参与分析，不向现金账户计息。未指定 `periods_per_year` 时不计算年化、Sharpe、Sortino 或年化跟踪指标；非零无风险利率此时会报错。即便输入日线，也不猜测应采用 250、252 或其他天数。不按自然日跨度悄悄换一种 CAGR 算法。
+`risk_free_rate` 是年有效利率，默认 0；每区间门槛 `q=(1+rate)**(1/P)-1`。它只参与分析，不向现金账户计息。未指定 `periods_per_year` 时不计算年化、Sharpe、Sortino 或年化跟踪指标；非零无风险利率此时会报错。显式指定年化周期后，按表中的公式计算。
 
-少于两个收益区间时样本风险指标为 `None`，无收益区间时年化收益也为 `None`。零标准差／零下行偏差对应比率为 `None`，不显示无穷大。前一日权益为零或负数时下一期收益不可定义，数组用 NaN，`undefined_return_periods` 计数，风险指标为 `None`，不丢掉失败区间再算好看的统计。浮点计算超出可表示范围的指标也为 `None`。导出用 JSON `null` 或 CSV 空单元格，不写非标准 JSON NaN／Infinity。
+少于两个收益区间时样本风险指标为 `None`，无收益区间时年化收益也为 `None`。零标准差／零下行偏差对应比率为 `None`，前一日权益为零或负数时下一期收益不可定义，数组用 NaN，`undefined_return_periods` 计数，风险指标为 `None`。浮点计算超出可表示范围的指标也为 `None`。导出用 JSON `null` 或 CSV 空单元格，不写非标准 JSON NaN／Infinity。
 
 ## 基准
 
@@ -80,24 +80,21 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 ## 图表
 
-`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤；提供基准时，中间另显示累计超额收益。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。库不打开桌面窗口、不调用 `pyplot.show()`、不修改全局 Matplotlib 后端或字体设置。默认优先中文标题与图例，自动选择本机已安装的 Noto Sans SC／CJK SC、微软雅黑等中文字体；缺少这些字体时内置标签回退为英文，避免缺字。安装 Noto Sans CJK SC 后可使用中文；用户自定义基准名称保持原文，所需字体由调用环境提供。
+`plot()` 返回 [Matplotlib Figure](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html)，上方显示净值与可选基准，下方显示负向回撤；提供基准时，中间另显示累计超额收益。可以继续使用 Figure／Axes 编辑，或保存 PNG、SVG、PDF。默认优先中文标题与图例，自动选择本机已安装的 Noto Sans SC／CJK SC、微软雅黑等中文字体；缺少这些字体时内置标签回退为英文，避免缺字。安装 Noto Sans CJK SC 后可使用中文；用户自定义基准名称保持原文，所需字体由调用环境提供。
 
 `plot` 是可选安装项；导入和运行基础引擎不加载 Matplotlib。`export(..., plot=True)` 才请求绘图，缺依赖会明确报错并清理此次临时输出。
 
 默认按图表含义配色：策略净值红色（`#c83932`）、基准蓝色（`#477bb5`）、累计超额收益金色（`#b98b2f`）、负向回撤浅红色（`#df8a87`），零线与网格用中性灰。累计超额收益为 `result.nav - benchmark.nav`，与累计收益差指标一致，单独以百分比坐标显示，不与净值共用纵轴。没有基准时不显示超额面板。
 
-红／灰／绿用于表达上涨、平收或停牌、下跌的行情状态，不按此规则为上述研究系列分配颜色。当前导出为净值、超额和回撤图，不包含 K 线或行情状态图。净值线不随每段涨跌变色；需要定制可编辑返回的 Figure。分钟图保留每根 bar 的结束时点，横轴按输入市场时区显示；`export(daily=True, plot=True)` 则显示日末采样后的曲线。
+分钟图保留每根 bar 的结束时点，横轴按输入市场时区显示；`export(daily=True, plot=True)` 则显示日末采样后的曲线。需要定制颜色、坐标或注释时，可直接编辑返回的 Figure。
 
 ## 导出契约
 
-`result.export(path, ...)` 返回绝对目录路径。父目录必须存在，目标必须尚不存在。不提供隐式覆盖开关。所有文件先写到同级临时目录，读回校验成功后，通过 Windows 不替换 rename 或 Linux `renameat2(RENAME_NOREPLACE)` 一次发布；竞争进程抢先创建同名目录也不会被覆盖。写入／绘图／校验／发布失败时清理本次暂存，保留之前的成功目录。保证进程可见性和不覆盖，不宣称断电持久化；其他操作系统目前不支持该发布操作。
+`result.export(path, ...)` 返回报告目录的绝对路径。先创建父目录，为每次研究选择一个新的报告目录名。DoriBT 写完并校验全部文件后，一次性生成完整报告；失败时清理本次临时文件，已有报告始终保留。
 
-目标文件系统须支持对应的原子不覆盖操作。在 WSL 中，部分 `/mnt/c`、`/mnt/d` 的
-DrvFS 挂载不支持该操作，导出会明确失败（例如 `EINVAL`），并清理本次暂存。
-可将报告保存到 Linux 原生文件系统目录；引擎不会改用可能覆盖既有报告的发布方式。
+支持 Windows 和 Linux。WSL 用户优先将报告保存到 Linux 原生文件系统；部分 `/mnt/c`、`/mnt/d` 挂载不支持所需的原子目录操作，会报 `EINVAL`。
 
-账户、持仓和离散账本逐行写入暂存，保留全部 bar 与记录、既有 CSV 列顺序、空表列头
-和规范 JSON 格式。SHA-256 按分块读取计算；写入中断仍遵循上述清理与原子发布契约。
+导出保留全部 bar 与离散交易记录，空表保留列头；`manifest.json` 提供每个文件的 SHA-256 和字节数。
 
 | 文件 | 内容 |
 | --- | --- |
@@ -117,9 +114,9 @@ DrvFS 挂载不支持该操作，导出会明确失败（例如 `EINVAL`），�
 
 CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保留列头。整数记账字段保持整数；金额／价格 `units` 是 `0.0001 CNY`，税务每股收入 `income_micros` 是 `0.000001 CNY/share`。`positions.csv` 包含所有证券／bar 组合；未上市或已退市的空价格以内部 0 表示，不作为可交易价格。
 
-当前交付标准 CSV／JSON，不要求 pandas／Arrow。Parquet、交互报告与产品侧资产管理可在实际消费者需要时追加。
+标准 CSV／JSON 可直接接入 Python、电子表格和现有研究工具。
 
-## 来源记录与复现边界
+## 运行记录
 
 `result.run_info` 是不可变 JSON 快照；`to_dict()` 每次返回新副本。它包含：
 
@@ -128,11 +125,12 @@ CSV 为 UTF-8，日期为 ISO 8601，嵌套字段为 JSON 字符串，空表保�
 - 收盘决策／下一输入开盘执行、意图定量模式、资金预留及明确支出上限、成交排序、原始价、不强制清仓等假设。
 - 回调模块／名称与可读取时的源代码哈希；预计算权重则保留完整日期和数值及哈希；显式参数的初始快照。
 - Python、操作系统、DoriBT、NumPy，使用 Numba 时另记 Numba／llvmlite 版本；安装包内 Python 引擎文件的整体内容指纹。
-- `execution_plan` 记录请求与实际后端、JIT 状态、完整编译／分段／回调计划及回退原因，详见[实际执行计划](scheduled-execution.md#可观察性与缓存)。
+- `execution_plan` 记录请求与实际后端、JIT 状态、完整编译／分段／回调计划及回退原因，详见[实际执行计划](scheduled-execution.md#执行计划与缓存)。
 
-不收集任意环境变量的内容、不抓取闭包／全局变量／对象状态、不复制策略源代码或原始行情。回调来源不可读取时明确为 `null`，外部状态标记 `not_captured`。调用者仍需保留自己的原始数据、脚本、锁定环境以及显式随机种子；参数不能存放凭据，来源描述也不应带认证信息。指纹可以核对输入和程序是否一致，不能证明任意有外部状态的 Python 回调完全可复现。
+`run_info` 保存上述运行配置与来源指纹，原始行情和策略文件由研究目录保存。回调来源不可读取时为 `null`，外部状态标记 `not_captured`。比较两次实验时，使用输入、执行和文件指纹定位变化。
 
-`run_info.fingerprint` 标识执行记录；同一结果使用不同分析假设导出时，执行指纹保持相同，`stats.json`、基准和文件清单哈希随分析输入变化。可选绘图库版本不算执行依赖，其环境由研究项目的锁文件保留。
+`run_info.fingerprint` 标识执行记录；同一结果使用不同分析假设导出时，执行指纹保持相同，`stats.json`、基准和文件清单哈希随分析输入变化。
+
 ## 分钟结果
 
 分钟回测的 `result.sessions` 为完整 bar 结束时点；账户／持仓 CSV 逐 bar 输出，包含 frozen_cash_units／frozen_quantity。`Fill.timestamp` 标识该成交最早可知的时点，同一 order_id 可有多行，订单金额／费用为累计值。

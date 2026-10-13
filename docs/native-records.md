@@ -1,29 +1,18 @@
-# 可选原生记录物化
+# 原生扩展
 
-这是源码构建选项。默认安装和构建仍使用纯 Python 包，不需要 C 编译器或 Python 开发头文件。
-原生扩展只优化内部列式结果到完整审计记录的转换；返回的订单、意图、成交、税务批次仍是原有
-完整、立即创建的 dataclass 和 tuple，不改变公共 API，不推迟到首次访问时才创建。
-当前加速入口是符合条件的 Numba 预计算执行路径；仅安装扩展不会改变 Python 后端的执行路径。
+可选 C 扩展加快 Numba 预计算路径的记录转换，适合成交与意图记录较多的研究。
+订单、意图、成交和税务批次在回测结束时完整返回，调用方式与纯 Python 包一致。
+Linux x86_64 用户可从源码构建；PyPI 的基础安装使用纯 Python 包。
 
-物化过程对空表直接返回空 tuple；稀疏记录只读取实际需要的日期和时间戳，
-密集记录在同次物化中共享时间轴查找数组。全部非空记录仍在 `Backtest.run` 返回前创建完成，
-这些优化不减少账本字段或把构造推迟到结果访问时。
-
-Python 记录工厂在内置记录类型的 `__init__` 或 `__new__` 被替换后遵守更新的公开构造协议，
-包括构造器产生的异常。原生物化只接受使用默认分配器和生成式初始化器的内部稳定 dataclass；
-类型不再满足条件时，`auto` 使用 Python 记录路径，`required` 明确失败。
-
-## 已验证边界
+## 构建环境
 
 - 原生构建目前仅接受 Linux x86_64、CPython 3.13—3.15、启用 GIL 的非 debug 解释器
 - 使用公开稳定 C API，最低接口为 Python 3.12 的 `Py_LIMITED_API=0x030C0000`
 - 可使用本机 Python 3.12—3.15 的兼容开发头文件；包支持 Python 3.13—3.15
-- wheel 标为 `cp313-abi3-linux_x86_64`，不是 manylinux；不声明跨发行版、macOS、Windows、
-  其他架构、free-threaded 或上述范围以外 Python 版本的原生兼容性
-- 无扩展时保留纯 Python 路径；不在导入、首次回测或后续运行中自动编译、下载或安装工具
+- wheel 标为 `cp313-abi3-linux_x86_64`，供上述本机构建环境使用
+- 无扩展时使用纯 Python 记录路径
 
-`abi3` 描述所用 ABI，并不扩大发行包的 `Requires-Python` 或已测试平台范围。
-基础包在 Windows／Linux 上的支持与此原生选项的较窄范围分别适用。
+`abi3` 是扩展的稳定 ABI 标签；基础包支持 Windows／Linux，原生构建使用上面的 Linux 环境。
 
 ## 构建与运行分别控制
 
@@ -35,8 +24,7 @@ Python 记录工厂在内置记录类型的 `__init__` 或 `__new__` 被替换�
 | `DORIBT_NATIVE_RECORDS` | `required` | 原生能力不可用时明确报错，用于原生验证任务 |
 | `DORIBT_NATIVE_RECORDS` | `off` | 即使安装原生 wheel，也使用纯 Python 记录路径 |
 
-构建开关不会为已有安装启用原生能力。运行开关不会构建扩展；改变运行开关前后应分别运行
-回测并保留各自来源记录。不同物化实现与原生二进制会反映到现有 `engine_sha256` 中。
+先用构建开关生成并安装原生 wheel，再用运行开关选择记录路径。运行来源的 `engine_sha256` 会标识相应实现与二进制。
 
 ## 构建 wheel
 
@@ -80,8 +68,8 @@ DORIBT_NATIVE_RECORDS=required uv run --no-sync python -c \
   "from doribt.runtime.native_records import available; assert available()"
 ```
 
-`DORIBT_BUILD_NATIVE=required` 不用于可编辑安装；先完成普通可编辑安装，再显式运行开发构建命令。
-失败的构建不会替换既有开发二进制，因此失败后不能把旧文件当作本次构建成功的证据。
+可编辑安装先完成普通安装，再运行上面的开发构建命令。
+构建失败时保留已有开发二进制，错误通过构建命令报告。
 开发产物已被版本控制和发行打包规则排除。要检查纯 Python 路径，使用运行时 `off`，
 或从本次生成的纯 Python wheel 建立独立环境。
 
@@ -96,17 +84,6 @@ uv run --no-sync python scripts/check_native_package.py \
 此检查要求已安装开发依赖、`numba` extra 与 `uv`；已有完整依赖缓存时可加 `--offline`。
 纯 Python 安装检查只安装 NumPy；原生执行验证另装与当前环境同版本的 Numba／llvmlite。
 默认在临时目录中验证后清理；若需要保留 wheel 与独立安装供进一步复核，可加
-`--work-dir <尚不存在的目录>`，不会覆盖已有验证目录。检查内容：
+`--work-dir <尚不存在的目录>`，不会覆盖已有验证目录。该命令从 sdist 重建纯 Python／原生 wheel，在独立环境中检查安装、文件哈希和完整回测结果，并验证 C 扩展的实际调用。
 
-1. 向副本放入假的旧原生产物，构建 sdist 并检查二进制排除、C 源码与构建工具齐备
-2. 仅从解包的 sdist 构建纯 Python 和必需原生 wheel
-3. 在纯 Python 构建中强制使用不存在的编译器／头文件，证明不依赖本机编译条件
-4. 检查 wheel 标签、`Root-Is-Purelib`、二进制清单及全部 `RECORD` 哈希和大小
-5. 分别创建全新环境，在仓库之外用 `python -I` 导入，核验来自 wheel 的真实安装路径
-6. 运行合成行情与完整记录核对，观察四类记录确实调用 C 扩展，检查原生开关改变来源摘要
-7. 验证纯 wheel 拒绝必需原生运行，以及缺编译器时必需原生构建失败而不生成纯 wheel
-
-原生 CI／性能验证必须同时要求构建时 `required` 和运行时 `required`，并单独证明扩展真实调用；
-仅有绿色测试或 wheel 文件名不足以证明原生路径被覆盖。完整账本与后端检查仍须运行
-[质量门禁](https://github.com/DorisLab/DoriBT/blob/main/docs/quality.md)，
-此安装检查不替代功能回归或性能测量。
+完整开发检查见[质量门禁](https://github.com/DorisLab/DoriBT/blob/main/docs/quality.md)。

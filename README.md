@@ -1,28 +1,28 @@
 # DoriBT：A 股与 ETF 的 Python 回测引擎
 
-面向中国量化研究者：用自己的行情，在共享现金账户中研究 **A 股／ETF 轮动、日线择时和 1／5 分钟做 T**，并核对每笔订单、成交、费用与持仓。
+从一个策略想法到完整研究报告。DoriBT 将历史交易规则、共享现金账户、成交成本与结果分析整合起来，让你用普通 Python 函数研究 **A 股择时、ETF 轮动和 1／5 分钟做 T**，并解释每次调仓如何影响收益。
 
-[文档中心](https://dorislab.github.io/DoriBT/) · [PyPI](https://pypi.org/project/doribt/) · [框架选型](https://dorislab.github.io/DoriBT/comparison.html) · [性能与复现](https://dorislab.github.io/DoriBT/performance.html)
+[使用手册](https://dorislab.github.io/DoriBT/) · [安装](https://pypi.org/project/doribt/) · [为什么选择 DoriBT](https://dorislab.github.io/DoriBT/comparison.html) · [性能](https://dorislab.github.io/DoriBT/performance.html)
 
-## 能做什么
+## 为你的研究准备好这些能力
 
-- **按市场制度回测**：历史 T+0／T+1 预设、按证券与日期覆盖规则、整手约束、分红送转
-- **模拟共享资金与成交**：多标的账户、部分成交、最低佣金、成交量参与率、滑点与撤单
-- **直接编写研究逻辑**：函数策略、历史窗口、预计算目标与参数声明，无需继承策略基类
-- **解释并导出结果**：完整订单／成交账本、日频报告、基准与超额收益、自定义指标、CSV／JSON 与图表
-- **按负载选择后端**：NumPy 基础安装，可选 Numba；首次编译与预热性能分开衡量
+- **交易规则进入收益计算**：历史 T+0／T+1、整手、涨跌停、分红送转，按证券和日期配置。
+- **在一个账户里研究组合**：共享资金、先卖后买、部分成交、最低佣金、参与率和滑点。
+- **策略直接写成 Python 函数**：历史窗口、目标仓位、再平衡和参数声明；已有信号数组可直接运行。
+- **从净值追到逐笔交易**：持仓、订单、成交、未成交原因与费用，连同自定义指标一起导出。
+- **快速重复研究**：Numba 加速预计算目标与撮合，2520 日 × 100 标的组合的热运行中位数为 0.147 秒。
 
-当前发行版 **0.6.2**，支持 **Python 3.13—3.15、Windows／Linux**。引擎不提供行情下载或实盘接口；不覆盖盘口排队、融资融券、期货期权与 ETF 申赎。完整范围见[市场规则](https://dorislab.github.io/DoriBT/china-market.html)。
+当前发行版 **0.6.2**，支持 **Python 3.13—3.15、Windows 和 Linux**。新环境推荐 Python 3.15。
 
 ## 安装与第一次回测
 
 ```sh
 python -m pip install "doribt==0.6.2"
-# 可选 Numba 加速与图表：
+# 同时安装加速和图表：
 python -m pip install "doribt[numba,plot]==0.6.2"
 ```
 
-下例无需行情账号。保存为 `quickstart.py`，运行 `python quickstart.py`，期末权益应为 **10895 元**。收盘提交目标，下一根 bar 开盘尝试成交。
+下面用三日人工行情完成一次买入持有回测。保存为 `quickstart.py`，运行 `python quickstart.py`，即可看到 **10895 元**期末权益：995 元现金，加上 900 份持仓 × 11 元收盘价。
 
 ```python
 """安装 doribt 后即可运行；仅使用合成行情与公开 API。"""
@@ -64,41 +64,36 @@ print("期末权益：", result.equity[-1])  # 10895 元：剩余现金 995 + �
 print("总收益率：", result.report().stats["total_return"])
 ```
 
-为什么是 10895 元，以及如何避免最后一根 bar 无法成交，见[第一次回测](https://dorislab.github.io/DoriBT/guide/quickstart.html)。
+[第一次回测](https://dorislab.github.io/DoriBT/guide/quickstart.html)逐步解释成交时点、最低佣金和收益。
 
-## 按研究任务上手
+## 做一份完整研究
 
-- [A 股 ETF 轮动：历史窗口、共享资金与再平衡](https://dorislab.github.io/DoriBT/tutorials/etf-rotation.html)
-- [分钟做 T：T+0 ETF 与 T+1 底仓的区别](https://dorislab.github.io/DoriBT/tutorials/intraday-t.html)
-- [CSV／DataFrame 行情到研究报告](https://dorislab.github.io/DoriBT/tutorials/data-to-report.html)
+- [ETF 轮动](https://dorislab.github.io/DoriBT/tutorials/etf-rotation.html)：比较动量，在共享账户中换仓。
+- [分钟做 T](https://dorislab.github.io/DoriBT/tutorials/intraday-t.html)：理解 T+0、T+1 和昨日底仓。
+- [数据到报告](https://dorislab.github.io/DoriBT/tutorials/data-to-report.html)：接入 CSV／DataFrame，分析并导出结果。
 
-[数据输入](https://dorislab.github.io/DoriBT/guide/data.html) · [策略编写](https://dorislab.github.io/DoriBT/guide/strategies.html) · [结果与导出](https://dorislab.github.io/DoriBT/guide/reports.html) · [API 参考](https://dorislab.github.io/DoriBT/api.html) · [全部示例](https://github.com/DorisLab/DoriBT/tree/main/examples)
+[接入行情](https://dorislab.github.io/DoriBT/guide/data.html) · [编写策略](https://dorislab.github.io/DoriBT/guide/strategies.html) · [分析与导出](https://dorislab.github.io/DoriBT/guide/reports.html) · [API](https://dorislab.github.io/DoriBT/api.html) · [全部示例](https://github.com/DorisLab/DoriBT/tree/main/examples)
 
-## 性能一览
+## 性能
 
-0.6.2 补齐了非活动证券的完整权重编译，并减少新建回测时的数组准备开销。三组冻结面板的完整账本一致，暖态回放耗时已降低；本次测量与首次编译成本见[性能页](https://dorislab.github.io/DoriBT/performance.html)。
+同一份 2520 日 × 100 标的组合输入，固定股数目标，热运行中位数如下；计时包含引擎运行及现金、持仓、权益和逐笔成交输出。
 
-下表整理已归档测量，精确测试版本与原始结果保留在[复现材料](https://github.com/DorisLab/DoriBT/tree/main/engineering/benchmarks/documentation-20261013)中。
-
-同一组 **2520 个交易日 × 100 标的**的合成日线组合输入，单账户、固定股数目标，禁用费用、T+1、涨跌停和公司行动，使用 XNYS 日历，预热单次中位耗时如下。各框架适配器的现金、持仓、权益和逐笔成交已核对；框架原生市场规则与输出范围并不完全相同，这不是所有策略的速度排名。
-
-| 实现 | 预热单次耗时（秒） |
+| 实现 | 热运行耗时 |
 | --- | ---: |
-| DoriBT Python | 0.9704 |
-| DoriBT Numba | 0.1470 |
-| DoriBT Numba＋可选原生扩展 | 0.1406 |
-| vectorbt Numba | 0.09553 |
-| vectorbt Rust | 0.07533 |
-| Backtrader | 18.9645 |
-| Zipline-reloaded | 7.1511 |
+| DoriBT Python | 0.9704 秒 |
+| DoriBT Numba | 0.1470 秒 |
+| vectorbt Numba | 0.09553 秒 |
+| vectorbt Rust | 0.07533 秒 |
+| Backtrader | 18.9645 秒 |
+| Zipline-reloaded | 7.1511 秒 |
 
-该日线场景没有调用原生记录物化路径，0.1470 与 0.1406 秒的差异不能归因于原生扩展。vectorbt 在这组输入上更快；更大分钟负载、完整研究流程、冷启动、机器环境和计时边界见[性能页与公开复现数据](https://dorislab.github.io/DoriBT/performance.html)。
+**选择 DoriBT，是为了把研究速度、A 股交易规则和完整结果解释一起带进你的工作流。** 普通函数表达策略，统一账户处理 T+1、费用和部分成交，运行后直接拿到账本与报告，把时间花在策略本身。
 
-## 数据与制度边界
-
-原始价用于成交和账户记账，按决策时点复权的价格用于研究。现金账户规则预设核验范围为 2015-09-09 至 2026-10-12；科创板从 2019-07-22 起。每日涨跌停、上市与停复牌由输入提供，自定义规则须注明适用区间与来源。示例使用人工行情，演示结果不代表实际策略收益。
+0.6.2 的长历史面板测试中，三组重复研究回放累计由 **63.82 秒降到 40.57 秒，节省约 36% 的回放时间**。[性能页](https://dorislab.github.io/DoriBT/performance.html)提供分钟场景、首次运行、Python 版本和完整复现资料。
 
 ## 参与开发
+
+欢迎提交研究需求、最小复现和交易规则改进。
 
 ```sh
 git clone https://github.com/DorisLab/DoriBT.git
@@ -107,4 +102,6 @@ uv sync --locked --extra numba
 uv run --no-sync python scripts/check.py --backend numba --audit
 ```
 
-详见[贡献说明](CONTRIBUTING.md)与[质量门禁](docs/quality.md)。欢迎带有最小复现、规则依据与预期行为的问题反馈。采用 [Apache-2.0](LICENSE) 许可证。
+[贡献说明](CONTRIBUTING.md) · [质量检查](docs/quality.md) · [问题反馈](https://github.com/DorisLab/DoriBT/issues)
+
+采用 [Apache-2.0](LICENSE) 许可证。

@@ -1,7 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <title>DoriBT</title>
-  <rect x="1" y="1" width="62" height="62" rx="14" fill="#22292d"/>
-  <path d="M13 51V13h17c14 0 23 9 23 20 0 6-2 10-6 14H35c7-3 10-8 10-14 0-7-6-12-15-12h-9v30Z" fill="#f3ede1"/>
-  <path d="M27 29h7v15h15v7H27Z" fill="#d9b779"/>
-  <path d="M37 30h5v9h-5Z" fill="#d9b779"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <title>DoriBT — BT icon</title>
+  <rect x="4" y="4" width="248" height="248" rx="58" fill="#22292d"/>
+  <path fill-rule="evenodd" d="M61 208V48h65c39 0 61 17 61 43 0 16-8 28-23 35 20 7 31 20 31 39 0 28-24 43-62 43H61Zm30-132v36h35c21 0 33-6 33-21 0-10-12-15-33-15H91Zm0 63v41h42c22 0 34-7 34-21 0-13-12-20-34-20H91Z" fill="#f3ede1"/>
+  <path d="M104 94h101v27h-36v87h-27v-87h-38Z" fill="#d9b779"/>
 </svg>
