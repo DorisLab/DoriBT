@@ -1,7 +1,7 @@
 # 0.6.2 实现与验收
 
-日期：2026-10-13。此记录先保存本地验收；正式标签、PyPI、GitHub Release 和 Pages
-结果在发布完成后补齐。发布前状态不等于已发布。
+日期：2026-10-13。0.6.2 已完成正式发行，以下分别记录本地实现、性能证据、发行 CI、
+公开安装和手册验收。机器可读结果见 [发行核验摘要](release-0.6.2-verification.json)。
 
 ## 需求响应
 
@@ -122,3 +122,83 @@ Numba 1115 通过、42 原生跳过。Ruff、104 文件 strict mypy、400 行／
 不放宽检查、不跳过失败用例。Windows 11 和 WSL2 Ubuntu 的 CPython 3.15.0 独立无 Numba
 环境均通过完整基础门禁（636 通过、42 原生跳过、479 Numba 用例明确排除）；Windows
 Numba 环境再次通过完整门禁（1115 通过、42 原生跳过）。日志摘要另存 ci-fix-local-checks.json。
+
+修复通过 [PR #27](https://github.com/DorisLab/DoriBT/pull/27) 合入，最终发行提交为
+`5f0de8701610eb581cc269729f547514b39487c7`。维护者在本次会话明确批准修复尚未完成发行的
+`v0.6.2` 标签；核实 PyPI 0.6.2 和 GitHub Release 均不存在后，以旧标签对象
+`d2d12b76b82aa3f34357414318944f45aa9afd53` 为精确 force-with-lease 条件更新。
+旧提交及失败工作流继续保留。此例外不授权覆盖已发布包，也不改变后续版本的不可覆盖规则。
+新标签对象为 `270360bc238b746b45007bfafac2e165defa8875`。
+
+## 正式发行与资产
+
+[发行工作流 38366193173](https://github.com/DorisLab/DoriBT/actions/runs/38366193173)
+的 21 项质量任务、build 和 publish 共 23 项全部 success。逐任务日志中的测试结果如下：
+
+| CI 范围 | 任务数 | 每任务通过／跳过／明确排除 |
+| --- | ---: | --- |
+| Windows／Linux × Python 3.13／3.14／3.15，基础后端 | 6 | 636／42／479 |
+| 同一平台及解释器矩阵，Numba 后端 | 6 | 1115／42／0 |
+| Linux 原生记录 × 三代解释器 | 3 | 1157／0／0 |
+| Windows／Linux × 两组旧依赖 | 4 | 1115／42／0 |
+
+另外两项为联网依赖审计和 Git 历史凭据扫描，均通过。跳过和排除范围与本地门禁相同，
+不能将基础环境的排除项说成已运行。正式构建另验证基础及 Numba／plot wheel 隔离安装。
+
+PyPI `pypi` deployment `7033289287` 对应发行提交和 v0.6.2，最终为 success，
+时间为 2026-10-13 08:05:02 UTC（北京时间 16:05:02）；上传 job 同样 success。
+[PyPI 0.6.2](https://pypi.org/project/doribt/0.6.2/) 与
+[GitHub Release](https://github.com/DorisLab/DoriBT/releases/tag/v0.6.2) 均已公开，Release 为正式 Latest。
+CI 原件、公开 PyPI 文件、免登录 GitHub 下载的字节完全一致：
+
+| 资产 | SHA-256 |
+| --- | --- |
+| doribt-0.6.2-py3-none-any.whl | c1d6e8a304c6451a714eb451ee42978ba5f871f193fc0bb93eeadaf22b69075c |
+| doribt-0.6.2.tar.gz | fd3a22dc4177ecadaf387685b50bf417da3a9498e72426aaa4ab4a3cc54cad25 |
+| SHA256SUMS | 3335cd05ebebce6866cce05e27d59e81875eeeef505b36f97fb25cb2676ca93d |
+
+wheel 与 sdist 中的 75 个 Python／C 源码文件均与发行提交的 Git blob 逐字节一致；工程记录
+不进入这两种发行包。正式包实际引擎摘要为
+`b68a52bf01f8ff097e9244b0ec38d2b3a8735d7f55e6737c907ef9583ed8aa9f`，与上文性能候选摘要分别保留。
+
+## 公开安装验收
+
+直接从官方 PyPI 索引、禁用下载缓存建立三个全新环境：Windows 11／Python 3.13.16 基础包，
+Windows 11／Python 3.15.0 Numba＋plot，WSL2 Ubuntu 24.04／Python 3.15.0 Numba＋plot。
+基础安装只有 NumPy 2.5.4；两套完整安装均为 NumPy 2.5.4、Numba 0.68.0、llvmlite 0.50.0、
+Matplotlib 3.11.2。76 个安装包文件（含类型标记）均与正式 wheel 一致，无 editable 或本地 wheel 替代。
+
+基础环境完成 8 组非活动权重及 8 组分钟做 T；两套完整环境各完成两后端共 16 组非活动权重、
+16 组分钟做 T，比较完整公开结果字段，并验证 Numba 实际计划为完整目标编译。
+非活动面板覆盖两种规则覆盖、close／execution、rebalance 两种设置，成交和权益另与手算预期核对。
+三个环境另运行 quickstart 和分钟预计算示例；公开 Windows Numba 安装执行全部手册教程及正文片段。
+
+三个环境共导出 6 份报告，91 个 manifest 条目的字节数与 SHA-256 读回一致，4 幅 PNG 的签名通过。
+WSL 报告在 Linux 原生文件系统导出。原日志和完整报告保留于本机 `.quality/release-062/`，
+WSL 的 `.quality/public-062-full-2/`；机器可读摘要保存每套验收文件的哈希。
+
+PyPI 上传刚完成时，版本 JSON 和文件已经公开，但 simple 索引尚未列出 0.6.2，三个首次安装
+均明确失败。保留这些环境及日志；确认公开索引已出现版本后重新创建环境，才得到以上成功结论。
+未使用文件直链代替公开索引安装。
+
+## 线上手册与最终文档维护
+
+GitHub Release 触发的 [手册工作流 38367080848](https://github.com/DorisLab/DoriBT/actions/runs/38367080848)
+构建和部署均成功。随后线上实操发现搜索“非活动”没有结果，中文分词字典未保留这一完整词。
+通过 [PR #28](https://github.com/DorisLab/DoriBT/pull/28) 补充“非活动”“完整编译”“执行计划”，
+并扩展索引门禁；严格构建、公开 Numba 安装运行全部教程及完整基础质量入口通过。
+
+新文档标签 `milestone/docs/0.6.2-1` 指向已合入的
+`5f01d72e08840e65908da2b567304f84d78aea9c`。
+[文档工作流 38367673739](https://github.com/DorisLab/DoriBT/actions/runs/38367673739)
+build／deploy 均 success，`github-pages` deployment `7033441725` 成功。
+该更新只修正文档搜索，不覆盖已发布的 v0.6.2 或安装包。
+
+线上首页、安装、框架比较、性能、三篇实战教程、预计算说明均显示 0.6.2；
+`llms.txt` 和 favicon 与发行源码逐字节一致。浏览器实际查看首页和 DL 图标，确认首页的任务入口
+与手册版本可见。favicon 摘要为 `40b5901726a569266913878f71135db64afcf8edb6196f4c1832ad2582167753`。
+新索引上线后，浏览器仍暂存旧资源；确认服务器的 `max-age=600` 缓存策略并等待更新后，
+线上“非活动”搜索实际返回性能页、示例页、预计算执行页，共 3 页。未把索引构建成功替代浏览器验收。
+
+本记录作为 main 上的完成记录，并以 `release-0.6.2-acceptance.md` 附于 GitHub Release；
+机器可读摘要以同名版本的 verification.json 附件提供。发行标签中的发布前记录保持原样。
