@@ -422,3 +422,12 @@ favicon 重新绘制为独立蓝白 BT 字标，采用并排字母、较粗笔�
 `scripts/check_docs.py --backend numba` 通过 30 页严格构建、站内链接／锚点／资源、中文与 API 搜索、
 所有示例及可执行教程。最后的措辞补充经严格重建和站内检查，仓库文档链接与元数据 JSON 单独检查。
 浏览器复核首页、介绍页和新图标。本轮继续在 `codex/docs-human-copy` 本地提交，供维护者确认。
+
+## 2026-10-13：手册更新与上线
+
+维护者确认两轮文案与图标修订，要求推送并更新在线手册。介绍页删除“这就是 DoriBT 的定位”，
+开头直接进入自有行情与普通函数策略的使用说明。
+本地 `scripts/check_docs.py --backend numba` 再次通过严格构建、30 页内部链接／锚点／资源、
+中文与 API 搜索，以及全部示例和教程片段。
+本轮上线采用 PR 合入 main、创建 `milestone/docs/0.6.2-2` 文档标签的流程；
+GitHub About／Topics 使用 `.github/repository-profile.json` 中的候选值。
