@@ -1,0 +1,254 @@
+{
+  "release": "0.6.2",
+  "date": "2026-10-13",
+  "tag": "v0.6.2",
+  "tag_object": "270360bc238b746b45007bfafac2e165defa8875",
+  "source_commit": "5f0de8701610eb581cc269729f547514b39487c7",
+  "ci": {
+    "release": "0.6.2",
+    "tag": "v0.6.2",
+    "commit": "5f0de8701610eb581cc269729f547514b39487c7",
+    "run_id": 38366193173,
+    "url": "https://github.com/DorisLab/DoriBT/actions/runs/38366193173",
+    "workflow_conclusion": "success",
+    "quality_jobs": 21,
+    "build_success": true,
+    "publish_success": true,
+    "pypi_deployment": 7033289287,
+    "pypi_deployment_status": "success",
+    "tests": [
+      {
+        "job": "quality / native records (Linux x86_64, Python 3.15, Numba)",
+        "passed": 1157,
+        "skipped": 0,
+        "deselected": 0
+      },
+      {
+        "job": "quality / older dependencies (windows-latest, Python 3.13)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / native records (Linux x86_64, Python 3.14, Numba)",
+        "passed": 1157,
+        "skipped": 0,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (ubuntu-latest, Python 3.13, python)",
+        "passed": 636,
+        "skipped": 42,
+        "deselected": 479
+      },
+      {
+        "job": "quality / native records (Linux x86_64, Python 3.13, Numba)",
+        "passed": 1157,
+        "skipped": 0,
+        "deselected": 0
+      },
+      {
+        "job": "quality / older dependencies (ubuntu-latest, Python 3.13)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / older dependencies (ubuntu-latest, Python 3.14)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (windows-latest, Python 3.14, python)",
+        "passed": 636,
+        "skipped": 42,
+        "deselected": 479
+      },
+      {
+        "job": "quality / check (ubuntu-latest, Python 3.14, python)",
+        "passed": 636,
+        "skipped": 42,
+        "deselected": 479
+      },
+      {
+        "job": "quality / check (windows-latest, Python 3.14, numba)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (ubuntu-latest, Python 3.15, numba)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (ubuntu-latest, Python 3.15, python)",
+        "passed": 636,
+        "skipped": 42,
+        "deselected": 479
+      },
+      {
+        "job": "quality / check (windows-latest, Python 3.15, python)",
+        "passed": 636,
+        "skipped": 42,
+        "deselected": 479
+      },
+      {
+        "job": "quality / check (ubuntu-latest, Python 3.14, numba)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (windows-latest, Python 3.13, python)",
+        "passed": 636,
+        "skipped": 42,
+        "deselected": 479
+      },
+      {
+        "job": "quality / check (windows-latest, Python 3.13, numba)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (windows-latest, Python 3.15, numba)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / check (ubuntu-latest, Python 3.13, numba)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      },
+      {
+        "job": "quality / older dependencies (windows-latest, Python 3.14)",
+        "passed": 1115,
+        "skipped": 42,
+        "deselected": 0
+      }
+    ],
+    "ci_log_sha256": "5290479a3e3897394c6bdfd1f52baa023edf3f505cde50abbdca6fe47f940973"
+  },
+  "assets": {
+    "doribt-0.6.2-py3-none-any.whl": "c1d6e8a304c6451a714eb451ee42978ba5f871f193fc0bb93eeadaf22b69075c",
+    "doribt-0.6.2.tar.gz": "fd3a22dc4177ecadaf387685b50bf417da3a9498e72426aaa4ab4a3cc54cad25",
+    "SHA256SUMS": "3335cd05ebebce6866cce05e27d59e81875eeeef505b36f97fb25cb2676ca93d"
+  },
+  "source_file_count": 75,
+  "installed_file_count": 76,
+  "public_installations": [
+    {
+      "platform": "Windows 11",
+      "python": "3.13.16 (main, Oct  9 2026, 15:21:05) [MSC v.1944 64 bit (AMD64)]",
+      "versions": {
+        "doribt": "0.6.2",
+        "numpy": "2.5.4"
+      },
+      "case_count": 16,
+      "installed_package_files": 76,
+      "reports": [
+        {
+          "name": "inactive",
+          "files": 14,
+          "manifest_sha256": "d06a85efcef6f5c07254df4306bf504a958bbc9dec4c64bc396a2b49c1f9a74a"
+        },
+        {
+          "name": "intraday",
+          "files": 15,
+          "manifest_sha256": "2f4f7e1d0c8181cce34170b76d8178dc62cfb0420981fcfa293e2cdcce595337"
+        }
+      ],
+      "engine_sha256": "b68a52bf01f8ff097e9244b0ec38d2b3a8735d7f55e6737c907ef9583ed8aa9f",
+      "acceptance_sha256": "95677de27af0b6721e6e5e27e76833a42b401b00cad63c78f54972686059190d"
+    },
+    {
+      "platform": "Windows 11",
+      "python": "3.15.0 (main, Oct  9 2026, 15:33:25) [MSC v.1951 64 bit (AMD64)]",
+      "versions": {
+        "doribt": "0.6.2",
+        "numpy": "2.5.4",
+        "numba": "0.68.0",
+        "llvmlite": "0.50.0",
+        "matplotlib": "3.11.2"
+      },
+      "case_count": 32,
+      "installed_package_files": 76,
+      "reports": [
+        {
+          "name": "inactive",
+          "files": 15,
+          "manifest_sha256": "158b3c7c83129fddc5325862ec7a50cef367b56fdf47b6cf48a24733950c1e1f"
+        },
+        {
+          "name": "intraday",
+          "files": 16,
+          "manifest_sha256": "cf6d8667bf63768e1529758233d4e0a2d6075ae30728de748309c18d01ffb22a"
+        }
+      ],
+      "engine_sha256": "b68a52bf01f8ff097e9244b0ec38d2b3a8735d7f55e6737c907ef9583ed8aa9f",
+      "acceptance_sha256": "fa033441ec522f12b628ebb597f555527f4edb0601151c1db389cb2ada3265c6"
+    },
+    {
+      "platform": "WSL2 Ubuntu 24.04",
+      "python": "3.15.0 (main, Oct  9 2026, 15:24:40) [Clang 22.1.3 ]",
+      "versions": {
+        "doribt": "0.6.2",
+        "numpy": "2.5.4",
+        "numba": "0.68.0",
+        "llvmlite": "0.50.0",
+        "matplotlib": "3.11.2"
+      },
+      "case_count": 32,
+      "installed_package_files": 76,
+      "reports": [
+        {
+          "name": "inactive",
+          "files": 15,
+          "manifest_sha256": "c4db3f02c0e203c00afa039e3ea020cd97de80a8a6b600b475321ffbedb3854a"
+        },
+        {
+          "name": "intraday",
+          "files": 16,
+          "manifest_sha256": "b4542544eb20af9aca947fcac875b415a27812ded8f21b3ed23e884501030ff1"
+        }
+      ],
+      "engine_sha256": "b68a52bf01f8ff097e9244b0ec38d2b3a8735d7f55e6737c907ef9583ed8aa9f",
+      "acceptance_sha256": "c542daea1b72142d8829b7ff022dec8cc19e05dba4084d0c230d3bc00299bc8a"
+    }
+  ],
+  "public_asset_checks": "CI, public PyPI, unauthenticated GitHub downloads have identical bytes; wheel and sdist source match release Git blobs.",
+  "preserved_failures": {
+    "first_ci_run": 38359791922,
+    "first_tag_commit": "29eb2aadfb842f133c591c561adfa60428b365bd",
+    "recovery": "Maintainer explicitly approved moving the unfinished release tag before any 0.6.2 package or GitHub Release existed.",
+    "first_public_installs": "Index propagation temporarily hid 0.6.2. All three failed environments/logs retained, and new environments used once public index contained the version."
+  },
+  "documentation": {
+    "release_run": 38367080848,
+    "search_fix_run": 38367673739,
+    "search_fix_commit": "5f01d72e08840e65908da2b567304f84d78aea9c",
+    "tag": "milestone/docs/0.6.2-1",
+    "deployment": 7033441725,
+    "build": "success",
+    "deploy": "success",
+    "favicon_sha256": "40b5901726a569266913878f71135db64afcf8edb6196f4c1832ad2582167753",
+    "llms_sha256": "1a48bfc66e793d0d4bbe0fb38342e1699f5d61c2089c1f0cdd8c731bb167f460",
+    "browser_acceptance": {
+      "home_version": "0.6.2",
+      "favicon": "rendered DL icon and verified head link",
+      "search_query": "非活动",
+      "search_result_pages": [
+        "performance.html",
+        "examples.html",
+        "scheduled-execution.html"
+      ],
+      "search_result_count": 3,
+      "cache_note": "Browser initially retained old searchindex.js; after the 600-second cache expired, online results matched the new index."
+    }
+  }
+}
