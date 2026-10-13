@@ -20,7 +20,7 @@ autodoc_typehints = "none"
 autodoc_docstring_signature = False
 autodoc_member_order = "bysource"
 html_theme = "furo"
-html_title = f"DoriBT {release} · A 股与 ETF 的 Python 回测"
+html_title = f"DoriBT {release} 文档"
 html_baseurl = "https://dorislab.github.io/DoriBT/"
 html_theme_options = {
     "source_repository": "https://github.com/DorisLab/DoriBT/",

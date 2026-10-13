@@ -1,0 +1,16 @@
+{
+  "description": "A 股与 ETF 的轻量高性能回测框架：交易规则开箱即用，Numba 快速回放，完整交易账本。接入自有行情，用普通 Python 函数研究策略。",
+  "homepage": "https://dorislab.github.io/DoriBT/",
+  "topics": [
+    "backtesting",
+    "quantitative-finance",
+    "quantitative-research",
+    "a-share",
+    "china-stock-market",
+    "etf",
+    "python",
+    "numba",
+    "portfolio-backtesting",
+    "lightweight"
+  ]
+}

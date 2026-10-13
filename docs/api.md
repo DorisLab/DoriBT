@@ -1,6 +1,6 @@
 # API 参考
 
-所有对象通过 `from doribt import ...` 导入。下列签名在构建文档时直接读取已安装的包，中文说明补充单位和使用约束。返回记录及指标字段另见[结果参考](results.md)。
+所有对象通过 `from doribt import ...` 导入。本页按回测、数据、策略和结果分组，给出调用签名、单位和使用方法。返回记录及指标字段另见[结果参考](results.md)。
 
 ## 回测与配置
 
@@ -164,7 +164,7 @@ Context 由引擎传入，不由策略自行构造。`ctx.account`、`orders`、
 
 数量以股／份计；单笔数量有符号，目标数量非负。固定订单返回 order_id，持续目标返回 intent_id。撤销和有效期见[执行契约](execution-model.md)。
 
-`order(max_spend=...)` 仅用于买单，以元限制整笔订单含费用支出，不能与单股限价混为一谈。`target_weights(sizing="close" | "execution")` 选择收盘或下一 bar 开盘定量一次，默认 close；同权重与同模式不重复定量，`rebalance=True` 可显式重算。具体例子见[策略教程](guide/strategies.md)。
+`order(max_spend=...)` 用于买单，以元限制整笔订单含费用支出；`limit_price` 限制单股成交价格。`target_weights(sizing="close" | "execution")` 选择收盘或下一 bar 开盘定量一次，默认 close；同权重与同模式不重复定量，`rebalance=True` 可显式重算。具体例子见[策略教程](guide/strategies.md)。
 
 ```{eval-rst}
 .. autoclass:: doribt.WeightTargets

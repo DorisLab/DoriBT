@@ -386,3 +386,48 @@ Win11 的基础及 Numba／plot、WSL2 Ubuntu 的 Numba／plot 均从公开索�
 手册与 DL favicon 已上线；另以 `milestone/docs/0.6.2-1` 修复中文编译术语搜索。
 完整摘要、测试边界、资产哈希与可选需求取舍见 [0.6.2 完成验收](history/release-0.6.2.md)。
 后续可根据研究负载评估 MarketData 构造和首次编译成本；公司行动完整编译、参数并行与强制完整编译开关不在本版承诺范围。
+
+## 2026-10-13：手册文案与 BT 图标本地修订
+
+按维护者的新反馈，逐份审阅原有 57 份 Markdown／文本文件，结果见[逐份审阅清单](history/docs-editorial-2026-10-13.md)。
+手册栏标题恢复为 `DoriBT 0.6.2 文档`，教程、实战与参考页使用短导航。
+README、首页和项目介绍直接说明历史交易规则、普通函数策略、共享账户、完整报告与重复研究效率；
+原框架选型页改为“为什么选择 DoriBT”，同类框架对照集中在性能数据。
+性能页先展示实测结果和选择理由，17 场景完整表可展开，测量细节通过归档链接提供。
+清理公开页面中的防御性尾句、重复提醒和底层验收说明；输入、单位、时点和统计定义保留。
+favicon 改为 BT，采用 Dorislab DL 的 256 网格、圆角底色、双色与嵌套字母结构。
+
+验证：`scripts/check_docs.py --backend numba` 通过严格 Sphinx 构建、30 页站内链接／锚点／资源、
+中文与 API 搜索，以及所有示例和可执行教程。最后的措辞修正另经严格重建与站内检查通过。
+仓库 58 份文档（含新增审阅清单）的 270 个本地文件与锚点链接检查通过。
+一次性核对确认 29 段 Python 示例的执行语句一致，仅预计算示例的注释措辞变化；
+17 场景、三组真实面板、Python 版本中位数及 README 展示数值与提交前原文一致，原始测量归档未改。
+浏览器检查了桌面／900 px 窄窗口导航、介绍与性能首屏、17 场景展开和 16—160 px BT 图标。
+
+本轮使用 `codex/docs-human-copy` 本地分支提交，按维护者要求不推送、不创建 PR 或部署。
+下一步由维护者逐项确认文案和图标后决定。
+
+## 2026-10-13：A 股轻量回测定位与独立 BT 字标
+
+检索并复核 vectorbt、Backtesting.py、RQAlpha、AKQuant、Hikyuu、WonderTrader、SimTradeLab、
+New Tea Quant 的官方定位、文档和相关实现，判断及来源见[定位复核](history/positioning-2026-10-13.md)。
+README、首页、项目介绍、性能解读、文本导航和开发方向统一为“A 股与 ETF 的轻量高性能回测框架”，
+突出历史规则开箱即用、快速回放、NumPy 单一基础依赖和完整交易账本。
+GitHub About／Topics 候选保存在 `.github/repository-profile.json`，按维护者本地确认要求保留远程现状。
+
+对已有测量归档直接计数：17 个具有主对照耗时的场景中，DoriBT Numba 有 10 个更快；
+日线主场景相对 vectorbt Numba 的耗时比为 1.539。性能表、原始 JSON／CSV／ZIP 和 README 可运行代码保持原值。
+favicon 重新绘制为独立蓝白 BT 字标，采用并排字母、较粗笔画和切角底形；浏览器查看明暗背景下 16—160 px。
+
+`scripts/check_docs.py --backend numba` 通过 30 页严格构建、站内链接／锚点／资源、中文与 API 搜索、
+所有示例及可执行教程。最后的措辞补充经严格重建和站内检查，仓库文档链接与元数据 JSON 单独检查。
+浏览器复核首页、介绍页和新图标。本轮继续在 `codex/docs-human-copy` 本地提交，供维护者确认。
+
+## 2026-10-13：手册更新与上线
+
+维护者确认两轮文案与图标修订，要求推送并更新在线手册。介绍页删除“这就是 DoriBT 的定位”，
+开头直接进入自有行情与普通函数策略的使用说明。
+本地 `scripts/check_docs.py --backend numba` 再次通过严格构建、30 页内部链接／锚点／资源、
+中文与 API 搜索，以及全部示例和教程片段。
+本轮上线采用 PR 合入 main、创建 `milestone/docs/0.6.2-2` 文档标签的流程；
+GitHub About／Topics 使用 `.github/repository-profile.json` 中的候选值。
