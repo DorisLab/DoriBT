@@ -60,7 +60,16 @@ def check_search(site: Path) -> None:
     language = importlib.import_module("sphinx.search.zh").SearchChinese({})
     expected = {
         language.stem(word)
-        for word in ("佣金", "最低佣金", "部分成交", "RunConfig", "RuleOverride")
+        for word in (
+            "佣金",
+            "最低佣金",
+            "部分成交",
+            "非活动",
+            "完整编译",
+            "执行计划",
+            "RunConfig",
+            "RuleOverride",
+        )
     }
     missing = expected - terms
     if missing:
