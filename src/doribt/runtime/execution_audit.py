@@ -1,10 +1,15 @@
 """公开实际执行计划；保留旧 execution_path 的执行族含义。"""
 
 from collections.abc import Callable
+from typing import Protocol, cast
 
 from doribt.market.data import MarketData
 from doribt.runtime.slippage import BarExecution
 from doribt.runtime.targets import PositionTargets, WeightTargets
+
+
+class _JitConfig(Protocol):
+    DISABLE_JIT: int
 
 
 def jit_enabled(backend: str) -> bool:
@@ -12,8 +17,8 @@ def jit_enabled(backend: str) -> bool:
         return False
     from numba import config
 
-    # Numba 在运行时生成此属性，官方包未提供对应类型声明。
-    return not bool(config.DISABLE_JIT)  # type: ignore[attr-defined]
+    # 此属性由 Numba 动态生成，直接读取，兼容有／无可选依赖的类型检查环境。
+    return not bool(cast(_JitConfig, config).DISABLE_JIT)
 
 
 def execution_audit(
