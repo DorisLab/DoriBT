@@ -18,3 +18,8 @@
 `RunInfo` 同时冻结这些来源。覆盖可卖延迟不会改写行情事实、账户税务身份或已买入批次。
 
 源码按 `market`、`accounting`、`runtime`、`kernels`、`reporting`、`research` 组织，内部模块不作为用户依赖入口。具体签名见[API 参考](api.md)，开发检查见[贡献说明](https://github.com/DorisLab/DoriBT/blob/main/CONTRIBUTING.md)。
+
+内部执行计划先根据后端、精确目标类型与公司行动选择编译循环或生命周期调度，再分配对应状态。
+编译循环直接生成完整账户数组；回调路径仍通过 Context 调用策略并维护权益生命周期。
+账户持有具名 `LedgerState` 数值账本，数组经纪读取当前状态，扩容只复制有效批次与交收事件，
+保持 FIFO、编号和共享资金边界。准备缓存只持有只读行情、证券索引与按需历史，不持有账户状态。

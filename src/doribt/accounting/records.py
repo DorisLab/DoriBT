@@ -8,11 +8,17 @@ from typing import Any, cast
 from doribt.accounting.orders import Fill, IntentRecord, Order
 from doribt.accounting.taxes import TaxLotRecord
 
+_INITIALIZERS = {kind: kind.__init__ for kind in (Order, Fill, IntentRecord, TaxLotRecord)}
+
 
 def _plain_record(kind: type[object]) -> bool:
     if kind not in (Order, Fill, IntentRecord, TaxLotRecord):
         return False
     if hasattr(kind, "__post_init__") or hasattr(kind, "__slots__"):
+        return False
+    if kind.__new__ is not object.__new__:
+        return False
+    if kind.__init__ is not _INITIALIZERS.get(kind):
         return False
     initializer = getattr(kind.__init__, "__code__", None)
     if initializer is None or initializer.co_filename != "<string>":
@@ -27,9 +33,10 @@ def record_factory[T](kind: type[T]) -> Callable[[tuple[object, ...]], T]:
         return lambda values: constructor(*values)
     names = tuple(field.name for field in fields(cast(Any, kind)))
     size = len(names)
+    initializer, allocator = kind.__init__, kind.__new__
 
     def create(values: tuple[object, ...]) -> T:
-        if len(values) != size:
+        if len(values) != size or kind.__init__ is not initializer or kind.__new__ is not allocator:
             return constructor(*values)
         # 更新独立实例字典以保留共享键布局；不延迟或省略公开记录。
         result = object.__new__(kind)

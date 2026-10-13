@@ -16,7 +16,9 @@ from doribt.kernels.broker_state import (
     UPDATED,
     WIDTH,
 )
+from doribt.kernels.buffers import grow_table
 from doribt.kernels.execution import IntArray
+from doribt.kernels.ledger_state import allocate_ledger, grow_ledger
 from doribt.kernels.reservation import reservation_cost
 from doribt.kernels.scheduled_orders import (
     active_ids,
@@ -54,36 +56,6 @@ type ScheduledKernel = Callable[
     ],
     tuple[IntArray, ...],
 ]
-
-
-def empty_ledger(capacity: int, width: int) -> tuple[IntArray, ...]:
-    return (
-        np.zeros((capacity, 7), dtype=np.int64),
-        np.full(width, -1, dtype=np.int64),
-        np.full(width, -1, dtype=np.int64),
-        np.zeros(capacity, dtype=np.int64),
-        np.array([0, 0, -1, 0], dtype=np.int64),
-        np.zeros(width, dtype=np.int64),
-        np.zeros(width, dtype=np.int64),
-    )
-
-
-def grow_table(rows: IntArray, used: int, extra: int) -> IntArray:
-    needed = used + extra
-    if needed <= len(rows):
-        return rows
-    result = np.zeros((max(needed, len(rows) * 2), rows.shape[1]), dtype=np.int64)
-    result[:used] = rows[:used]
-    return result
-
-
-def grow_ledger(ledger: tuple[IntArray, ...], extra: int) -> tuple[IntArray, ...]:
-    data = grow_table(ledger[0], int(ledger[4][0]), extra)
-    if len(data) == len(ledger[0]):
-        return ledger
-    heap = np.zeros(len(data), dtype=np.int64)
-    heap[: len(ledger[3])] = ledger[3]
-    return data, ledger[1], ledger[2], heap, ledger[4], ledger[5], ledger[6]
 
 
 def expire_day(
@@ -133,7 +105,7 @@ def simulate_schedule(
     orders = np.zeros((capacity, WIDTH), dtype=np.int64)
     intents = np.zeros((capacity, 9), dtype=np.int64)
     fills = np.zeros((capacity, 7), dtype=np.int64)
-    ledger = empty_ledger(capacity, width)
+    ledger = allocate_ledger(capacity, width)
     active, children = np.full(width, -1, dtype=np.int64), np.full(width, -1, dtype=np.int64)
     tax_lots = np.zeros((capacity, 4), dtype=np.int64)
     heads, tails = active.copy(), active.copy()
@@ -155,16 +127,16 @@ def simulate_schedule(
         tax_lots = grow_table(tax_lots, lot_count, len(columns))
         ledger = grow_ledger(ledger, len(columns))
         day = int(days[index])
-        ledger_advance(day, ledger[0], ledger[3], ledger[4], ledger[6])
+        ledger_advance(day, ledger.lots, ledger.heap, ledger.control, ledger.settled)
         if index:
-            resolve_weights(index, active, intents, ledger[5], market, int(money[0]))
+            resolve_weights(index, active, intents, ledger.totals, market, int(money[0]))
             order_count = sync_targets(
                 index,
                 active,
                 intents,
                 children,
-                ledger[5],
-                ledger[6],
+                ledger.totals,
+                ledger.settled,
                 market,
                 closes,
                 days,
@@ -197,11 +169,13 @@ def simulate_schedule(
         )
         if index + 1 == count or days[index + 1] != day:
             expire_day(index, day, children, orders, frozen, shares)
-            lot_count = reconcile_lots(day, ledger[5] - previous, tax_lots, heads, tails, lot_count)
-            previous[:] = ledger[5]
-        holdings[index], sellable[index], reserved[index] = ledger[5], ledger[6], shares
+            lot_count = reconcile_lots(
+                day, ledger.totals - previous, tax_lots, heads, tails, lot_count
+            )
+            previous[:] = ledger.totals
+        holdings[index], sellable[index], reserved[index] = ledger.totals, ledger.settled, shares
         cash[index], reserved_cash[index] = money[0], frozen[0]
-        equity[index] = account_value(closes[index], ledger[5], int(money[0]))
+        equity[index] = account_value(closes[index], ledger.totals, int(money[0]))
         intent_count = place_decisions(
             index,
             targets,
@@ -210,7 +184,7 @@ def simulate_schedule(
             int(equity[index]),
             closes,
             market,
-            ledger[5],
+            ledger.totals,
             active,
             intents,
             intent_count,
@@ -219,7 +193,7 @@ def simulate_schedule(
             frozen,
             shares,
         )
-    finish_scheduled_intents(count - 1, active, intents, ledger[5])
+    finish_scheduled_intents(count - 1, active, intents, ledger.totals)
     finish_orders(count - 1, children, orders, frozen, shares)
     return (
         equity,
@@ -288,7 +262,7 @@ def compiled_schedule() -> ScheduledKernel:
         child_quantity,
         submission_code,
         execute_queue,
-        empty_ledger,
+        allocate_ledger,
         active_ids,
         cancel_child,
         submit_target,

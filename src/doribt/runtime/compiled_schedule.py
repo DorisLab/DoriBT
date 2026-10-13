@@ -22,10 +22,10 @@ tax_lot_record: Callable[[tuple[object, ...]], TaxLotRecord] = record_factory(Ta
 
 
 if TYPE_CHECKING:
-    from doribt.runtime.scheduled import ScheduledRun
+    from doribt.runtime.execution_plan import CompiledRun, TargetCandidate
 
 
-def eligible(run: "ScheduledRun") -> bool:
+def eligible(run: "TargetCandidate") -> bool:
     if run.backend != "numba" or run.data.actions:
         return False
     if type(run.precomputed_targets) is WeightTargets:
@@ -34,7 +34,7 @@ def eligible(run: "ScheduledRun") -> bool:
     return type(run.precomputed_targets) is PositionTargets and run.data.clock is not None
 
 
-def materialize_intents(rows: IntArray, run: "ScheduledRun") -> tuple[IntentRecord, ...]:
+def materialize_intents(rows: IntArray, run: "CompiledRun") -> tuple[IntentRecord, ...]:
     statuses = ("active", "fulfilled", "cancelled", "unexecuted")
     reasons = ("", "target_below_minimum", "target_replaced", "end_of_data")
     sizing = ("quantity", "close", "execution")
@@ -71,7 +71,7 @@ def materialize_intents(rows: IntArray, run: "ScheduledRun") -> tuple[IntentReco
     )
 
 
-def execute(run: "ScheduledRun", info: RunInfo) -> BacktestResult:
+def execute(run: "CompiledRun", info: RunInfo) -> BacktestResult:
     values, columns, options = target_arrays(run)
     days = np.array(
         [run.data.day_index(index) for index in range(len(run.data.timeline))], dtype=np.int64
@@ -86,7 +86,7 @@ def execute(run: "ScheduledRun", info: RunInfo) -> BacktestResult:
             run.intrabar,
             run.compiled.settlement,
             run.costs,
-            run.broker.config,
+            run.execution_config,
             days,
             ordinals,
             run.initial_cash,
@@ -157,12 +157,10 @@ def execute(run: "ScheduledRun", info: RunInfo) -> BacktestResult:
     )
 
 
-def target_arrays(run: "ScheduledRun") -> tuple[IntArray, IntArray, IntArray]:
+def target_arrays(run: "CompiledRun") -> tuple[IntArray, IntArray, IntArray]:
     target = run.precomputed_targets
     if type(target) is PositionTargets:
-        columns = np.array(
-            [run.data.symbols.index(symbol) for symbol in target.quantities], dtype=np.int64
-        )
+        columns = np.array([run.columns[symbol] for symbol in target.quantities], dtype=np.int64)
         values = (
             np.array(tuple(target.quantities.values()), dtype=np.int64)
             .reshape(len(columns), len(run.data.timeline))
@@ -183,7 +181,7 @@ def target_arrays(run: "ScheduledRun") -> tuple[IntArray, IntArray, IntArray]:
     return values, columns, options
 
 
-def restore_error(error: ValueError, run: "ScheduledRun") -> NoReturn:
+def restore_error(error: ValueError, run: "CompiledRun") -> NoReturn:
     if len(error.args) != 4 or error.args[0] != "weight_sizing":
         raise error
     _, index, mode, code = error.args

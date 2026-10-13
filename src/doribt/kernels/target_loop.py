@@ -6,6 +6,7 @@ from typing import cast
 
 import numpy as np
 
+from doribt.kernels.buffers import grow_table, grow_vector
 from doribt.kernels.execution import IntArray, charges
 from doribt.kernels.reservation import reservation_cost
 from doribt.kernels.target_ledger import (
@@ -95,9 +96,9 @@ def simulate_targets(
     initial_cash: int,
 ) -> tuple[IntArray, ...]:
     days, width = closes.shape
-    capacity = max(0, days - 1) * len(columns)
+    capacity = max(16, len(columns) * 2)
     orders = np.zeros((capacity, 12), dtype=np.int64)
-    intents = np.zeros((targets.size, 6), dtype=np.int64)
+    intents = np.zeros((capacity, 6), dtype=np.int64)
     lots = np.zeros((capacity, 4), dtype=np.int64)
     fills = np.zeros(capacity, dtype=np.int64)
     positions, available, active = empty_state(width)
@@ -108,6 +109,10 @@ def simulate_targets(
     cash = initial_cash
     order_count, intent_count, lot_count, fill_count = 0, 0, 0, 0
     for index in range(days):
+        orders = grow_table(orders, order_count, len(columns))
+        intents = grow_table(intents, intent_count, len(columns))
+        lots = grow_table(lots, lot_count, len(columns))
+        fills = grow_vector(fills, fill_count, len(columns))
         available += releases[index]
         previous = positions.copy()
         if index:
@@ -171,6 +176,8 @@ def compiled_targets() -> TargetKernel:
     from numba.extending import register_jitable
 
     for function in (
+        grow_table,
+        grow_vector,
         charges,
         reservation_cost,
         match,

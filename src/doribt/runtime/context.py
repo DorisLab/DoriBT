@@ -42,6 +42,8 @@ class Context:
         orders: tuple[Order, ...],
         book: IntentBook,
         equity_units: int,
+        *,
+        columns: Mapping[str, int] | None = None,
     ) -> None:
         self.session: date = data.sessions[data.day_index(index)]
         self.now: date = data.timeline[index]
@@ -53,6 +55,11 @@ class Context:
         self._submit: Callable[[str, int, str, Number | None, Number | None], int] | None = None
         self._cancel_order: Callable[[int], None] | None = None
         self._data, self._index, self._history = data, index, history
+        self._columns = (
+            columns
+            if columns is not None
+            else MappingProxyType({symbol: column for column, symbol in enumerate(data.symbols)})
+        )
         self._book, self._equity = book, equity_units
         self._active = True
         self._recorder: Recorder | None = None
@@ -87,7 +94,7 @@ class Context:
     def history(
         self, symbol: str, *, bars: int | None = None, field: str = "close", adjustment: str = "raw"
     ) -> NDArray[np.float64]:
-        self._symbol(symbol)
+        column = self._column(symbol)
         if field not in self._history:
             raise ValueError("history field must be open, high, low or close")
         if adjustment not in {"raw", "asof"}:
@@ -96,7 +103,7 @@ class Context:
             bars = integer(bars, 1, "bars", 1, 1_000_000_000)
         end = self._index + 1
         start = max(0, end - bars) if bars is not None else 0
-        values = self._history[field][start:end, self.symbols.index(symbol)].copy()
+        values = self._history[field][start:end, column].copy()
         if adjustment == "asof":
             adjust(self._data, values.reshape(-1, 1), start=start, end=end, symbols=(symbol,))
         values.setflags(write=False)
@@ -181,7 +188,7 @@ class Context:
         self._book.cancel(self.session, intent_id)
 
     def _weight_quantity(self, symbol: str, weight: int) -> int:
-        column = self.symbols.index(symbol)
+        column = self._column(symbol)
         bar = self._data.bars[self._index * len(self.symbols) + column]
         if not weight:
             return 0
@@ -190,9 +197,14 @@ class Context:
         current = position.quantity + position.pending_quantity
         return weight_quantity(self._equity, weight, bar.close, current, rule)
 
+    def _column(self, symbol: str) -> int:
+        try:
+            return self._columns[symbol]
+        except KeyError:
+            raise ValueError(f"unknown strategy symbol: {symbol}") from None
+
     def _symbol(self, symbol: str) -> None:
-        if symbol not in self.symbols:
-            raise ValueError(f"unknown strategy symbol: {symbol}")
+        self._column(symbol)
 
     def _ready(self, symbol: str) -> None:
         if not self._active:

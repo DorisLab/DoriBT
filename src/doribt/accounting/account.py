@@ -18,6 +18,7 @@ from doribt.kernels.account_ledger import (
     ledger_fill,
 )
 from doribt.kernels.execution import IntArray
+from doribt.kernels.ledger_state import LedgerState, allocate_ledger, grow_ledger
 from doribt.kernels.valuation import Valuer, account_value
 
 
@@ -49,20 +50,15 @@ class Account:
         self.cash = initial_cash
         self.symbols = symbols
         self._columns = {symbol: column for column, symbol in enumerate(symbols)}
-        self._totals = np.zeros(len(symbols), dtype=np.int64)
-        self._settled = np.zeros(len(symbols), dtype=np.int64)
-        self._lot_data = np.zeros((16, 7), dtype=np.int64)
-        self._lot_heads = np.full(len(symbols), -1, dtype=np.int64)
-        self._lot_tails = np.full(len(symbols), -1, dtype=np.int64)
-        self._event_heap = np.empty(16, dtype=np.int64)
-        self._ledger_state = np.array([0, 0, -1, 0], dtype=np.int64)
+        self._ledger = allocate_ledger(16, len(symbols))
         self.value_kernel: Valuer = account_value
         self.changed_symbols: set[str] = set()
 
     @property
     def lots(self) -> list[Lot]:
         # 仅在显式检查批次时构造 Python 记录，日常成交只更新数值缓冲区。
-        records = self._lot_data[: int(self._ledger_state[LOT_COUNT])]
+        ledger = self._ledger
+        records = ledger.lots[: int(ledger.control[LOT_COUNT])]
         return [
             Lot(
                 self.symbols[int(row[COLUMN])],
@@ -76,44 +72,43 @@ class Account:
         ]
 
     def reserve_lots(self, extra: int) -> None:
-        needed = int(self._ledger_state[LOT_COUNT]) + extra
-        if needed <= len(self._lot_data):
-            return
-        capacity = max(needed, len(self._lot_data) * 2)
-        data = np.zeros((capacity, 7), dtype=np.int64)
-        data[: len(self._lot_data)] = self._lot_data
-        heap = np.empty(capacity, dtype=np.int64)
-        heap[: len(self._event_heap)] = self._event_heap
-        self._lot_data, self._event_heap = data, heap
+        self._ledger = grow_ledger(self._ledger, extra)
+
+    def numeric_state(self) -> LedgerState:
+        """返回当前数值账本；扩容后调用者必须重新取得此状态。"""
+        return self._ledger
 
     def advance_day(self, index: int) -> None:
-        ledger_advance(index, self._lot_data, self._event_heap, self._ledger_state, self._settled)
+        ledger = self._ledger
+        ledger_advance(index, ledger.lots, ledger.heap, ledger.control, ledger.settled)
 
     def add_lot(self, lot: Lot) -> None:
         self.reserve_lots(1)
         self.changed_symbols.add(lot.symbol)
+        ledger = self._ledger
         ledger_fill(
             lot.quantity,
             self._columns[lot.symbol],
             lot.acquired.toordinal(),
             lot.available_session,
             lot.price_units,
-            self._lot_data,
-            self._lot_heads,
-            self._lot_tails,
-            self._event_heap,
-            self._ledger_state,
-            self._totals,
-            self._settled,
+            ledger.lots,
+            ledger.heads,
+            ledger.tails,
+            ledger.heap,
+            ledger.control,
+            ledger.totals,
+            ledger.settled,
         )
 
     def quantities(self, index: int | None = None) -> IntArray:
-        totals = self._totals
+        ledger = self._ledger
+        totals = ledger.totals
         if index is not None:
             self.advance_day(index)
-            totals = self._settled
+            totals = ledger.settled
         # 溢出标记只增不减，避免可卖量查询掩盖尚未交收的超限总持仓。
-        overflow = len(self._ledger_state) <= OVERFLOW_SEEN or self._ledger_state[OVERFLOW_SEEN]
+        overflow = len(ledger.control) <= OVERFLOW_SEEN or ledger.control[OVERFLOW_SEEN]
         if overflow and np.any(totals > 1_000_000_000):
             raise OverflowError("registered share quantity exceeds supported bounds")
         return totals.copy()
@@ -134,19 +129,20 @@ class Account:
     def _sell(self, symbol: str, quantity: int, index: int) -> None:
         self.changed_symbols.add(symbol)
         self.advance_day(index)
+        ledger = self._ledger
         ledger_fill(
             -quantity,
             self._columns[symbol],
             0,
             0,
             0,
-            self._lot_data,
-            self._lot_heads,
-            self._lot_tails,
-            self._event_heap,
-            self._ledger_state,
-            self._totals,
-            self._settled,
+            ledger.lots,
+            ledger.heads,
+            ledger.tails,
+            ledger.heap,
+            ledger.control,
+            ledger.totals,
+            ledger.settled,
         )
 
     def value(

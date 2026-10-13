@@ -13,10 +13,10 @@ from doribt.reporting.result import BacktestResult
 from doribt.runtime.targets import PositionTargets
 
 if TYPE_CHECKING:
-    from doribt.runtime.scheduled import ScheduledRun
+    from doribt.runtime.execution_plan import CompiledRun, TargetCandidate
 
 
-def eligible(run: "ScheduledRun") -> bool:
+def eligible(run: "TargetCandidate") -> bool:
     return (
         run.backend == "numba"
         and type(run.precomputed_targets) is PositionTargets
@@ -25,7 +25,7 @@ def eligible(run: "ScheduledRun") -> bool:
     )
 
 
-def materialize_orders(rows: IntArray, run: "ScheduledRun") -> tuple[Order, ...]:
+def materialize_orders(rows: IntArray, run: "CompiledRun") -> tuple[Order, ...]:
     sessions, symbols = run.data.sessions, run.data.symbols
     states = ("rejected", "filled", "expired")
     return tuple(
@@ -64,7 +64,7 @@ def materialize_orders(rows: IntArray, run: "ScheduledRun") -> tuple[Order, ...]
     )
 
 
-def materialize_intents(rows: IntArray, run: "ScheduledRun") -> tuple[IntentRecord, ...]:
+def materialize_intents(rows: IntArray, run: "CompiledRun") -> tuple[IntentRecord, ...]:
     statuses = ("active", "fulfilled", "cancelled", "unexecuted")
     reasons = ("", "target_below_minimum", "target_replaced", "end_of_data")
     return tuple(
@@ -86,7 +86,7 @@ def materialize_fills(
     orders: tuple[Order, ...],
     rows: IntArray,
     indices: IntArray,
-    run: "ScheduledRun",
+    run: "CompiledRun",
 ) -> tuple[Fill, ...]:
     result: list[Fill] = []
     reference_prices = run.compiled.market[rows[indices, 3], rows[indices, 1], OPEN].tolist()
@@ -112,11 +112,9 @@ def materialize_fills(
     return tuple(result)
 
 
-def execute(run: "ScheduledRun", info: RunInfo) -> BacktestResult:
+def execute(run: "CompiledRun", info: RunInfo) -> BacktestResult:
     target = cast(PositionTargets, run.precomputed_targets)
-    columns = np.array(
-        [run.data.symbols.index(symbol) for symbol in target.quantities], dtype=np.int64
-    )
+    columns = np.array([run.columns[symbol] for symbol in target.quantities], dtype=np.int64)
     values = (
         np.array(tuple(target.quantities.values()), dtype=np.int64)
         .reshape(len(columns), len(run.data.sessions))
@@ -130,7 +128,7 @@ def execute(run: "ScheduledRun", info: RunInfo) -> BacktestResult:
         run.intrabar,
         run.compiled.settlement,
         run.costs,
-        run.broker.config,
+        run.execution_config,
         run.initial_cash,
     )
     orders = materialize_orders(rows, run)

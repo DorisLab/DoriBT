@@ -26,6 +26,8 @@ NAMES: dict[type[object], tuple[str, ...]] = {
     kind: tuple(field.name for field in fields(kind)) for kind in KINDS
 }
 type Column = list[object]
+type ObjectArray = np.ndarray[tuple[int, ...], np.dtype[np.object_]]
+type ColumnSource = Sequence[object] | ObjectArray
 type Records = tuple[
     tuple[Order, ...], tuple[IntentRecord, ...], tuple[Fill, ...], tuple[TaxLotRecord, ...]
 ]
@@ -103,8 +105,39 @@ def _values(values: IntArray) -> Column:
     return cast(Column, values.tolist())
 
 
-def _take(values: Sequence[object], indices: IntArray) -> Column:
+def _take(values: ColumnSource, indices: IntArray) -> Column:
+    if not len(indices):
+        return []
+    if not isinstance(values, np.ndarray) and len(indices) < len(values):
+        return [values[index] for index in indices.tolist()]
     return cast(Column, np.asarray(values, dtype=object)[indices].tolist())
+
+
+class _RecordLookups:
+    """稀疏记录直接取值，密集记录共享本次物化的时间轴数组。"""
+
+    def __init__(self, data: MarketData) -> None:
+        self.data = data
+        self._timeline: ColumnSource = data.timeline
+        self._sessions: ObjectArray | None = None
+
+    def timeline(self, indices: IntArray) -> Column:
+        if len(indices) >= len(self._timeline) and not isinstance(self._timeline, np.ndarray):
+            self._timeline = np.asarray(self._timeline, dtype=object)
+        return _take(self._timeline, indices)
+
+    def sessions(self, indices: IntArray) -> Column:
+        if self._sessions is not None:
+            return _take(self._sessions, indices)
+        if len(indices) < len(self.data.timeline):
+            return [self.data.sessions[self.data.day_index(index)] for index in indices.tolist()]
+        days = (
+            np.asarray(self.data.clock.day_indices, dtype=np.int64)
+            if self.data.clock
+            else np.arange(len(self.data.sessions))
+        )
+        self._sessions = np.asarray(self.data.sessions, dtype=object)[days]
+        return _take(self._sessions, indices)
 
 
 def _nullable(values: IntArray, mask: np.ndarray[tuple[int, ...], np.dtype[np.bool_]]) -> Column:
@@ -117,7 +150,10 @@ def _repeat(value: object, count: int) -> Column:
     return [value] * count
 
 
-def _orders(rows: IntArray, data: MarketData, sessions: Sequence[object]) -> tuple[Order, ...]:
+def _orders(rows: IntArray, lookup: _RecordLookups) -> tuple[Order, ...]:
+    if not len(rows):
+        return ()
+
     def at(column: int) -> Column:
         return _values(rows[:, column])
 
@@ -126,8 +162,8 @@ def _orders(rows: IntArray, data: MarketData, sessions: Sequence[object]) -> tup
         [
             list(range(1, len(rows) + 1)),
             at(state.INTENT),
-            _take(sessions, rows[:, state.SESSION]),
-            _take(data.symbols, rows[:, state.COLUMN]),
+            lookup.sessions(rows[:, state.SESSION]),
+            _take(lookup.data.symbols, rows[:, state.COLUMN]),
             at(state.QUANTITY),
             at(state.FILLED),
             at(state.PRICE),
@@ -135,8 +171,8 @@ def _orders(rows: IntArray, data: MarketData, sessions: Sequence[object]) -> tup
             at(state.STAMP_PAID),
             at(state.TRANSFER_PAID),
             _take(REASONS, rows[:, state.REASON]),
-            _take(data.timeline, rows[:, state.SUBMITTED]),
-            _take(data.timeline, rows[:, state.UPDATED]),
+            lookup.timeline(rows[:, state.SUBMITTED]),
+            lookup.timeline(rows[:, state.UPDATED]),
             _take(state.STATES, rows[:, state.STATE]),
             at(1),
             _take(("next_bar", "day"), rows[:, state.VALID]),
@@ -148,27 +184,28 @@ def _orders(rows: IntArray, data: MarketData, sessions: Sequence[object]) -> tup
     )
 
 
-def _intents(
-    rows: IntArray, data: MarketData, sessions: Sequence[object]
-) -> tuple[IntentRecord, ...]:
+def _intents(rows: IntArray, lookup: _RecordLookups) -> tuple[IntentRecord, ...]:
+    if not len(rows):
+        return ()
     column, created, quantity, closed, status, reason, weight, mode, sized = rows.T
-    sized_times = np.asarray(data.timeline, dtype=object)[sized].copy()
-    sized_times[sized < 0] = None
+    sized_times = lookup.timeline(sized)
+    for index in np.flatnonzero(sized < 0).tolist():
+        sized_times[index] = None
     return _create(
         IntentRecord,
         [
             list(range(1, len(rows) + 1)),
-            _take(sessions, created),
-            _take(data.symbols, column),
+            lookup.sessions(created),
+            _take(lookup.data.symbols, column),
             _repeat("target", len(rows)),
             _nullable(quantity, (mode == 2) & (sized < 0)),
             _take(("active", "fulfilled", "cancelled", "unexecuted"), status),
-            _take(sessions, closed),
+            lookup.sessions(closed),
             _take(("", "target_below_minimum", "target_replaced", "end_of_data"), reason),
             _repeat((), len(rows)),
             _nullable(weight, weight < 0),
             _take(("quantity", "close", "execution"), mode),
-            cast(Column, sized_times.tolist()),
+            sized_times,
         ],
     )
 
@@ -176,10 +213,11 @@ def _intents(
 def _fills(
     rows: IntArray,
     order_rows: IntArray,
-    data: MarketData,
-    sessions: Sequence[object],
+    lookup: _RecordLookups,
     market: IntArray,
 ) -> tuple[Fill, ...]:
+    if not len(rows):
+        return ()
     order_ids, indices, quantity, price, commission, stamp, transfer = rows.T
     columns = order_rows[order_ids - 1, state.COLUMN]
     return _create(
@@ -188,14 +226,14 @@ def _fills(
             list(range(1, len(rows) + 1)),
             _values(order_ids),
             _values(order_rows[order_ids - 1, state.INTENT]),
-            _take(sessions, indices),
-            _take(data.symbols, columns),
+            lookup.sessions(indices),
+            _take(lookup.data.symbols, columns),
             _values(quantity),
             _values(price),
             _values(commission),
             _values(stamp),
             _values(transfer),
-            _take(data.timeline, indices) if data.clock else _repeat(None, len(rows)),
+            lookup.timeline(indices) if lookup.data.clock else _repeat(None, len(rows)),
             _values(market[indices, columns, OPEN]),
         ],
     )
@@ -203,6 +241,8 @@ def _fills(
 
 def _tax_lots(rows: IntArray, data: MarketData) -> tuple[TaxLotRecord, ...]:
     selected = np.flatnonzero(rows[:, 2])
+    if not len(selected):
+        return ()
     return _create(
         TaxLotRecord,
         [
@@ -226,10 +266,10 @@ def materialize(
     # 不捕获原生构造异常后暗中回退；required 路径必须可独立验证。
     if not available():
         raise RuntimeError("原生审计物化器未启用")
-    sessions = tuple(data.sessions[data.day_index(index)] for index in range(len(data.timeline)))
+    lookup = _RecordLookups(data)
     return (
-        _orders(rows, data, sessions),
-        _intents(intentions, data, sessions),
-        _fills(fill_rows, rows, data, sessions, market),
+        _orders(rows, lookup),
+        _intents(intentions, lookup),
+        _fills(fill_rows, rows, lookup, market),
         _tax_lots(lots, data),
     )

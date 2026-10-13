@@ -21,6 +21,7 @@ from doribt.research.config import RunConfig
 from doribt.research.outputs import Recorder
 from doribt.research.parameters import ParameterSet
 from doribt.runtime.context import AccountView, Context
+from doribt.runtime.execution_plan import RunDriver, target_run
 from doribt.runtime.intents import IntentBook
 from doribt.runtime.slippage import BarExecution
 from doribt.runtime.targets import PositionTargets, WeightTargets
@@ -96,13 +97,12 @@ class Backtest:
         if self._prepared is None or self._prepared.data is not self.data:
             self._prepared = prepare(self.data)
         if execution is None:
-            run = _Run(self._prepared, self._initial_cash, self.costs, backend)
+            run: RunDriver = _Run(self._prepared, self._initial_cash, self.costs, backend)
         else:
             from doribt.runtime.bar_runtime import BarRun
-            from doribt.runtime.scheduled import ScheduledRun
 
             if type(strategy) in (PositionTargets, WeightTargets):
-                run = ScheduledRun(
+                run = target_run(
                     self._prepared,
                     self._initial_cash,
                     self.costs,
@@ -157,6 +157,7 @@ class _Run:
         self.rights = RightsBook(data)
         self.orders: list[Order] = []
         self.history = prepared.history
+        self.columns = prepared.columns
         days, columns = len(data.timeline), len(data.symbols)
         self.equity, self.cash = np.zeros(days, dtype=np.int64), np.zeros(days, dtype=np.int64)
         self.holdings = np.zeros((days, columns), dtype=np.int64)
@@ -226,7 +227,7 @@ class _Run:
             self.account.cash / 10_000,
             int(self.equity[index]) / 10_000,
             PositionView(
-                self.account._columns,
+                self.columns,
                 self.holdings[index],
                 self.sellable[index],
                 self.pending_shares[index],
@@ -244,6 +245,7 @@ class _Run:
             tuple(self.orders),
             self.book,
             int(self.equity[index]),
+            columns=self.columns,
         )
 
     def _frozen_positions(self, index: int) -> IntArray | None:

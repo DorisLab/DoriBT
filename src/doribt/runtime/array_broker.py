@@ -185,7 +185,7 @@ class ArrayBroker(Broker):
             self._money,
             self._frozen,
             self._share_array,
-            self._ledger_arrays(),
+            self.account.numeric_state(),
             self._fill_rows,
             self._fill_count,
             self._changed,
@@ -197,18 +197,6 @@ class ArrayBroker(Broker):
             self.data.symbols[column] for column in np.flatnonzero(self._changed)
         )
         self._sync_active(identifiers, index)
-
-    def _ledger_arrays(self) -> tuple[IntArray, ...]:
-        account = self.account
-        return (
-            account._lot_data,
-            account._lot_heads,
-            account._lot_tails,
-            account._event_heap,
-            account._ledger_state,
-            account._totals,
-            account._settled,
-        )
 
     def _sync_active(self, identifiers: IntArray, index: int) -> None:
         for value in identifiers.tolist():

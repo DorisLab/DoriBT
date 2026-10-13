@@ -136,7 +136,9 @@ def test_normal_quantity_queries_do_not_scan_bounds(monkeypatch: pytest.MonkeyPa
 
 def test_three_slot_ledger_keeps_compatibility_and_bound_checks() -> None:
     account = Account(0, ("A",))
-    account._ledger_state = account._ledger_state[:3].copy()
+    account._ledger = account.numeric_state()._replace(
+        control=account.numeric_state().control[:3].copy()
+    )
     account.add_lot(Lot("A", 1_000_000_001, DAY, 1, 1))
     assert account.quantities(0).tolist() == [0]
     with pytest.raises(OverflowError, match="supported bounds"):

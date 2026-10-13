@@ -28,6 +28,9 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 
 基础结果仍可直接读 `equity`、`cash`、`holdings`、`sellable`、`orders`、`fills`、`intents` 和权益／税务记录。`*_units` 为整数万分之一元，`equity` 等便利属性为元。`close_units` 保留每个证券的记账估值价，`pending_shares` 为尚未入账但已计入经济权益的股份；不能只用已入账持仓解释全部净值。
 
+`frozen_cash_units` 与 `frozen_shares` 按 bar 提供只读冻结记录；没有冻结资源的旧日线
+执行路径返回相同形状的只读零数组。需要修改研究副本时，显式调用数组的 `copy()`。
+
 ## 目标与资金记录
 
 `IntentRecord` 和 `intents.csv`／`ledger.json` 保存 `sizing`（quantity／close／execution）、`weight_ppm`（权重乘 1000000）与 `sized_at`。股数目标没有权重，`weight_ppm` 和 `sized_at` 为 null；权重目标的 `quantity` 是确定并经公司行动调整后的股数。尚未开盘定量的意图 `quantity`、`sized_at` 均为 null，不能当成清仓。`sized_at` 标识定量所用的 bar；分钟输入以区间结束时间标识该 bar，execution 模式实际用该 bar 的开盘价。
@@ -88,6 +91,9 @@ result.export("new-report", benchmark=benchmark, periods_per_year=252, plot=True
 ## 导出契约
 
 `result.export(path, ...)` 返回绝对目录路径。父目录必须存在，目标必须尚不存在。不提供隐式覆盖开关。所有文件先写到同级临时目录，读回校验成功后，通过 Windows 不替换 rename 或 Linux `renameat2(RENAME_NOREPLACE)` 一次发布；竞争进程抢先创建同名目录也不会被覆盖。写入／绘图／校验／发布失败时清理本次暂存，保留之前的成功目录。保证进程可见性和不覆盖，不宣称断电持久化；其他操作系统目前不支持该发布操作。
+
+账户、持仓和离散账本逐行写入暂存，保留全部 bar 与记录、既有 CSV 列顺序、空表列头
+和规范 JSON 格式。SHA-256 按分块读取计算；写入中断仍遵循上述清理与原子发布契约。
 
 | 文件 | 内容 |
 | --- | --- |

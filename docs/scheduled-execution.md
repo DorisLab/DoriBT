@@ -31,6 +31,10 @@ result = Backtest(data, config=RunConfig(backend="numba")).run(targets)
 
 公司行动、自定义目标子类和任意回调保留逐 bar 生命周期；基础 Python 后端的预计算目标保持分段实现。Numba 回调使用数组经纪推进撮合，用户 Python 策略正文仍在 Python 中执行。首次 JIT 编译和数组准备需要额外时间与内存，暖态速度不能代表冷启动；极大输入还需为数值审计缓冲区预留内存。
 
+0.6.0 在创建账户与回调快照前确定编译路径，避免为编译循环重复分配完整持仓和资金数组。
+日线审计表随实际产生的订单、意图、成交和税务批次几何扩容，不再预分配整个区间的最坏记录数量。
+逐 bar 账户结果仍完整保留；高换手策略的完整记录和首次 JIT 编译仍需要相应内存。
+
 分钟股数目标及日线／分钟权重目标还可使用[可选原生记录物化](native-records.md)。它只加快编译输出到完整记录的转换；Windows 和纯 Python wheel 保留 Python 物化路径。
 
 ## 为什么按事件分段
@@ -50,6 +54,10 @@ result = Backtest(data, config=RunConfig(backend="numba")).run(targets)
 `result.run_info.to_dict()["execution_path"]` 区分 `scheduled_segments` 与 `bar_callbacks`。为保持来源格式兼容，`scheduled_segments` 表示预计算执行族，也包含上述编译循环，不是内部内核选择标志。PositionTargets 保存目标输入及哈希；子类按回调记录代码来源，避免把自定义行为误说成已被目标数组完整捕获。
 
 同一 Backtest 缓存不可变 MarketData 的准备结果和来源 JSON，目标对象缓存自身来源 JSON；生成完整 RunInfo 时仍重新记录费用、策略参数、依赖版本和源码哈希。替换数据会重建对应缓存，账户和订单始终新建。输出仍为同样的规范 JSON，既不省略大样本的时间戳，也不把序列化推迟到 benchmark 之外。
+
+证券列索引在准备阶段建立并跨 Context 复用；分钟数据按证券与交易日解析规则，成交量仍逐 bar 读取。
+原始 OHLC 历史窗口仅在策略访问相应字段时准备并冻结，预计算目标无需额外创建四份浮点历史矩阵。
+每次回测拥有独立账户状态，缓存不保存策略决策、成交、冻结或税务批次。
 
 ## 验证与边界
 

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import tempfile
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import asdict, fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -31,12 +32,35 @@ type LedgerRecord = (
     | TaxPayment
 )
 
+ACCOUNT_COLUMNS = (
+    "session",
+    "cash_units",
+    "equity_units",
+    "available_cash_units",
+    "frozen_cash_units",
+    "dividend_receivable_units",
+    "tax_payable_units",
+    "nav",
+    "return",
+    "drawdown",
+)
+POSITION_COLUMNS = (
+    "session",
+    "symbol",
+    "quantity",
+    "sellable",
+    "frozen_quantity",
+    "pending_quantity",
+    "close_units",
+    "value_units",
+)
+
 
 def _json(path: Path, value: object) -> None:
     path.write_text(encode(value) + "\n", encoding="utf-8")
 
 
-def _csv(path: Path, columns: list[str], rows: list[dict[str, Any]]) -> None:
+def _csv(path: Path, columns: Sequence[str], rows: Iterable[Mapping[str, Any]]) -> None:
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=columns)
         writer.writeheader()
@@ -50,9 +74,14 @@ def _csv(path: Path, columns: list[str], rows: list[dict[str, Any]]) -> None:
 
 
 def _account(result: "BacktestResult", folder: Path) -> None:
+    _csv(folder / "account.csv", ACCOUNT_COLUMNS, _account_rows(result))
+    _csv(folder / "positions.csv", POSITION_COLUMNS, _position_rows(result))
+
+
+def _account_rows(result: "BacktestResult") -> Iterator[dict[str, Any]]:
     changes, nav, drawdown = result.returns, result.nav, result.drawdown
-    rows = [
-        {
+    for i, session in enumerate(result.sessions):
+        yield {
             "session": session.isoformat(),
             "cash_units": int(result.cash_units[i]),
             "equity_units": int(result.equity_units[i]),
@@ -69,10 +98,10 @@ def _account(result: "BacktestResult", folder: Path) -> None:
             "return": finite(float(changes[i])),
             "drawdown": float(drawdown[i]),
         }
-        for i, session in enumerate(result.sessions)
-    ]
-    _csv(folder / "account.csv", list(rows[0]), rows)
-    positions = [
+
+
+def _position_rows(result: "BacktestResult") -> Iterator[dict[str, Any]]:
+    return (
         {
             "session": session.isoformat(),
             "symbol": symbol,
@@ -86,8 +115,7 @@ def _account(result: "BacktestResult", folder: Path) -> None:
         }
         for i, session in enumerate(result.sessions)
         for j, symbol in enumerate(result.symbols)
-    ]
-    _csv(folder / "positions.csv", list(positions[0]), positions)
+    )
 
 
 def _ledger(result: "BacktestResult", folder: Path) -> None:
@@ -101,13 +129,37 @@ def _ledger(result: "BacktestResult", folder: Path) -> None:
         "tax_lots": (TaxLotRecord, result.tax_lots),
         "tax_payments": (TaxPayment, result.tax_payments),
     }
-    records = {}
     for name, (record_type, items) in tables.items():
-        rows = [asdict(item) for item in items]
-        records[name] = rows
+        rows = (asdict(item) for item in items)
         _csv(folder / f"{name}.csv", [field.name for field in fields(record_type)], rows)
-    # This file preserves nulls, types and nested intent adjustments without CSV conventions.
-    _json(folder / "ledger.json", records)
+    _ledger_json(folder / "ledger.json", tables)
+
+
+def _ledger_json(
+    path: Path, tables: Mapping[str, tuple[type[LedgerRecord], tuple[LedgerRecord, ...]]]
+) -> None:
+    # 保留 encode() 的排序、空值及间隔字节，每次只物化一条记录。
+    with path.open("w", encoding="utf-8") as stream:
+        stream.write("{")
+        for index, name in enumerate(sorted(tables)):
+            if index:
+                stream.write(", ")
+            stream.write(encode(name) + ": [")
+            for row_index, item in enumerate(tables[name][1]):
+                if row_index:
+                    stream.write(", ")
+                stream.write(encode(asdict(item)))
+            stream.write("]")
+        stream.write("}\n")
+
+
+def _file_info(path: Path) -> dict[str, str | int]:
+    checksum, size = hashlib.sha256(), 0
+    with path.open("rb") as stream:
+        while chunk := stream.read(1_048_576):
+            checksum.update(chunk)
+            size += len(chunk)
+    return {"sha256": checksum.hexdigest(), "bytes": size}
 
 
 def _benchmark(benchmark: Benchmark, folder: Path) -> None:
@@ -125,13 +177,7 @@ def _benchmark(benchmark: Benchmark, folder: Path) -> None:
 
 
 def _manifest(result: "BacktestResult", folder: Path) -> None:
-    files = {
-        path.name: {
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            "bytes": path.stat().st_size,
-        }
-        for path in sorted(folder.iterdir())
-    }
+    files = {path.name: _file_info(path) for path in sorted(folder.iterdir())}
     _json(
         folder / "manifest.json",
         {
@@ -206,11 +252,7 @@ def export(
         # Read back the manifest and verify every serialized byte before publication.
         manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
         for name, entry in manifest["files"].items():
-            content = (folder / name).read_bytes()
-            if (
-                len(content) != entry["bytes"]
-                or hashlib.sha256(content).hexdigest() != entry["sha256"]
-            ):
+            if _file_info(folder / name) != entry:
                 raise OSError(f"export verification failed: {name}")
         publish(folder, destination)
     return destination

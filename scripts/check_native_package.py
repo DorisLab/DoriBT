@@ -81,12 +81,13 @@ data = MarketData.from_minutes(
 config = RunConfig(initial_cash=10000, costs=Costs(commission=0, minimum_commission=0),
                    execution=BarExecution(participation=1),
                    backend='numba' if expected else 'python')
-targets = PositionTargets(sessions=data.timeline, quantities={'A': [900] + [0] * 47})
+targets = PositionTargets(sessions=data.timeline, quantities={'A': [900] + [0] * 45 + [100] * 2})
 result = Backtest(data, config=config).run(targets)
-assert [fill.quantity for fill in result.fills] == [900, -900]
+assert [fill.quantity for fill in result.fills] == [900, -900, 100]
 np.testing.assert_array_equal(result.equity, [10000, 10000] + [10900] * 46)
 assert bool(calls) == expected
 if expected:
+    assert all(getattr(result, name) for name in ('orders', 'intents', 'fills', 'tax_lots'))
     assert sorted(calls) == ['Fill', 'IntentRecord', 'Order', 'TaxLotRecord']
     os.environ['DORIBT_NATIVE_RECORDS'] = 'off'
     reference = Backtest(data, config=config).run(targets)

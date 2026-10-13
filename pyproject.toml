@@ -11,7 +11,7 @@ path = "hatch_build.py"
 
 [project]
 name = "doribt"
-version = "0.5.0"
+version = "0.6.0"
 description = "Daily and minute cash-account backtesting for A-share research"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"

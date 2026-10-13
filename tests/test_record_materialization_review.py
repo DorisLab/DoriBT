@@ -2,7 +2,7 @@
 
 import copy
 import pickle
-from dataclasses import FrozenInstanceError, asdict, fields, replace
+from dataclasses import FrozenInstanceError, asdict, fields, make_dataclass, replace
 
 import pytest
 from test_general_runtime_review import CASES
@@ -21,6 +21,18 @@ RECORDS = {
     "taxes": TaxRecord,
     "tax_payments": TaxPayment,
 }
+
+
+def isolated_allocator_record(monkeypatch):
+    from doribt.accounting import records
+
+    kind = make_dataclass(
+        "AllocatorRecord", [(field.name, field.type) for field in fields(Fill)], frozen=True
+    )
+    # 修改 __new__ 后的 CPython 分配槽还原会污染类型，因此只在独立类型上检查。
+    monkeypatch.setattr(records, "Fill", kind)
+    monkeypatch.setitem(records._INITIALIZERS, kind, kind.__init__)
+    return kind
 
 
 def assert_constructor_compatibility(record, expected_class):
@@ -142,5 +154,59 @@ def test_private_factory_respects_custom_public_initializer(monkeypatch):
         record = record_factory(Fill)(values)
         assert observed == [(values, {})]
         assert type(record) is Fill and record.quantity == 100
+    finally:
+        record_factory.cache_clear()
+
+
+@pytest.mark.parametrize("replacement", ["initializer", "allocator"])
+def test_cached_factory_respects_later_constructor_replacement(monkeypatch, replacement):
+    from datetime import date
+
+    from doribt.accounting.records import record_factory
+    from doribt.runtime.record_materialization import fill_record
+
+    kind = Fill if replacement == "initializer" else isolated_allocator_record(monkeypatch)
+    factory = record_factory(kind)
+    values = (1, 2, 3, date(2025, 1, 2), "A", 100, 100000, 50000, 0, 0, None, None)
+    observed = []
+    original = kind.__init__
+
+    def initializer(self, *args, **kwargs):
+        observed.append(args)
+        original(self, *args, **kwargs)
+
+    def allocator(kind, *args, **kwargs):
+        observed.append(args)
+        return object.__new__(kind)
+
+    if replacement == "initializer":
+        monkeypatch.setattr(kind, "__init__", initializer)
+    else:
+        monkeypatch.setattr(kind, "__new__", staticmethod(allocator))
+    cached = fill_record if replacement == "initializer" else factory
+    first, second = factory(values), cached(values)
+    assert observed == [values, values]
+    assert first == second == kind(*values)
+
+
+def test_factory_falls_back_for_preexisting_custom_allocator(monkeypatch):
+    from datetime import date
+
+    from doribt.accounting.records import record_factory
+
+    kind = isolated_allocator_record(monkeypatch)
+    observed = []
+
+    def allocator(kind, *args, **kwargs):
+        observed.append(args)
+        return object.__new__(kind)
+
+    record_factory.cache_clear()
+    monkeypatch.setattr(kind, "__new__", staticmethod(allocator))
+    try:
+        values = (1, 2, 3, date(2025, 1, 2), "A", 100, 100000, 50000, 0, 0, None, None)
+        actual = record_factory(kind)(values)
+        assert observed == [values]
+        assert actual == kind(*values)
     finally:
         record_factory.cache_clear()

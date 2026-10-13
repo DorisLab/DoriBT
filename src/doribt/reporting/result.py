@@ -78,17 +78,19 @@ class BacktestResult:
 
     @cached_property
     def frozen_cash_units(self) -> IntArray:
-        return (
-            np.zeros_like(self.cash_units)
-            if self.reserved_cash_units is None
-            else self.reserved_cash_units
-        )
+        if self.reserved_cash_units is not None:
+            return self.reserved_cash_units
+        values = np.zeros_like(self.cash_units)
+        values.setflags(write=False)
+        return values
 
     @cached_property
     def frozen_shares(self) -> IntArray:
-        return (
-            np.zeros_like(self.holdings) if self.reserved_shares is None else self.reserved_shares
-        )
+        if self.reserved_shares is not None:
+            return self.reserved_shares
+        values = np.zeros_like(self.holdings)
+        values.setflags(write=False)
+        return values
 
     @property
     def equity(self) -> NDArray[np.float64]:

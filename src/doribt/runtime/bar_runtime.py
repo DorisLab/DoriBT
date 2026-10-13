@@ -104,7 +104,7 @@ class BarRun(_Run):
     def _finish(self) -> None:
         quantities = self.account.quantities() + self.rights.pending_shares()
         for symbol, intent in tuple(self.book.pending.items()):
-            if intent.sized and intent.quantity == quantities[self.data.symbols.index(symbol)]:
+            if intent.sized and intent.quantity == quantities[self.columns[symbol]]:
                 intent.finish(self.data.sessions[-1], "fulfilled")
                 del self.book.pending[symbol]
         self.broker.finish_all()

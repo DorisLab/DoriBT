@@ -26,6 +26,7 @@ from doribt.kernels.broker_state import (
     VALID,
 )
 from doribt.kernels.execution import IntArray
+from doribt.kernels.ledger_state import LedgerState
 from doribt.runtime.matching import BUDGET, LEFT, NOTIONAL, PAID, RESERVED, accelerated, match
 from doribt.validation import MAX_MONEY
 
@@ -44,7 +45,7 @@ type QueueKernel = Callable[
         IntArray,
         IntArray,
         IntArray,
-        tuple[IntArray, ...],
+        LedgerState,
         IntArray,
         int,
         IntArray,
@@ -165,7 +166,7 @@ def execute_queue(
     money: IntArray,
     frozen: IntArray,
     shares: IntArray,
-    ledger: tuple[IntArray, ...],
+    ledger: LedgerState,
     fills: IntArray,
     fill_count: int,
     changed: IntArray,
@@ -177,9 +178,9 @@ def execute_queue(
             if order[SUBMITTED] >= index or bool(order[BUYING]) != buying:
                 continue
             if not buying:
-                reserve_sale(order, ledger[6], shares)
+                reserve_sale(order, ledger.settled, shares)
             row = match_order(
-                order, market, intrabar, costs, config, used, money, frozen, ledger[5]
+                order, market, intrabar, costs, config, used, money, frozen, ledger.totals
             )
             apply_order(order, row, index, money, frozen, shares)
             column, quantity = int(order[COLUMN]), int(row[0])
@@ -209,7 +210,7 @@ def apply_ledger_fill(
     column: int,
     row: IntArray,
     settlement: IntArray,
-    ledger: tuple[IntArray, ...],
+    ledger: LedgerState,
     fills: IntArray,
     count: int,
 ) -> int:
@@ -219,13 +220,13 @@ def apply_ledger_fill(
         ordinal,
         day + int(settlement[column]),
         int(row[1]),
-        ledger[0],
-        ledger[1],
-        ledger[2],
-        ledger[3],
-        ledger[4],
-        ledger[5],
-        ledger[6],
+        ledger.lots,
+        ledger.heads,
+        ledger.tails,
+        ledger.heap,
+        ledger.control,
+        ledger.totals,
+        ledger.settled,
     )
     fills[count, :2] = identifier, index
     fills[count, 2:] = row[:5]

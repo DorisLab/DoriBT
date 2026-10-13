@@ -2,7 +2,7 @@
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, fields, replace
-from datetime import timedelta
+from datetime import date
 from decimal import Decimal
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
@@ -85,14 +85,14 @@ def _targets(item: RuleOverride, book: "RuleBook") -> tuple[str, ...]:
 
 
 def _validate_range(item: RuleOverride, symbol: str, periods: Sequence["RulePeriod"]) -> None:
-    cursor = day(item.start)
+    cursor = day(item.start).toordinal()
     for period in periods:
-        if period.symbol != symbol or day(period.end) < cursor:
+        if period.symbol != symbol or day(period.end).toordinal() < cursor:
             continue
-        if day(period.start) > cursor:
+        if day(period.start).toordinal() > cursor:
             break
-        cursor = day(period.end) + timedelta(days=1)
-        if cursor > day(item.end):
+        cursor = day(period.end).toordinal() + 1
+        if cursor > day(item.end).toordinal():
             return
     raise ValueError(f"override is outside covered rule dates for {symbol}")
 
@@ -110,16 +110,21 @@ def _validate_conflicts(symbol: str, items: Sequence[RuleOverride]) -> None:
 
 
 def _split(period: "RulePeriod", items: Sequence[RuleOverride]) -> list["RulePeriod"]:
-    begin, stop = day(period.start), day(period.end) + timedelta(days=1)
+    # 整数边界允许 date.max 后的排他终点，但不构造超出范围的日期。
+    begin, stop = day(period.start).toordinal(), day(period.end).toordinal() + 1
     boundaries = {begin, stop}
     for item in items:
         boundaries.update(
-            (max(begin, day(item.start)), min(stop, day(item.end) + timedelta(days=1)))
+            (
+                max(begin, day(item.start).toordinal()),
+                min(stop, day(item.end).toordinal() + 1),
+            )
         )
     result = []
     ordered = sorted(boundaries)
     for start, end in zip(ordered, ordered[1:], strict=False):
-        active = [item for item in items if day(item.start) <= start <= day(item.end)]
+        first = date.fromordinal(start)
+        active = [item for item in items if day(item.start) <= first <= day(item.end)]
         rule = period.rule
         for specific in (False, True):
             changes: dict[str, Any] = {
@@ -137,8 +142,8 @@ def _split(period: "RulePeriod", items: Sequence[RuleOverride]) -> list["RulePer
         result.append(
             replace(
                 period,
-                start=start,
-                end=end - timedelta(days=1),
+                start=first,
+                end=date.fromordinal(end - 1),
                 rule=rule,
                 source=sources,
                 version=version,
