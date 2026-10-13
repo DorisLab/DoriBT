@@ -1,0 +1,614 @@
+[
+  {
+    "folder": "pure",
+    "scenario": "daily_sparse_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_dense_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_sparse_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_dense_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_sparse_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_dense_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_sparse_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_dense_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_shared_cash",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_rounded_fees",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_partial_fills",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_t1_limits_status",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_corporate_actions",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_stateful_orders",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_weights_close_once",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "daily_weights_close_rebalance",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_weights_execution_once",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "pure",
+    "scenario": "minute_weights_execution_rebalance",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "4f759bd27da20132f20d0befd5e147a50502a210f628375f769d7ab5fc6c67a4"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_sparse_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_dense_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_sparse_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_dense_targets",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_sparse_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_dense_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_sparse_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_dense_callback",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_shared_cash",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_rounded_fees",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_partial_fills",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_t1_limits_status",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_corporate_actions",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_stateful_orders",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_weights_close_once",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "daily_weights_close_rebalance",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_weights_execution_once",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  },
+  {
+    "folder": "native",
+    "scenario": "minute_weights_execution_rebalance",
+    "audit_fields_unchanged": true,
+    "run_info_differences": [
+      {
+        "path": "/versions/doribt",
+        "baseline": "0.5.0",
+        "release": "0.6.0"
+      },
+      {
+        "path": "/engine_sha256",
+        "baseline": "5b02398a6835c554321a0fb78c9157c4acdca61ea7285766ebcc8f80201164ea",
+        "release": "0e1ba6732f2d8aac9b3e7fb112b7be5b99944d1f0b291cfc73fed78b26a8108f"
+      }
+    ]
+  }
+]

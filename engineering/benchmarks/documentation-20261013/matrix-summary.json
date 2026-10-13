@@ -1,0 +1,317 @@
+{
+  "release": "0.6.0",
+  "rows": [
+    {
+      "scenario": "daily_sparse_targets",
+      "pure_seconds": 0.013580195000031381,
+      "native_seconds": 0.013828549501340603,
+      "vectorbt_seconds": 0.026940721998471417,
+      "baseline_seconds": 0.013894657500713947,
+      "native_calls": {},
+      "pure_over_vectorbt": 0.5040768766628416,
+      "pure_baseline_speedup": 1.0231559635691416,
+      "native_over_vectorbt": 0.5132954306913237,
+      "native_baseline_speedup": 1.0047805447250222,
+      "comparator": "rust",
+      "alternatives": []
+    },
+    {
+      "scenario": "daily_dense_targets",
+      "pure_seconds": 0.09292510600062087,
+      "native_seconds": 0.0970590014994741,
+      "vectorbt_seconds": 0.052854624000246986,
+      "baseline_seconds": 0.11061675150085648,
+      "native_calls": {},
+      "pure_over_vectorbt": 1.7581263277965355,
+      "pure_baseline_speedup": 1.1903860674650981,
+      "native_over_vectorbt": 1.8363388887038636,
+      "native_baseline_speedup": 1.1396856529732158,
+      "comparator": "rust",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_sparse_targets",
+      "pure_seconds": 0.029658149000169942,
+      "native_seconds": 0.022050377999221382,
+      "vectorbt_seconds": 0.0391605940003501,
+      "baseline_seconds": 0.09868384500441607,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 0.7573467603659125,
+      "pure_baseline_speedup": 3.3273770727853114,
+      "native_over_vectorbt": 0.5630756775299233,
+      "native_baseline_speedup": 4.475381102668656,
+      "comparator": "rust",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_dense_targets",
+      "pure_seconds": 0.770141925999269,
+      "native_seconds": 0.31509644399920944,
+      "vectorbt_seconds": 0.17573742250078794,
+      "baseline_seconds": 1.987864509501378,
+      "native_calls": {
+        "bulk_columns": 3
+      },
+      "pure_over_vectorbt": 4.382344494644082,
+      "pure_baseline_speedup": 2.581166460872908,
+      "native_over_vectorbt": 1.7929957064085007,
+      "native_baseline_speedup": 6.308749423736326,
+      "comparator": "rust",
+      "alternatives": []
+    },
+    {
+      "scenario": "daily_sparse_callback",
+      "pure_seconds": 0.0424187204998816,
+      "native_seconds": 0.04125546499926713,
+      "vectorbt_seconds": 0.23280439300106082,
+      "baseline_seconds": 0.12927083700196818,
+      "native_calls": {},
+      "pure_over_vectorbt": 0.1822075604032451,
+      "pure_baseline_speedup": 3.0474949616249973,
+      "native_over_vectorbt": 0.17721085271393117,
+      "native_baseline_speedup": 3.13342334171399,
+      "comparator": "python-flexible-target-callback",
+      "alternatives": [
+        {
+          "workflow": "rust",
+          "seconds": 0.02329771599943342,
+          "pure_ratio": 1.8207244221241767,
+          "native_ratio": 1.7707943989131993
+        }
+      ]
+    },
+    {
+      "scenario": "daily_dense_callback",
+      "pure_seconds": 0.2893289249996087,
+      "native_seconds": 0.30782146449928405,
+      "vectorbt_seconds": 1.0118315719992097,
+      "baseline_seconds": 0.5214614775013615,
+      "native_calls": {},
+      "pure_over_vectorbt": 0.2859457374194632,
+      "pure_baseline_speedup": 1.8023136729314801,
+      "native_over_vectorbt": 0.30422203953478183,
+      "native_baseline_speedup": 1.6940387128285344,
+      "comparator": "python-flexible-target-callback",
+      "alternatives": [
+        {
+          "workflow": "rust",
+          "seconds": 0.05186851500002376,
+          "pure_ratio": 5.578122392736252,
+          "native_ratio": 5.9346496520893846
+        }
+      ]
+    },
+    {
+      "scenario": "minute_sparse_callback",
+      "pure_seconds": 0.1033202180005901,
+      "native_seconds": 0.10062694500084035,
+      "vectorbt_seconds": 0.7309743464993517,
+      "baseline_seconds": 0.5074469494993537,
+      "native_calls": {},
+      "pure_over_vectorbt": 0.14134588784872185,
+      "pure_baseline_speedup": 4.911400298211289,
+      "native_over_vectorbt": 0.1376613905573355,
+      "native_baseline_speedup": 5.042853576595373,
+      "comparator": "python-flexible-target-callback",
+      "alternatives": [
+        {
+          "workflow": "rust",
+          "seconds": 0.032027871000536834,
+          "pure_ratio": 3.225947113339451,
+          "native_ratio": 3.1418555732022804
+        }
+      ]
+    },
+    {
+      "scenario": "minute_dense_callback",
+      "pure_seconds": 1.6493987319990993,
+      "native_seconds": 1.6396286169983796,
+      "vectorbt_seconds": 4.547002849998535,
+      "baseline_seconds": 2.6072656185006053,
+      "native_calls": {},
+      "pure_over_vectorbt": 0.3627441605847313,
+      "pure_baseline_speedup": 1.580737009140631,
+      "native_over_vectorbt": 0.3605954671875581,
+      "native_baseline_speedup": 1.5901562045639643,
+      "comparator": "python-flexible-target-callback",
+      "alternatives": [
+        {
+          "workflow": "rust",
+          "seconds": 0.1771177370001169,
+          "pure_ratio": 9.312442446111485,
+          "native_ratio": 9.25728074877841
+        }
+      ]
+    },
+    {
+      "scenario": "daily_shared_cash",
+      "pure_seconds": 0.044418213999961154,
+      "native_seconds": 0.04447600800085638,
+      "vectorbt_seconds": 0.029728948000411037,
+      "baseline_seconds": 0.04562099299619149,
+      "native_calls": {},
+      "pure_over_vectorbt": 1.4941064850107384,
+      "pure_baseline_speedup": 1.02707850874489,
+      "native_over_vectorbt": 1.4960505161582391,
+      "native_baseline_speedup": 1.0257438796061251,
+      "comparator": "numba",
+      "alternatives": []
+    },
+    {
+      "scenario": "daily_rounded_fees",
+      "pure_seconds": 0.09360049350016197,
+      "native_seconds": 0.0912281000000803,
+      "vectorbt_seconds": 0.06135408649970486,
+      "baseline_seconds": 0.09229711550142383,
+      "native_calls": {},
+      "pure_over_vectorbt": 1.5255787974385737,
+      "pure_baseline_speedup": 0.9860750947991969,
+      "native_over_vectorbt": 1.4869115523465442,
+      "native_baseline_speedup": 1.0117180507030463,
+      "comparator": "numba",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_partial_fills",
+      "pure_seconds": 0.04182617199876404,
+      "native_seconds": 0.031063873000675812,
+      "vectorbt_seconds": 0.08848754899918276,
+      "baseline_seconds": 0.16373074750117667,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 0.47267861379175874,
+      "pure_baseline_speedup": 3.914552531989179,
+      "native_over_vectorbt": 0.3510536041738788,
+      "native_baseline_speedup": 5.270777005095746,
+      "comparator": "numba",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_t1_limits_status",
+      "pure_seconds": 0.382706583000072,
+      "native_seconds": 0.12345450800057733,
+      "vectorbt_seconds": 0.08227765500032547,
+      "baseline_seconds": 1.1509084359968256,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 4.651403628343055,
+      "pure_baseline_speedup": 3.0072867494850724,
+      "native_over_vectorbt": 1.5004621607177426,
+      "native_baseline_speedup": 9.322530660374454,
+      "comparator": "numba-t1-status-state-arrays",
+      "alternatives": []
+    },
+    {
+      "scenario": "daily_corporate_actions",
+      "pure_seconds": 0.04342285050006467,
+      "native_seconds": 0.04303758400055813,
+      "vectorbt_seconds": null,
+      "baseline_seconds": 0.1489584869977989,
+      "native_calls": {},
+      "pure_over_vectorbt": null,
+      "pure_baseline_speedup": 3.430417056512148,
+      "native_over_vectorbt": null,
+      "native_baseline_speedup": 3.4611256755459867,
+      "comparator": "unavailable",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_stateful_orders",
+      "pure_seconds": 0.38696747300127754,
+      "native_seconds": 0.372440094999547,
+      "vectorbt_seconds": 1.9652551090002817,
+      "baseline_seconds": 0.8680751355004759,
+      "native_calls": {},
+      "pure_over_vectorbt": 0.1969044482973646,
+      "pure_baseline_speedup": 2.2432767508022824,
+      "native_over_vectorbt": 0.18951234030324235,
+      "native_baseline_speedup": 2.330777881209411,
+      "comparator": "python-flexible-order-callback",
+      "alternatives": [
+        {
+          "workflow": "numba-rewritten-flexible-order-callback",
+          "seconds": 0.07761964900055318,
+          "pure_ratio": 4.985431884631683,
+          "native_ratio": 4.798270796056971
+        }
+      ]
+    },
+    {
+      "scenario": "daily_weights_close_once",
+      "pure_seconds": 0.013920174500526628,
+      "native_seconds": 0.011028991500097618,
+      "vectorbt_seconds": 0.02545407400248223,
+      "baseline_seconds": 0.056359301997872535,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 0.5468741270717277,
+      "pure_baseline_speedup": 4.048749675928297,
+      "native_over_vectorbt": 0.4332898340368655,
+      "native_baseline_speedup": 5.110104763193779,
+      "comparator": "numba",
+      "alternatives": []
+    },
+    {
+      "scenario": "daily_weights_close_rebalance",
+      "pure_seconds": 0.13551556299898948,
+      "native_seconds": 0.06958925549952255,
+      "vectorbt_seconds": 0.058289754500037816,
+      "baseline_seconds": 0.87657189499987,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 2.324860760888975,
+      "pure_baseline_speedup": 6.468422339111018,
+      "native_over_vectorbt": 1.1938505505196013,
+      "native_baseline_speedup": 12.596368343183153,
+      "comparator": "numba",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_weights_execution_once",
+      "pure_seconds": 0.03141767799934314,
+      "native_seconds": 0.02342392650007241,
+      "vectorbt_seconds": 0.03819555100017169,
+      "baseline_seconds": 0.11212193300161744,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 0.8225481025054965,
+      "pure_baseline_speedup": 3.5687530123633455,
+      "native_over_vectorbt": 0.6132632174874796,
+      "native_baseline_speedup": 4.7866412576589505,
+      "comparator": "numba",
+      "alternatives": []
+    },
+    {
+      "scenario": "minute_weights_execution_rebalance",
+      "pure_seconds": 0.9892197439985466,
+      "native_seconds": 0.3261229039999307,
+      "vectorbt_seconds": 0.18954675150052935,
+      "baseline_seconds": 3.9486668959980307,
+      "native_calls": {
+        "bulk_columns": 4
+      },
+      "pure_over_vectorbt": 5.218869414366007,
+      "pure_baseline_speedup": 3.991698426920836,
+      "native_over_vectorbt": 1.7205407184148969,
+      "native_baseline_speedup": 12.107910384604173,
+      "comparator": "numba",
+      "alternatives": []
+    }
+  ],
+  "primary_pass_counts": {
+    "pure": 14,
+    "native": 17
+  },
+  "comparable_rows": 17,
+  "all_supported_scenarios_proven": false,
+  "timing_rows": 58,
+  "independent_saved_output_checks": 56,
+  "full_audit_regressions": 36
+}

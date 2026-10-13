@@ -1,0 +1,16 @@
+{
+  "README.md": "9975a54586845694b11176a08b4cc9bffd341f548da36968adc34eccd8e96f9f",
+  "artifact-provenance.json": "6d387dc10903f5d125130aefa33de18d7653c41465e3272e434a8bb9a342ad53",
+  "audit-parity.json": "9d7e8d793da5f9d9a6d21f87a5e6d84be11af44540de13acde689ff737b06606",
+  "batch-summary.csv": "fe0f4050cf5842d526f03c75cefa30714aeba415accfcd5131dc5b41c97b58c3",
+  "daily-summary.json": "19b28a76ef3002bddf188d938c938dc67bf6e1ba59763de0f5aa6d68bc9ed572",
+  "environment.json": "c9e08314ceda28af7486fc974bff3bf04ad8928e45b5d14da24c16407e4bde1d",
+  "grid-summary.csv": "fba75b6228c99094cf595a963bf2a4c5c7b7469fe820cac25c38d7f2b3217f6e",
+  "matrix-summary.json": "9d0b60526d53b0d1a886fccb9deb0df0ba42a559574f4c9be8d88f14c8f062a7",
+  "saved-economics-verification.json": "005ddc33c7068428de98b85cec624b3c59c560132d96d8bb69ad23ce77145af2",
+  "single-summary.csv": "d3562d017d1755d47c7211a439f9be9c581db85c79cf7d67c32647639e68c78c",
+  "source-manifest.json": "b80193f986b4e1c9c9a29bfcbb07618cfb69814d2bf9126a502af53d715095d0",
+  "source-results.zip": "9032412a19fb3a5dc501d491be26bc97fbb94eb6c62af5880272a042788dfe1e",
+  "timing-qualification.json": "334e6a6f9b937d7cb42fb783d485bca9c3aae01ba9e49d03df7897334128cb72",
+  "validation.json": "66289b4241f081f8a1edf51a8c587b98625148050bfdb152c4a907e1ace2aba4"
+}

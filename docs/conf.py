@@ -20,7 +20,7 @@ autodoc_typehints = "none"
 autodoc_docstring_signature = False
 autodoc_member_order = "bysource"
 html_theme = "furo"
-html_title = f"DoriBT {release} 文档"
+html_title = f"DoriBT {release} · A 股与 ETF 的 Python 回测"
 html_baseurl = "https://dorislab.github.io/DoriBT/"
 html_theme_options = {
     "source_repository": "https://github.com/DorisLab/DoriBT/",
@@ -28,6 +28,7 @@ html_theme_options = {
     "source_directory": "docs/",
 }
 html_show_sourcelink = False
+html_extra_path = ["llms.txt"]
 
 
 def public_signatures(

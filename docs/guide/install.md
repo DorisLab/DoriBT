@@ -1,4 +1,4 @@
-# 安装
+# 安装 DoriBT：Python 3.13、Numba 与图表
 
 使用 **Python 3.13** 和独立虚拟环境。支持 Windows、Linux；当前包不接受 Python 3.12／3.14。
 

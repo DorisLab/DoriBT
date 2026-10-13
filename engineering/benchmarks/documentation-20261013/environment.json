@@ -1,0 +1,16 @@
+{
+  "python": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+  "executable": "${BENCHMARK_ROOT}/env/bin/python",
+  "python_binary_sha256": "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "machine": "x86_64",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "dependencies": {
+    "numpy": "2.5.4",
+    "numba": "0.68.0",
+    "llvmlite": "0.50.0",
+    "pandas": "3.0.6",
+    "vectorbt": "1.1.2",
+    "vectorbt-rust": "1.1.2"
+  }
+}

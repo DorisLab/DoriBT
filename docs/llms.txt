@@ -1,0 +1,38 @@
+# DoriBT
+
+> 面向 A 股与 ETF 研究的 Python 现金账户回测引擎。当前文档版本 0.6.1；支持日线与 1/5 分钟、函数策略、预计算目标、历史市场规则和可对账的研究输出。
+
+这是公开文档的文本导航，不是完整 API 规范。使用具体能力前，请读取对应页面的输入契约、日期范围和限制。
+
+## 开始使用
+
+- [文档首页](https://dorislab.github.io/DoriBT/)
+- [安装与可选依赖](https://dorislab.github.io/DoriBT/guide/install.html)
+- [第一次回测](https://dorislab.github.io/DoriBT/guide/quickstart.html)
+- [CSV 与 DataFrame 行情](https://dorislab.github.io/DoriBT/guide/data.html)
+- [策略、历史窗口与目标仓位](https://dorislab.github.io/DoriBT/guide/strategies.html)
+
+## 研究任务
+
+- [A 股 ETF 轮动](https://dorislab.github.io/DoriBT/tutorials/etf-rotation.html)
+- [分钟做 T、T+0 与 T+1](https://dorislab.github.io/DoriBT/tutorials/intraday-t.html)
+- [CSV/DataFrame 到研究报告](https://dorislab.github.io/DoriBT/tutorials/data-to-report.html)
+- [框架比较](https://dorislab.github.io/DoriBT/comparison.html)
+- [性能与复现证据](https://dorislab.github.io/DoriBT/performance.html)
+
+## 接口、数据与边界
+
+- [公开 API](https://dorislab.github.io/DoriBT/api.html)
+- [市场规则与支持范围](https://dorislab.github.io/DoriBT/china-market.html)
+- [数据契约](https://dorislab.github.io/DoriBT/data-contract.html)
+- [分钟执行](https://dorislab.github.io/DoriBT/minute-execution.html)
+- [公司行动](https://dorislab.github.io/DoriBT/corporate-actions.html)
+- [结果与导出](https://dorislab.github.io/DoriBT/results.html)
+- [常见问题](https://dorislab.github.io/DoriBT/faq.html)
+
+## 项目
+
+- [公开源码与示例](https://github.com/DorisLab/DoriBT)
+- [PyPI 安装包](https://pypi.org/project/doribt/)
+
+引擎不提供行情下载或实盘连接；不覆盖盘口排队、融资融券、期货期权或 ETF 申赎。演示行情为人工数据。性能只适用于证据记录中的机器、输入和工作流。
