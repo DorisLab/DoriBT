@@ -9,6 +9,7 @@
 | 第一次回测 | `python examples/quickstart.py` | 三日输入、下一 bar 执行与费用 |
 | CSV 行情 | `python examples/csv_backtest.py` | 先按[数据教程](guide/data.md)准备工作目录的 bars.csv |
 | 预计算均线 | `python examples/sma.py` | 不含未来信息的窗口、WeightTargets |
+| 非活动证券 | `python examples/inactive_weights.py --backend numba` | 上市前零目标、两种规则覆盖和实际编译计划 |
 | 买入持有／均线／轮动 | `python examples/strategies.py` | 同一数据的函数策略与共享资金 |
 | 分钟订单 | `python examples/minute.py` | 部分成交、T+1、累计佣金 |
 | 分钟做 T | `python examples/intraday_t.py` | T+0 情景、原生 T+0 ETF 与 T+1 底仓，逐笔费用与来源 |

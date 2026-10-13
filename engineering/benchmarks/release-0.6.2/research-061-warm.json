@@ -1,0 +1,784 @@
+{
+  "run_id": "286c279b-8c6e-4bbd-b6d7-8b682cbcbfba",
+  "mode": "warm",
+  "environment": {
+    "adapter": "doribt_v1",
+    "cpu": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "doribt_version": "0.6.1",
+    "installed_source_sha256": "40288e708cb5a7e48c2daeb197b7903feb2d9590ed3eeeba0dc6a2908b83d9fd",
+    "llvmlite_version": "0.50.0",
+    "logical_cpus": 16,
+    "numba_jit_disabled": "false",
+    "numba_version": "0.68.0",
+    "numpy": "2.4.4",
+    "numpy_version": "2.4.4",
+    "physical_cpus": 8,
+    "platform": "Windows-11-10.0.26300-SP0",
+    "price_mode": "synthetic_adjusted",
+    "python_engine": "doribt",
+    "rules": "tick0.0001_lot100_partial1_T0",
+    "sizing": "close",
+    "slippage_policy": "cost",
+    "versions": {
+      "doribt": "0.6.1",
+      "llvmlite": "0.50.0",
+      "numba": "0.68.0",
+      "numpy": "2.4.4",
+      "platform": "Windows-11-10.0.26300-SP0",
+      "python": "3.13.16"
+    },
+    "engine_sha256": "5f31e86524dede9051e6487d10169424614f211ac167dc7ba75d004e3cbf5ea2",
+    "threads": {
+      "NUMBA_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "source_run_id": "4901814d-d6ec-4afc-b5c4-0575e379270c",
+  "manifest_sha256": "2d66482e35c5364b4c9cbcfd35efff5de46a3ab23ed4a2c7b9ba91858d425116",
+  "identities": [
+    {
+      "backend": "python",
+      "case": "baseline",
+      "data_fingerprint": "3fbc401690e286f09d0b4db051f07abb0e5f2e0baa7ace62990786c9d3185044",
+      "fills": 854,
+      "intents": 28908,
+      "ledger_sha256": "9034c999c66e0bb2474bc005023b39c13223526ce2c46abfdb94665dd1744682",
+      "plan": null
+    },
+    {
+      "backend": "numba",
+      "case": "baseline",
+      "data_fingerprint": "3fbc401690e286f09d0b4db051f07abb0e5f2e0baa7ace62990786c9d3185044",
+      "fills": 854,
+      "intents": 28908,
+      "ledger_sha256": "9034c999c66e0bb2474bc005023b39c13223526ce2c46abfdb94665dd1744682",
+      "plan": null
+    },
+    {
+      "backend": "python",
+      "case": "capacity",
+      "data_fingerprint": "3fbc401690e286f09d0b4db051f07abb0e5f2e0baa7ace62990786c9d3185044",
+      "fills": 2238,
+      "intents": 28908,
+      "ledger_sha256": "2aa1b96aba957d974f676e5cce9adbefd8960cfdac0324750e43b22e00bef706",
+      "plan": null
+    },
+    {
+      "backend": "numba",
+      "case": "capacity",
+      "data_fingerprint": "3fbc401690e286f09d0b4db051f07abb0e5f2e0baa7ace62990786c9d3185044",
+      "fills": 2238,
+      "intents": 28908,
+      "ledger_sha256": "2aa1b96aba957d974f676e5cce9adbefd8960cfdac0324750e43b22e00bef706",
+      "plan": null
+    },
+    {
+      "backend": "python",
+      "case": "fine_slip",
+      "data_fingerprint": "56fcd92a4a52a0c0980d7af13caf2c22a3d354b96299c2f085c7ae8be30ff452",
+      "fills": 854,
+      "intents": 28908,
+      "ledger_sha256": "7baa03d86c7bc653d2a762f558a3493380f3a3f5c77b0caf5f6c8c0a316b16bb",
+      "plan": null
+    },
+    {
+      "backend": "numba",
+      "case": "fine_slip",
+      "data_fingerprint": "56fcd92a4a52a0c0980d7af13caf2c22a3d354b96299c2f085c7ae8be30ff452",
+      "fills": 854,
+      "intents": 28908,
+      "ledger_sha256": "7baa03d86c7bc653d2a762f558a3493380f3a3f5c77b0caf5f6c8c0a316b16bb",
+      "plan": null
+    }
+  ],
+  "checks": [
+    {
+      "check": "dense_sparse_targets_qmt_exact",
+      "passed": true
+    },
+    {
+      "check": "baseline_frozen_and_full_ledgers_exact",
+      "passed": true
+    },
+    {
+      "check": "capacity_frozen_and_full_ledgers_exact",
+      "passed": true
+    },
+    {
+      "check": "fine_slip_frozen_and_full_ledgers_exact",
+      "passed": true
+    }
+  ],
+  "peak_memory": {
+    "process_tree_peak_rss_bytes": 986558464,
+    "sample_interval_seconds": 0.02
+  },
+  "samples": [
+    {
+      "stage": "strategy_targets",
+      "seconds": 3.111520800041035,
+      "case": null,
+      "backend": null,
+      "repeat": null,
+      "backtest_run_seconds": null
+    },
+    {
+      "stage": "market_prepare",
+      "seconds": 9.643420400097966,
+      "case": "baseline",
+      "backend": null,
+      "repeat": null,
+      "backtest_run_seconds": null
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 5.781443299958482,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 0.0,
+      "backtest_run_seconds": 5.015097300056368
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 2.164713099831715,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 0.0,
+      "backtest_run_seconds": 1.32856580009684
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.720391999930143,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 1.0,
+      "backtest_run_seconds": 1.595591600053012
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 3.042471300112084,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 1.0,
+      "backtest_run_seconds": 1.714297800092027
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 3.373144499957562,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 2.0,
+      "backtest_run_seconds": 1.946418500039726
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.692062699934468,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 2.0,
+      "backtest_run_seconds": 1.608187600038946
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.771333399927244,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 3.0,
+      "backtest_run_seconds": 1.67330290004611
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.621433499967679,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 3.0,
+      "backtest_run_seconds": 1.614159099990502
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.838307699887082,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 4.0,
+      "backtest_run_seconds": 1.592093599960208
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.528510800097138,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 4.0,
+      "backtest_run_seconds": 1.455802600132301
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 4.233019300037995,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 5.0,
+      "backtest_run_seconds": 2.619182200171053
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.895382799906656,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 5.0,
+      "backtest_run_seconds": 1.812686700141057
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.832768800202757,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 6.0,
+      "backtest_run_seconds": 1.756296300096437
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.466333400225267,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 6.0,
+      "backtest_run_seconds": 1.32010279991664
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.593217499786988,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 7.0,
+      "backtest_run_seconds": 1.474991500144824
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.441848899936304,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 7.0,
+      "backtest_run_seconds": 1.59696409991011
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.992870500078425,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 8.0,
+      "backtest_run_seconds": 1.224951599957421
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.832540499977768,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 8.0,
+      "backtest_run_seconds": 1.09491669991985
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.981389600085095,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 9.0,
+      "backtest_run_seconds": 0.970452399924398
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.034621399827302,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 9.0,
+      "backtest_run_seconds": 1.207342599984258
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.315546400146559,
+      "case": "baseline",
+      "backend": "python",
+      "repeat": 10.0,
+      "backtest_run_seconds": 1.417615399928764
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.966649899957702,
+      "case": "baseline",
+      "backend": "numba",
+      "repeat": 10.0,
+      "backtest_run_seconds": 1.144600099883974
+    },
+    {
+      "stage": "market_prepare",
+      "seconds": 7.88966909982264,
+      "case": "capacity",
+      "backend": null,
+      "repeat": null,
+      "backtest_run_seconds": null
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 4.373300799867138,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 0.0,
+      "backtest_run_seconds": 3.611649899976328
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 1.900512999854982,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 0.0,
+      "backtest_run_seconds": 1.126132499892265
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.871232300065458,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 1.0,
+      "backtest_run_seconds": 1.118356399936602
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.061684200074524,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 1.0,
+      "backtest_run_seconds": 1.29049009992741
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.141846700105816,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 2.0,
+      "backtest_run_seconds": 1.307810199912638
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.891245499951765,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 2.0,
+      "backtest_run_seconds": 0.980714399833232
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.181953600142151,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 3.0,
+      "backtest_run_seconds": 1.182117099873722
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.257850999943912,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 3.0,
+      "backtest_run_seconds": 1.184048200026155
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.880790200084448,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 4.0,
+      "backtest_run_seconds": 1.14682160015218
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.867874199990183,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 4.0,
+      "backtest_run_seconds": 1.12546500004828
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.925169999944046,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 5.0,
+      "backtest_run_seconds": 1.151630999986082
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.019704699981958,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 5.0,
+      "backtest_run_seconds": 1.118397900136188
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.044703900115564,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 6.0,
+      "backtest_run_seconds": 1.174575999844819
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.872327599907294,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 6.0,
+      "backtest_run_seconds": 1.051038899924606
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.871688699815422,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 7.0,
+      "backtest_run_seconds": 1.132371299900115
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.052090700017288,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 7.0,
+      "backtest_run_seconds": 1.18638369999826
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.019257300067693,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 8.0,
+      "backtest_run_seconds": 1.12535689980723
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.892415900016204,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 8.0,
+      "backtest_run_seconds": 0.990303999977186
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.724018800072372,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 9.0,
+      "backtest_run_seconds": 0.963472099974752
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.079085800098255,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 9.0,
+      "backtest_run_seconds": 1.315692200092599
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.998413300141692,
+      "case": "capacity",
+      "backend": "python",
+      "repeat": 10.0,
+      "backtest_run_seconds": 1.252548300195485
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.856560199987143,
+      "case": "capacity",
+      "backend": "numba",
+      "repeat": 10.0,
+      "backtest_run_seconds": 1.104983699973673
+    },
+    {
+      "stage": "market_prepare",
+      "seconds": 9.166201299987733,
+      "case": "fine_slip",
+      "backend": null,
+      "repeat": null,
+      "backtest_run_seconds": null
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 4.612546899821609,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 0.0,
+      "backtest_run_seconds": 3.642105800099671
+    },
+    {
+      "stage": "first_replay",
+      "seconds": 2.226778500014916,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 0.0,
+      "backtest_run_seconds": 1.350739799905568
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.813696899916977,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 1.0,
+      "backtest_run_seconds": 1.055622600018978
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.916470000054687,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 1.0,
+      "backtest_run_seconds": 1.032229000004008
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.090972900157794,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 2.0,
+      "backtest_run_seconds": 1.096206399844959
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.709898500004783,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 2.0,
+      "backtest_run_seconds": 0.951802699826658
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.86561550013721,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 3.0,
+      "backtest_run_seconds": 1.123399199917912
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.88010110007599,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 3.0,
+      "backtest_run_seconds": 1.125941100064665
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.945751700084656,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 4.0,
+      "backtest_run_seconds": 1.089514799881726
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.821391300065443,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 4.0,
+      "backtest_run_seconds": 0.942019800189882
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.783719000173733,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 5.0,
+      "backtest_run_seconds": 1.00347900018096
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.174478899920359,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 5.0,
+      "backtest_run_seconds": 1.333715599961579
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.688794800080359,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 6.0,
+      "backtest_run_seconds": 1.666682800045237
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.247329300036654,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 6.0,
+      "backtest_run_seconds": 1.181495199911296
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.143604400102049,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 7.0,
+      "backtest_run_seconds": 1.223639300093055
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.981201600050554,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 7.0,
+      "backtest_run_seconds": 1.158649199875072
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 2.229362099897116,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 8.0,
+      "backtest_run_seconds": 1.400212600128725
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.880335099995136,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 8.0,
+      "backtest_run_seconds": 1.106749299913645
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.986599199939519,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 9.0,
+      "backtest_run_seconds": 1.078603599919006
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.934028800111264,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 9.0,
+      "backtest_run_seconds": 1.051074099959806
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.80704510002397,
+      "case": "fine_slip",
+      "backend": "python",
+      "repeat": 10.0,
+      "backtest_run_seconds": 1.050640500150621
+    },
+    {
+      "stage": "warm_replay",
+      "seconds": 1.826308499788866,
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeat": 10.0,
+      "backtest_run_seconds": 1.066316900076345
+    }
+  ],
+  "summaries": [
+    {
+      "case": "baseline",
+      "backend": "numba",
+      "repeats": 10,
+      "seconds": {
+        "median": 2.560864149942063,
+        "p10": 1.9532389599597082,
+        "p90": 2.917501989938318,
+        "total": 25.785449099959806
+      },
+      "backtest_run_seconds": {
+        "median": 1.465397050138563,
+        "p10": 1.0824702699203044,
+        "p90": 1.767890830058604,
+        "total": 14.957130400231108
+      }
+    },
+    {
+      "case": "baseline",
+      "backend": "python",
+      "repeats": 10,
+      "seconds": {
+        "median": 2.7271011500852183,
+        "p10": 2.030446309852414,
+        "p90": 3.0755386200966313,
+        "total": 26.38839580002241
+      },
+      "backtest_run_seconds": {
+        "median": 1.6055615999503061,
+        "p10": 1.2231906999601052,
+        "p90": 1.8260598801309242,
+        "total": 15.882825700100511
+      }
+    },
+    {
+      "case": "capacity",
+      "backend": "numba",
+      "repeats": 10,
+      "seconds": {
+        "median": 1.872008149861358,
+        "p10": 1.843306059995666,
+        "p90": 1.9508483599638566,
+        "total": 18.954486799892038
+      },
+      "backtest_run_seconds": {
+        "median": 1.111670049955137,
+        "p10": 0.9789901698473841,
+        "p90": 1.1546796099748462,
+        "total": 10.800453899428248
+      }
+    },
+    {
+      "case": "capacity",
+      "backend": "python",
+      "repeats": 10,
+      "seconds": {
+        "median": 2.0483973000664264,
+        "p10": 1.9866509901359677,
+        "p90": 2.1534471300896256,
+        "total": 20.55542780063115
+      },
+      "backtest_run_seconds": {
+        "median": 1.185215950012207,
+        "p10": 1.1246609998401254,
+        "p90": 1.3085983999306336,
+        "total": 12.102125100092962
+      }
+    },
+    {
+      "case": "fine_slip",
+      "backend": "numba",
+      "repeats": 10,
+      "seconds": {
+        "median": 1.8459619999630377,
+        "p10": 1.7763369501568378,
+        "p90": 2.1539768900955094,
+        "total": 19.07849770016037
+      },
+      "backtest_run_seconds": {
+        "median": 1.0724602499976754,
+        "p10": 0.9508244098629802,
+        "p90": 1.1857096099294722,
+        "total": 10.733127600047737
+      }
+    },
+    {
+      "case": "fine_slip",
+      "backend": "python",
+      "repeats": 10,
+      "seconds": {
+        "median": 1.963476650067605,
+        "p10": 1.8727955000707879,
+        "p90": 2.2753053699154404,
+        "total": 20.64820700045675
+      },
+      "backtest_run_seconds": {
+        "median": 1.1110737499548122,
+        "p10": 1.0487993501359596,
+        "p90": 1.4268596201203763,
+        "total": 12.004866099916399
+      }
+    }
+  ],
+  "timing_boundary": "Replay includes target normalization, fresh Backtest.run, complete records and adapter output; market and strategy targets timed separately. Kernel and record fields are included in Backtest.run, never added twice."
+}

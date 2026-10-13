@@ -41,18 +41,18 @@ def test_misspelled_build_mode_is_an_error(monkeypatch, value):
         native.native_requested()
 
 
-@pytest.mark.parametrize("minor", [12, 13])
+@pytest.mark.parametrize("minor", [12, 13, 14, 15])
 def test_explicit_stable_abi_headers(monkeypatch, tmp_path, minor):
     headers = _headers(tmp_path / "headers", minor)
     monkeypatch.setenv("DORIBT_NATIVE_INCLUDE", str(headers))
     assert native.native_include() == headers.resolve()
 
 
-@pytest.mark.parametrize("minor", [11, 14])
+@pytest.mark.parametrize("minor", [11, 16])
 def test_unsupported_headers_are_rejected(monkeypatch, tmp_path, minor):
     headers = _headers(tmp_path / "headers", minor)
     monkeypatch.setenv("DORIBT_NATIVE_INCLUDE", str(headers))
-    with pytest.raises(native.NativeBuildError, match="3.12 或 3.13"):
+    with pytest.raises(native.NativeBuildError, match="3.12—3.15"):
         native.native_include()
 
 
@@ -84,7 +84,7 @@ def test_other_python_implementation_fails(monkeypatch):
         native.native_wheel_tag()
 
 
-@pytest.mark.parametrize("version", [(3, 12), (3, 14)])
+@pytest.mark.parametrize("version", [(3, 12), (3, 16)])
 def test_other_python_version_fails(monkeypatch, version):
     monkeypatch.setattr(native.sys, "version_info", version)
     with pytest.raises(native.NativeBuildError, match="CPython 3.13"):

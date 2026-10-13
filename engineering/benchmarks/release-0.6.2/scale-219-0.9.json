@@ -1,0 +1,305 @@
+{
+  "input": {
+    "days": 252,
+    "symbols": 219,
+    "inactive_max": 0.9,
+    "fingerprint": "9df058bb2e952788513e74deb572da919758d1fc0bbc414e5583debd4b7ed12f"
+  },
+  "market_prepare_seconds": 0.5453735999763012,
+  "target_construction_seconds": 0.11308060004375875,
+  "complete_ledger_sha256": "fccda918d60a0ab67b443c764527bc33579cd27a79c75c77dfb7d4290a0461bf",
+  "samples": [
+    {
+      "backend": "python",
+      "repeat": 0,
+      "seconds": 0.7133973999880254,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02628089999780059
+    },
+    {
+      "backend": "numba",
+      "repeat": 0,
+      "seconds": 0.47750359983183444,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.01660729991272092,
+      "kernel_seconds": 0.15234030014835298,
+      "records_and_result_seconds": 0.03874560003168881
+    },
+    {
+      "backend": "numba",
+      "repeat": 1,
+      "seconds": 0.09321049996651709,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.01693749986588955,
+      "kernel_seconds": 0.004049499984830618,
+      "records_and_result_seconds": 0.036466400139033794
+    },
+    {
+      "backend": "python",
+      "repeat": 1,
+      "seconds": 0.2941994001157582,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.03174640005454421
+    },
+    {
+      "backend": "python",
+      "repeat": 2,
+      "seconds": 0.2760020000860095,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.0271159999538213
+    },
+    {
+      "backend": "numba",
+      "repeat": 2,
+      "seconds": 0.10592049988918006,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02652970002964139,
+      "kernel_seconds": 0.005021199816837907,
+      "records_and_result_seconds": 0.0389807999599725
+    },
+    {
+      "backend": "numba",
+      "repeat": 3,
+      "seconds": 0.11647509993053973,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02856100001372397,
+      "kernel_seconds": 0.004311800003051758,
+      "records_and_result_seconds": 0.05792919988743961
+    },
+    {
+      "backend": "python",
+      "repeat": 3,
+      "seconds": 0.2823875998146832,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02838600007817149
+    },
+    {
+      "backend": "python",
+      "repeat": 4,
+      "seconds": 0.2965601000469178,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.026361800031736493
+    },
+    {
+      "backend": "numba",
+      "repeat": 4,
+      "seconds": 0.12533900002017617,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.026506999973207712,
+      "kernel_seconds": 0.00437489990144968,
+      "records_and_result_seconds": 0.05995639995671809
+    },
+    {
+      "backend": "numba",
+      "repeat": 5,
+      "seconds": 0.09623309993185103,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.016849099891260266,
+      "kernel_seconds": 0.004113500006496906,
+      "records_and_result_seconds": 0.038086700020357966
+    },
+    {
+      "backend": "python",
+      "repeat": 5,
+      "seconds": 0.2799833999015391,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.026536100078374147
+    },
+    {
+      "backend": "python",
+      "repeat": 6,
+      "seconds": 0.30499679991044104,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02654150011949241
+    },
+    {
+      "backend": "numba",
+      "repeat": 6,
+      "seconds": 0.09419329999946058,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02713280008174479,
+      "kernel_seconds": 0.004105899948626757,
+      "records_and_result_seconds": 0.03726539993658662
+    },
+    {
+      "backend": "numba",
+      "repeat": 7,
+      "seconds": 0.11831950000487268,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.01714199990965426,
+      "kernel_seconds": 0.004533299943432212,
+      "records_and_result_seconds": 0.059236800065264106
+    },
+    {
+      "backend": "python",
+      "repeat": 7,
+      "seconds": 0.2797393000219017,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.02756670000962913
+    },
+    {
+      "backend": "python",
+      "repeat": 8,
+      "seconds": 0.29187469999305904,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.027689100010320544
+    },
+    {
+      "backend": "numba",
+      "repeat": 8,
+      "seconds": 0.13190570008009672,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.027556899935007095,
+      "kernel_seconds": 0.004247999982908368,
+      "records_and_result_seconds": 0.061495100148022175
+    },
+    {
+      "backend": "numba",
+      "repeat": 9,
+      "seconds": 0.10145580000244081,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.01709159999154508,
+      "kernel_seconds": 0.004769499879330397,
+      "records_and_result_seconds": 0.039590700063854456
+    },
+    {
+      "backend": "python",
+      "repeat": 9,
+      "seconds": 0.29553690017201006,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.026933300076052547
+    },
+    {
+      "backend": "python",
+      "repeat": 10,
+      "seconds": 0.30887260008603334,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.027673000004142523
+    },
+    {
+      "backend": "numba",
+      "repeat": 10,
+      "seconds": 0.14237999985925853,
+      "orders": 1449,
+      "fills": 1446,
+      "intents": 25404,
+      "numeric_prepare_seconds": 0.041305899852886796,
+      "kernel_seconds": 0.004507899982854724,
+      "records_and_result_seconds": 0.04708659998141229
+    }
+  ],
+  "summaries": {
+    "python": {
+      "median": 0.2930370500544086,
+      "p10": 0.2793655700283125,
+      "p90": 0.30538437992800027,
+      "total_seconds": 2.910152800148353
+    },
+    "numba": {
+      "median": 0.1111977999098599,
+      "p10": 0.09409501999616623,
+      "p90": 0.1329531300580129,
+      "total_seconds": 1.1254324996843934
+    }
+  },
+  "identities": {
+    "python": {
+      "versions": {
+        "doribt": "0.6.2",
+        "numpy": "2.5.4",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "python": "3.13.16"
+      },
+      "engine_sha256": "aecdfb8f6f350eadcc78788db2d83d43d3c0a3cb7aef56933fe49eabe4023471",
+      "execution_plan": {
+        "actual_backend": "python",
+        "compiled_scope": "none",
+        "fallback_reasons": [
+          {
+            "code": "python_backend",
+            "detail": "请求 Python 后端。"
+          }
+        ],
+        "jit_enabled": false,
+        "plan": "scheduled_segments",
+        "requested_backend": "python",
+        "schema": "doribt.execution-plan/1"
+      }
+    },
+    "numba": {
+      "versions": {
+        "doribt": "0.6.2",
+        "llvmlite": "0.50.0",
+        "numba": "0.68.0",
+        "numpy": "2.5.4",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "python": "3.13.16"
+      },
+      "engine_sha256": "aecdfb8f6f350eadcc78788db2d83d43d3c0a3cb7aef56933fe49eabe4023471",
+      "execution_plan": {
+        "actual_backend": "numba",
+        "compiled_scope": "targets_and_matching",
+        "fallback_reasons": [],
+        "jit_enabled": true,
+        "plan": "compiled_targets",
+        "requested_backend": "numba",
+        "schema": "doribt.execution-plan/1"
+      }
+    }
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.16",
+    "cpu": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "cache": "D:/Projects/DoriBT/.quality/synthetic-final-31316-cache",
+    "threads": {
+      "NUMBA_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "process_tree_peak_rss_bytes": 198094848,
+    "sample_interval_seconds": 0.02
+  }
+}

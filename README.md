@@ -12,14 +12,14 @@
 - **解释并导出结果**：完整订单／成交账本、日频报告、基准与超额收益、自定义指标、CSV／JSON 与图表
 - **按负载选择后端**：NumPy 基础安装，可选 Numba；首次编译与预热性能分开衡量
 
-当前发行版 **0.6.1**，支持 **Python 3.13、Windows／Linux**。引擎不提供行情下载或实盘接口；不覆盖盘口排队、融资融券、期货期权与 ETF 申赎。完整范围见[市场规则](https://dorislab.github.io/DoriBT/china-market.html)。
+当前发行版 **0.6.2**，支持 **Python 3.13—3.15、Windows／Linux**。引擎不提供行情下载或实盘接口；不覆盖盘口排队、融资融券、期货期权与 ETF 申赎。完整范围见[市场规则](https://dorislab.github.io/DoriBT/china-market.html)。
 
 ## 安装与第一次回测
 
 ```sh
-python -m pip install "doribt==0.6.1"
+python -m pip install "doribt==0.6.2"
 # 可选 Numba 加速与图表：
-python -m pip install "doribt[numba,plot]==0.6.1"
+python -m pip install "doribt[numba,plot]==0.6.2"
 ```
 
 下例无需行情账号。保存为 `quickstart.py`，运行 `python quickstart.py`，期末权益应为 **10895 元**。收盘提交目标，下一根 bar 开盘尝试成交。
@@ -75,6 +75,8 @@ print("总收益率：", result.report().stats["total_return"])
 [数据输入](https://dorislab.github.io/DoriBT/guide/data.html) · [策略编写](https://dorislab.github.io/DoriBT/guide/strategies.html) · [结果与导出](https://dorislab.github.io/DoriBT/guide/reports.html) · [API 参考](https://dorislab.github.io/DoriBT/api.html) · [全部示例](https://github.com/DorisLab/DoriBT/tree/main/examples)
 
 ## 性能一览
+
+0.6.2 补齐了非活动证券的完整权重编译，并减少新建回测时的数组准备开销。三组冻结面板的完整账本一致，暖态回放耗时已降低；本次测量与首次编译成本见[性能页](https://dorislab.github.io/DoriBT/performance.html)。
 
 下表整理已归档测量，精确测试版本与原始结果保留在[复现材料](https://github.com/DorisLab/DoriBT/tree/main/engineering/benchmarks/documentation-20261013)中。
 

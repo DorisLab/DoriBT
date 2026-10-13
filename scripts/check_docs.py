@@ -106,6 +106,7 @@ def run_examples(python: str, backend: str) -> None:
                     "intraday_t",
                     "slippage",
                     "target_sizing",
+                    "inactive_weights",
                 )
             ],
             ["examples/minute.py", "--backend", backend, "--precomputed"],

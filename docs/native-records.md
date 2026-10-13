@@ -5,7 +5,7 @@
 完整、立即创建的 dataclass 和 tuple，不改变公共 API，不推迟到首次访问时才创建。
 当前加速入口是符合条件的 Numba 预计算执行路径；仅安装扩展不会改变 Python 后端的执行路径。
 
-0.6.0 的物化过程对空表直接返回空 tuple；稀疏记录只读取实际需要的日期和时间戳，
+物化过程对空表直接返回空 tuple；稀疏记录只读取实际需要的日期和时间戳，
 密集记录在同次物化中共享时间轴查找数组。全部非空记录仍在 `Backtest.run` 返回前创建完成，
 这些优化不减少账本字段或把构造推迟到结果访问时。
 
@@ -15,11 +15,11 @@ Python 记录工厂在内置记录类型的 `__init__` 或 `__new__` 被替换�
 
 ## 已验证边界
 
-- 原生构建目前仅接受 Linux x86_64、CPython 3.13、启用 GIL 的非 debug 解释器
+- 原生构建目前仅接受 Linux x86_64、CPython 3.13—3.15、启用 GIL 的非 debug 解释器
 - 使用公开稳定 C API，最低接口为 Python 3.12 的 `Py_LIMITED_API=0x030C0000`
-- 可使用本机 Python 3.12 或 3.13 的兼容开发头文件；包的 Python 版本要求仍是 3.13
+- 可使用本机 Python 3.12—3.15 的兼容开发头文件；包支持 Python 3.13—3.15
 - wheel 标为 `cp313-abi3-linux_x86_64`，不是 manylinux；不声明跨发行版、macOS、Windows、
-  其他架构、free-threaded 或其他 Python 版本的原生兼容性
+  其他架构、free-threaded 或上述范围以外 Python 版本的原生兼容性
 - 无扩展时保留纯 Python 路径；不在导入、首次回测或后续运行中自动编译、下载或安装工具
 
 `abi3` 描述所用 ABI，并不扩大发行包的 `Requires-Python` 或已测试平台范围。
@@ -40,7 +40,7 @@ Python 记录工厂在内置记录类型的 `__init__` 或 `__new__` 被替换�
 
 ## 构建 wheel
 
-在仓库根目录、CPython 3.13 环境中执行：
+在仓库根目录、CPython 3.13—3.15 环境中执行：
 
 ```sh
 # 默认纯 Python；即使源码树有旧 .so，也不会打入 wheel。
@@ -59,7 +59,7 @@ DORIBT_NATIVE_INCLUDE=/path/to/python3.12/include \
 
 该目录须含 `Python.h`、`patchlevel.h` 和 `pyconfig.h`；不接受 debug 或 free-threaded
 头文件。`CC` 可指定本机编译器命令，例如 `CC=clang`。构建器不下载头文件，不自动安装编译器，
-不使用 `-march=native`，也不继承额外 `CFLAGS`／`LDFLAGS` 来改变本实验的有限构建配置。
+不使用 `-march=native`，也不继承额外 `CFLAGS`／`LDFLAGS` 来改变已经验证的构建配置。
 编译失败、头文件缺失、平台不受支持、API 版本不符或新进程加载失败都会使 `required` 失败。
 
 sdist 始终只含源码、构建钩子和共享构建工具，不含本机二进制。在解包后的 sdist 中，

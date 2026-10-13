@@ -7,7 +7,7 @@ myst:
 # 回测框架选型：DoriBT、vectorbt、Backtrader 与 Zipline
 
 先按交易规则、研究方式和所需输出选择，再用自己的负载测量速度。本页比较当前
-**DoriBT 0.6.1** 与其他项目的公开能力；外部资料核对日期为 **2026-10-13**。
+**DoriBT 0.6.2** 与其他项目的公开能力；外部资料核对日期为 **2026-10-13**。
 vectorbt 指[开源社区版](https://github.com/polakowo/vectorbt)，不把 VectorBT PRO
 的专有功能算入；Zipline 指 [zipline-reloaded](https://github.com/stefan-jansen/zipline-reloaded)
 分支。功能随版本变化，迁移时仍应核对实际安装版本。

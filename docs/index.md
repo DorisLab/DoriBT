@@ -6,9 +6,9 @@ myst:
 
 # DoriBT：A 股与 ETF 的 Python 量化回测
 
-用自己的行情，在共享现金账户中编写函数策略或预计算目标，研究日线择时、ETF 轮动和 1／5 分钟做 T，再核对订单、成交、费用与研究报告。本手册对应 **0.6.1**。
+用自己的行情，在共享现金账户中编写函数策略或预计算目标，研究日线择时、ETF 轮动和 1／5 分钟做 T，再核对订单、成交、费用与研究报告。本手册对应 **0.6.2**。
 
-**第一次使用：** [安装 Python 3.13 与 DoriBT](guide/install.md) → [运行三日回测并解释收益](guide/quickstart.md) → [接入自己的行情](guide/data.md)。
+**第一次使用：** [安装 Python 与 DoriBT](guide/install.md) → [运行三日回测并解释收益](guide/quickstart.md) → [接入自己的行情](guide/data.md)。
 
 ## 你想完成什么
 
@@ -20,7 +20,7 @@ myst:
 | 判断框架是否适合自己的研究 | [功能与框架比较](comparison.md) · [性能、边界与复现](performance.md) |
 | 排查不成交、费用或收益口径 | [常见问题](faq.md) · [API 参考](api.md) |
 
-支持 Python 3.13、Windows／Linux；基础依赖 NumPy，可选 Numba 和 Matplotlib。现金账户预设核验范围为 2015-09-09 至 2026-10-12，科创板从 2019-07-22 起。数据、日历、证券身份与涨跌停价由调用者提供；完整资产和执行边界见[市场规则](china-market.md)。不提供行情下载或实盘接口，公开示例采用人工行情。
+支持 Python 3.13—3.15、Windows／Linux；基础依赖 NumPy，可选 Numba 和 Matplotlib。现金账户预设核验范围为 2015-09-09 至 2026-10-12，科创板从 2019-07-22 起。数据、日历、证券身份与涨跌停价由调用者提供；完整资产和执行边界见[市场规则](china-market.md)。不提供行情下载或实盘接口，公开示例采用人工行情。
 
 [PyPI](https://pypi.org/project/doribt/) · [GitHub](https://github.com/DorisLab/DoriBT) · [全部示例](examples.md) · [问题反馈](https://github.com/DorisLab/DoriBT/issues) · [文本导航](llms.txt)
 

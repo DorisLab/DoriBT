@@ -2,11 +2,12 @@
 
 import numpy as np
 
-from doribt.kernels.execution import BUY_STEP, MINIMUM, OPEN, SELL_MINIMUM, SELL_STEP, IntArray
+from doribt.kernels.execution import OPEN, IntArray
 from doribt.kernels.scheduled_orders import cancel_child
 from doribt.kernels.valuation import account_value
 
 WEIGHT, SIZING, SIZED_AT = 6, 7, 8
+PRESENT, MINIMUM, BUY_STEP, SELL_STEP, SELL_MINIMUM = range(5)
 
 
 def weight_size(
@@ -17,16 +18,19 @@ def weight_size(
     rule: IntArray,
     index: int,
     mode: int,
+    column: int,
 ) -> int:
     if not weight:
         return 0
+    if not rule[PRESENT]:
+        raise ValueError("weight_sizing", index, mode, 3, column)
     if price <= 0:
-        raise ValueError("weight_sizing", index, mode, 1)
+        raise ValueError("weight_sizing", index, mode, 1, column)
     # 拆分乘法避免 equity×weight 超出 int64；结果仍严格向下取整。
     budget = equity // 1_000_000 * weight + equity % 1_000_000 * weight // 1_000_000
     desired = budget // price
     if desired > 1_000_000_000:
-        raise ValueError("weight_sizing", index, mode, 2)
+        raise ValueError("weight_sizing", index, mode, 2, column)
     if desired > current:
         extra, minimum, step = desired - current, int(rule[MINIMUM]), int(rule[BUY_STEP])
         extra = 0 if extra < minimum else minimum + (extra - minimum) // step * step
@@ -42,7 +46,7 @@ def replace_weights(
     rebalance: bool,
     equity: int,
     closes: IntArray,
-    market: IntArray,
+    sizing_rules: IntArray,
     positions: IntArray,
     active: IntArray,
     intents: IntArray,
@@ -63,9 +67,10 @@ def replace_weights(
                 int(weights[index, column]),
                 int(closes[index, column]),
                 int(positions[column]),
-                market[index, column],
+                sizing_rules[index, column],
                 index,
                 mode,
+                column,
             )
     for column in range(len(active)):
         previous = int(active[column])
@@ -86,6 +91,7 @@ def resolve_weights(
     intents: IntArray,
     positions: IntArray,
     market: IntArray,
+    sizing_rules: IntArray,
     cash: int,
 ) -> None:
     unsized = False
@@ -108,9 +114,10 @@ def resolve_weights(
             int(intents[identifier, WEIGHT]),
             int(market[index, column, OPEN]),
             int(positions[column]),
-            market[index, column],
+            sizing_rules[index, column],
             index,
             2,
+            column,
         )
         intents[identifier, SIZED_AT] = index
 

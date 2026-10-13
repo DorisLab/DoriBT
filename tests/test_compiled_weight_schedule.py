@@ -42,7 +42,8 @@ def test_weight_schedule_preserves_all_output_fields(minute, sizing, rebalance):
     with patch("doribt.runtime.compiled_schedule.eligible", return_value=False):
         fallback = test.run(targets, backend="numba")
     assert_review_parity(actual, fallback)
-    assert actual.run_info == fallback.run_info
+    assert actual.run_info.to_dict()["execution_plan"]["plan"] == "compiled_targets"
+    assert fallback.run_info.to_dict()["execution_plan"]["plan"] == "scheduled_segments"
 
 
 @pytest.mark.numba

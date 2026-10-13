@@ -30,9 +30,9 @@ def native_requested() -> bool:
 
 
 def native_wheel_tag() -> str:
-    """只为已验证的 CPython 3.13、Linux x86_64、GIL 构建生成标签。"""
-    if sys.implementation.name != "cpython" or sys.version_info[:2] != (3, 13):
-        raise NativeBuildError("原生构建目前仅支持 CPython 3.13；请使用默认纯 Python 构建。")
+    """CPython 3.13—3.15 的 GIL 构建共享稳定 ABI，平台限 Linux x86_64。"""
+    if sys.implementation.name != "cpython" or not (3, 13) <= sys.version_info[:2] < (3, 16):
+        raise NativeBuildError("原生构建支持 CPython 3.13—3.15；请使用默认纯 Python 构建。")
     if sys.platform != "linux" or sysconfig.get_platform() != "linux-x86_64":
         raise NativeBuildError("原生构建目前仅验证 Linux x86_64；不声明其他平台兼容。")
     if sysconfig.get_config_var("Py_GIL_DISABLED") or sysconfig.get_config_var("Py_DEBUG"):
@@ -55,8 +55,8 @@ def _check_headers(path: Path) -> Path:
     try:
         if not (path / "Python.h").is_file():
             raise NativeBuildError(f"目录缺少 Python.h：{path}")
-        if _header_version(path) not in ((3, 12), (3, 13)):
-            raise NativeBuildError("原生构建需要兼容的 Python 3.12 或 3.13 稳定 ABI 头文件。")
+        if not (3, 12) <= _header_version(path) < (3, 16):
+            raise NativeBuildError("原生构建需要 Python 3.12—3.15 稳定 ABI 头文件。")
         config = (path / "pyconfig.h").read_text(encoding="utf-8")
     except OSError as error:
         raise NativeBuildError(f"无法读取 Python 开发头文件：{path}") from error

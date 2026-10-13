@@ -4,7 +4,7 @@
 
 ## 本地入口
 
-Python 3.13，安装 [uv](https://docs.astral.sh/uv/)。检查锁定依赖，不在检查期间更新版本。
+使用 Python 3.13、3.14 或 3.15，安装 [uv](https://docs.astral.sh/uv/)。检查锁定依赖，不在检查期间更新版本。
 
 ```sh
 # 基础安装：不需要 Numba；隔离 wheel 检查还会确认没有安装它。
@@ -38,7 +38,7 @@ uv run --no-sync python scripts/check.py --backend numba --audit
 
 覆盖率包含分支并列出遗漏位置，用于找缺失行为；当前不以一个百分比代替关键案例，也不为凑数字添加同义测试。生成式测试采用固定的可复现配置并由 Hypothesis 缩减失败输入；独立预期使用 Decimal，不能导入内核的计费或记账函数计算答案。
 
-引擎 CI 为 Windows／Linux × Python基础安装／Numba安装四个检查组合，另有依赖审计与凭据扫描。`milestone/**`（排除 `milestone/docs/**`）直接运行；`v*` 由发布工作流复用同一套门禁，通过后构建并上传 PyPI。`milestone/docs/**` 与正式 GitHub Release 的 published 事件仅触发文档构建、教程验证及 Pages 发布。引擎里程碑可手动触发；普通提交、分支 push 和 PR 更新均不触发。工作流固定 Action 提交，默认只读，仅部署 job 获得对应发布权限。
+引擎 CI 为 Windows／Linux × Python 3.13／3.14／3.15 × 基础安装／Numba 安装，共 12 个检查组合；另以两系统验证 Python 3.13＋NumPy 2.1.3／Numba 0.61.2 和 Python 3.14＋NumPy 2.3.5／Numba 0.63.1 四个旧依赖组合，并执行依赖审计与凭据扫描。`milestone/**`（排除 `milestone/docs/**`）直接运行；`v*` 由发布工作流复用同一套门禁，通过后构建并上传 PyPI。`milestone/docs/**` 与正式 GitHub Release 的 published 事件仅触发文档构建、教程验证及 Pages 发布。引擎里程碑可手动触发；普通提交、分支 push 和 PR 更新均不触发。工作流固定 Action 提交，默认只读，仅部署 job 获得对应发布权限。
 
 文档入口：`uv sync --locked --group docs` 后运行 `uv run --no-sync python scripts/check_docs.py`。它严格构建 Sphinx、检查生成页面的内部链接／锚点／资源，将示例复制到临时目录执行，并验证教程正文的 Python 片段。`--python <path>` 可改用从 PyPI 安装的独立环境，`--backend numba` 验证可选后端。文档构建依赖不进入运行依赖。
 
@@ -77,10 +77,10 @@ uv run --no-sync python scripts/check.py --backend numba --audit
 通用数组运行时门禁还须验证交收事件堆在非单调查询后的恢复、交易批次 FIFO 与税务
 日末净批次的区分、委托／成交缓冲扩容后的引用有效性，以及逐 bar 冻结总额与活动
 订单之和一致。保存的回调上下文在后续成交、公司行动和再次运行后首次访问持仓映射，
-仍须对应原收盘快照。权重收盘／执行时点定量、最终未定量意图、非活动规则区间回退
+仍须对应原收盘快照。权重收盘／执行时点定量、最终未定量意图、非活动规则区间编译
 和错误链都应与正式回调逐字段相同；不能用调用次数替代资金不变量。
 
-可选原生扩展有独立的 Linux x86_64／CPython 3.13／Numba CI 任务，与现有四项纯包矩阵一起运行。
+可选原生扩展有独立的 Linux x86_64／CPython 3.13、3.14、3.15／Numba CI 任务，与 12 项纯包矩阵一起运行。
 任务从当前 C 源码显式构建，使用 `DORIBT_NATIVE_RECORDS=required` 执行完整测试，缺扩展不得跳过；
 随后运行 `scripts/check_native_package.py`，从 sdist 验证纯／原生 wheel 的隔离安装、实际 C 调用及构建失败路径。
 基础纯包矩阵中的原生协议用例会明确跳过，不计为原生验收通过。此任务也进入发布前质量门禁，

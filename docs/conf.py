@@ -28,6 +28,7 @@ html_theme_options = {
     "source_directory": "docs/",
 }
 html_show_sourcelink = False
+html_favicon = "_static/favicon.svg"
 html_extra_path = ["llms.txt"]
 
 
